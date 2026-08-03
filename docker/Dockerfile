@@ -21,6 +21,7 @@ ENV ERL_TOP=/otp
 COPY otp /otp
 
 RUN cd /otp && \
+    ./otp_build autoconf && \
     ./configure --prefix=/opt/erlang-baseline \
                 --without-javac --without-odbc --without-wx && \
     make -j$(nproc) && \
@@ -40,8 +41,7 @@ ENV ERL_TOP=/otp
 COPY otp /otp
 
 RUN cd /otp && \
-    rm -rf erts/x86_64-pc-linux-gnu erts/emulator/x86_64-pc-linux-gnu \
-           config.* config.log config.status erts/config.log && \
+    ./otp_build autoconf && \
     ./configure --prefix=/opt/erlang-pon \
                 --without-javac --without-odbc --without-wx \
                 --enable-pon-beam && \

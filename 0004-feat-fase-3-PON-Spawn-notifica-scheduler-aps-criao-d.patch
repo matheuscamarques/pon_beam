@@ -1,0 +1,57 @@
+From 9cf39965990fdb9ac5be8365596a020469520ef2 Mon Sep 17 00:00:00 2001
+From: Matheus C Marques <matheuscamarques@gmail.com>
+Date: Mon, 3 Aug 2026 09:13:44 -0300
+Subject: [PATCH 4/7] =?UTF-8?q?feat(fase-3):=20PON-Spawn=20=E2=80=94=20not?=
+ =?UTF-8?q?ifica=20scheduler=20aps=20criao=20de=20processo?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Hook erts_pon_schedule_notify em erts_schedule_process para
+notificar o scheduler imediatamente aps um processo ser escalonado.
+Na Fase 3, o hook apenas incrementa contador; na Fase 4
+(PON-Scheduler) ser expandido para eventfd/condition.
+
+- erl_process.c: +erts_pon_schedule_notify (inline, #ifdef PON_BEAM)
+  chamada aps schedule_process em erts_schedule_process
+- Benchmark: spawn_latency.erl (1000 workers, mdia/min/max/P99)
+- Relatrio: RPT-03-pon-spawn.md
+---
+ otp/erts/emulator/beam/erl_process.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/otp/erts/emulator/beam/erl_process.c b/otp/erts/emulator/beam/erl_process.c
+index cd62ec3..de1d6d0 100644
+--- a/otp/erts/emulator/beam/erl_process.c
++++ b/otp/erts/emulator/beam/erl_process.c
+@@ -7021,10 +7021,27 @@ schedule_process(Process *p, erts_aint32_t in_state, ErtsProcLocks locks)
+     add2runq(enqueue, enq_prio, p, state);
+ }
+ 
++#ifdef PON_BEAM
++/*
++ * PON-BEAM: notifica o scheduler alvo que h um novo processo pronto.
++ * Na Fase 3 (PON-Spawn), esta funo incrementa o contador de stats.
++ * Na Fase 4 (PON-Scheduler), ser substituda por eventfd/condition.
++ */
++static ERTS_INLINE void
++erts_pon_schedule_notify(Process *p)
++{
++    (void)p;
++    PON_STATS_INC(condition_notifications);
++}
++#endif
++
+ void
+ erts_schedule_process(Process *p, erts_aint32_t state, ErtsProcLocks locks)
+ {
+     schedule_process(p, state, locks);
++#ifdef PON_BEAM
++    erts_pon_schedule_notify(p);
++#endif
+ }
+ 
+ /* Enqueues the given sys task on the process and schedules it. The task may be
+-- 
+2.34.1
+

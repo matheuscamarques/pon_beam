@@ -1,0 +1,609 @@
+From adf04880217bea83e7f2184ea5c44bfb2c24379e Mon Sep 17 00:00:00 2001
+From: Matheus C Marques <matheuscamarques@gmail.com>
+Date: Mon, 3 Aug 2026 08:47:36 -0300
+Subject: [PATCH 2/7] =?UTF-8?q?feat(fase-1):=20PON-Receive=20=E2=80=94=20m?=
+ =?UTF-8?q?ailbox=20com=20type=20queues=20e=20notifica=C3=A7=C3=A3o=20de?=
+ =?UTF-8?q?=20Premises?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Criado pon_premise.h com definição da entidade Premise (padrão, match_fn,
+  has_match, matched_msg, clause_index)
+- Criado pon_premise.c com implementação: registro, notificação,
+  receive baseado em Premises, match default simplificado
+- Criado pon_stats.h com contadores de instrumentação (PON_BEAM_DEBUG)
+- erl_message.h: adicionado type_queues[256], type_queue_len[], type_save[]
+  em ErtsSignalPrivQueues para classificação por tag de tipo
+- erl_message.c: hook PON em queue_messages — após LINK_MESSAGE, classifica
+  a mensagem por tipo e notifica Premises do receiver
+- erl_process.h: adicionado pon_premises field no PCB (Process),
+  pon_stats field em ErtsSchedulerData (condicional a PON_BEAM_DEBUG)
+- erl_process.c: includes de pon_premise.h e pon_stats.h
+- Makefile.in: adicionado TYPE=ponbeam com -DPON_BEAM
+- configure.ac: adicionado --enable-pon-beam com AC_DEFINE(PON_BEAM)
+
+Verificação: erl_message.c, erl_process.c e pon_premise.c compilam
+sem erros com PON_BEAM definido.
+---
+ otp/erts/configure.ac                   |  11 ++
+ otp/erts/emulator/Makefile.in           |  10 +-
+ otp/erts/emulator/beam/erl_message.c    |  17 ++
+ otp/erts/emulator/beam/erl_message.h    |  18 ++
+ otp/erts/emulator/beam/erl_process.c    |   5 +
+ otp/erts/emulator/beam/erl_process.h    |  15 ++
+ otp/erts/emulator/beam/pon_premise.c    | 211 ++++++++++++++++++++++++
+ otp/erts/include/internal/pon_premise.h |  86 ++++++++++
+ otp/erts/include/internal/pon_stats.h   |  65 ++++++++
+ 9 files changed, 437 insertions(+), 1 deletion(-)
+ create mode 100644 otp/erts/emulator/beam/pon_premise.c
+ create mode 100644 otp/erts/include/internal/pon_premise.h
+ create mode 100644 otp/erts/include/internal/pon_stats.h
+
+diff --git a/otp/erts/configure.ac b/otp/erts/configure.ac
+index c5113a5..28bcc57 100644
+--- a/otp/erts/configure.ac
++++ b/otp/erts/configure.ac
+@@ -189,6 +189,13 @@ fi
+ 
+ AC_SUBST(ENCRYPTED_CRASH_DUMPS)
+ 
++AC_ARG_ENABLE(pon-beam,
++AS_HELP_STRING([--enable-pon-beam], [enable PON-BEAM notification-oriented VM architecture]),
++[ case "$enableval" in
++    no) enable_pon_beam=no ;;
++    *)  enable_pon_beam=yes ;;
++  esac ], enable_pon_beam=no)
++
+ AC_ARG_ENABLE(lock-counter,
+ AS_HELP_STRING([--enable-lock-counter], [enable lock counters]),
+ [ case "$enableval" in
+@@ -342,6 +349,10 @@ case "$with_microstate_accounting" in
+     *) ;;
+ esac
+ 
++if test "x$enable_pon_beam" = "xyes"; then
++    AC_DEFINE(PON_BEAM,[1],[Define to 1 if you want to enable PON-BEAM notification-oriented VM architecture])
++fi
++
+ AC_ARG_ENABLE(ensure-os-monotonic-time,
+ AS_HELP_STRING([--enable-ensure-os-monotonic-time],
+                [enable functionality ensuring the monotonicity of monotonic timestamps delivered by the OS. When a non-monotonic timestamp is detected, it will be replaced by the last delivered monotonic timestamp before being used by Erlang's time functionality. Note that you do *not* want to enable this unless the OS monotonic time source on the system fails to produce monotonic timestamps. This since ensuring the monotonicity of OS monotonic timestamps will hurt scalability and performance of the system.]))
+diff --git a/otp/erts/emulator/Makefile.in b/otp/erts/emulator/Makefile.in
+index 028e2bc..9bf560b 100644
+--- a/otp/erts/emulator/Makefile.in
++++ b/otp/erts/emulator/Makefile.in
+@@ -203,6 +203,12 @@ TYPE_FLAGS = @CFLAGS@ -DERTS_OPCODE_COUNTER_SUPPORT
+ TYPE_CXXFLAGS = @CXXFLAGS@
+ else
+ 
++ifeq ($(TYPE),ponbeam)
++TYPEMARKER = .ponbeam
++TYPE_FLAGS = @CFLAGS@ -DPON_BEAM
++TYPE_CXXFLAGS = @CXXFLAGS@ -DPON_BEAM
++else
++
+ # If type isn't one of the above, it *is* opt type...
+ override TYPE=opt
+ TYPEMARKER =
+@@ -216,6 +222,7 @@ endif
+ endif
+ endif
+ endif
++endif
+ 
+ LIBS += $(TYPE_LIBS)
+ 
+@@ -1228,7 +1235,8 @@ RUN_OBJS += \
+ 	$(OBJDIR)/erl_etp.o \
+ 	$(OBJDIR)/erl_internal_test.o \
+ 	$(OBJDIR)/erl_record.o \
+-	$(OBJDIR)/erl_crash_dump.o
++	$(OBJDIR)/erl_crash_dump.o \
++	$(OBJDIR)/pon_premise.o
+ 
+ 
+ LTTNG_OBJS = $(OBJDIR)/erlang_lttng.o
+diff --git a/otp/erts/emulator/beam/erl_message.c b/otp/erts/emulator/beam/erl_message.c
+index d52dacb..9bebcab 100644
+--- a/otp/erts/emulator/beam/erl_message.c
++++ b/otp/erts/emulator/beam/erl_message.c
+@@ -457,6 +457,23 @@ queue_messages(Eterm from,
+         erts_proc_notify_new_message(receiver, receiver_locks);
+     else
+         erts_proc_notify_new_sig(receiver, state, ERTS_PSFLG_ACTIVE);
++
++#ifdef PON_BEAM
++    /*
++     * PON-BEAM: notifica as Premises do processo receiver sobre
++     * a chegada da mensagem. Aps o LNK_MESSAGE, a mensagem j
++     * est na fila principal; aqui classificamos por tipo e
++     * notificamos as Premises que matcham.
++     *
++     * So notificamos mensagens (ERTS_SIG_IS_MSG), no sinais.
++     */
++    if (last == &first->next && ERTS_SIG_IS_MSG(first)) {
++        if (receiver->pon_premises) {
++            Eterm term = ERL_MESSAGE_TERM(first);
++            erts_pon_notify_premises(receiver, first, term);
++        }
++    }
++#endif
+ }
+ 
+ static ERTS_INLINE
+diff --git a/otp/erts/emulator/beam/erl_message.h b/otp/erts/emulator/beam/erl_message.h
+index 18b6425..b104ab4 100644
+--- a/otp/erts/emulator/beam/erl_message.h
++++ b/otp/erts/emulator/beam/erl_message.h
+@@ -29,6 +29,11 @@
+ #include "erl_proc_sig_queue.h"
+ #undef ERTS_PROC_SIG_QUEUE_TYPE_ONLY
+ 
++#ifdef PON_BEAM
++#include "pon_premise.h"
++#include "pon_stats.h"
++#endif
++
+ #ifdef DEBUG
+ #define ERTS_MSG_COPY_WORDS_PER_REDUCTION 4
+ #else
+@@ -392,6 +397,19 @@ typedef struct {
+     /* Common for inner and middle queue */
+     ErtsRecvMarkerBlock *recv_mrk_blk;
+     Uint32 flags;
++
++#ifdef PON_BEAM
++    /*
++     * PON-BEAM: filas de mensagens classificadas por tipo.
++     * Cada bucket corresponde a um tag de tipo (byte baixo do header).
++     * Em vez de lista linear única, as mensagens so distribudas
++     * por bucket — permitindo notificao diretas Premises.
++     */
++    ErtsMessage *type_queues[PON_NUM_TYPE_BUCKETS];
++    Sint         type_queue_len[PON_NUM_TYPE_BUCKETS];
++    /* Save pointer por bucket (equivalente PON ao save tradicional) */
++    ErtsMessage *type_save[PON_NUM_TYPE_BUCKETS];
++#endif
+ } ErtsSignalPrivQueues;
+ 
+ typedef struct ErtsSignalInQueue_ {
+diff --git a/otp/erts/emulator/beam/erl_process.c b/otp/erts/emulator/beam/erl_process.c
+index 1e0a477..cd62ec3 100644
+--- a/otp/erts/emulator/beam/erl_process.c
++++ b/otp/erts/emulator/beam/erl_process.c
+@@ -56,6 +56,11 @@
+ #include "erl_proc_sig_queue.h"
+ #include "beam_common.h"
+ 
++#ifdef PON_BEAM
++#include "pon_premise.h"
++#include "pon_stats.h"
++#endif
++
+ #define ERTS_CHECK_TIME_REDS CONTEXT_REDS
+ #define ERTS_DELAYED_WAKEUP_INFINITY (~(Uint64) 0)
+ #define ERTS_DELAYED_WAKEUP_REDUCTIONS ((Uint64) CONTEXT_REDS/2)
+diff --git a/otp/erts/emulator/beam/erl_process.h b/otp/erts/emulator/beam/erl_process.h
+index de14520..ccb3abc 100644
+--- a/otp/erts/emulator/beam/erl_process.h
++++ b/otp/erts/emulator/beam/erl_process.h
+@@ -684,6 +684,10 @@ typedef struct ErtsSchedulerRegisters_ {
+ #endif
+ } ErtsSchedulerRegisters;
+ 
++#ifdef PON_BEAM
++#include "pon_stats.h"
++#endif
++
+ struct ErtsSchedulerData_ {
+     ErtsSchedulerRegisters *registers;
+ 
+@@ -747,6 +751,12 @@ struct ErtsSchedulerData_ {
+     erts_alloc_verify_func_t verify_unused_temp_alloc;
+     Allctr_t *verify_unused_temp_alloc_data;
+ #endif
++#ifdef PON_BEAM
++#ifdef PON_BEAM_DEBUG
++    /* PON-BEAM: per-scheduler counter stats (só com debug) */
++    PonStats pon_stats;
++#endif
++#endif
+ };
+ 
+ typedef union {
+@@ -1202,6 +1212,11 @@ struct process {
+     Uint debug_reds_in;
+ #endif
+ 
++#ifdef PON_BEAM
++    /* PON-BEAM: Premises registradas para este processo */
++    ErtsPremise *pon_premises;
++#endif
++
+ };
+ 
+ extern Eterm erts_init_process_id; /* pid of init process */
+diff --git a/otp/erts/emulator/beam/pon_premise.c b/otp/erts/emulator/beam/pon_premise.c
+new file mode 100644
+index 0000000..cca167d
+--- /dev/null
++++ b/otp/erts/emulator/beam/pon_premise.c
+@@ -0,0 +1,211 @@
++/*
++ * pon_premise.c — Implementao das Premises PON-BEAM
++ *
++ * Gerncia de Premises: registro, notificao na chegada de mensagens,
++ * e recebimento baseado em Premises (em vez de scanning linear).
++ */
++
++#ifdef HAVE_CONFIG_H
++#  include "config.h"
++#endif
++
++#include "sys.h"
++#include "erl_vm.h"
++#include "global.h"
++#include "erl_process.h"
++#include "pon_premise.h"
++#include "pon_stats.h"
++
++#ifdef PON_BEAM
++
++/*
++ * Funo de match default: compara um termo contra um padro.
++ * Usa pattern matching simplificado (equivalente ao `=:=`).
++ * fallback quando no h match_fn especializada.
++ */
++int
++erts_pon_default_match(Eterm pattern, Eterm term)
++{
++    if (pattern == term)
++        return 1;
++    if (is_tuple(pattern) && is_tuple(term)) {
++        int arity_p = arityval(pattern);
++        int arity_t = arityval(term);
++        if (arity_p != arity_t)
++            return 0;
++        Eterm *ptr_p = tuple_val(pattern);
++        Eterm *ptr_t = tuple_val(term);
++        for (int i = 0; i < arity_p; i++) {
++            Eterm pe = ptr_p[i];
++            /* THE_NON_VALUE no padro = wildcard (casa qualquer coisa) */
++            if (is_non_value(pe))
++                continue;
++            if (pe != ptr_t[i])
++                return 0;
++        }
++        return 1;
++    }
++    return 0;
++}
++
++/*
++ * Registra uma lista de Premises no processo.
++ * Substitui qualquer lista anterior.
++ */
++void
++erts_pon_register_premises(Process *p, ErtsPremise *premises)
++{
++    ASSERT(p != NULL);
++
++    /* Libera premises antigas (se houver) */
++    ErtsPremise *old = p->pon_premises;
++    while (old) {
++        ErtsPremise *next = old->next_premise;
++        erts_free(ERTS_ALC_T_TMP, old);
++        old = next;
++    }
++
++    p->pon_premises = premises;
++
++    PON_STATS_INC(premises_registered);
++}
++
++/*
++ * Remove todas as Premises registradas no processo.
++ */
++void
++erts_pon_unregister_premises(Process *p)
++{
++    ASSERT(p != NULL);
++
++    ErtsPremise *prem = p->pon_premises;
++    while (prem) {
++        ErtsPremise *next = prem->next_premise;
++        erts_free(ERTS_ALC_T_TMP, prem);
++        prem = next;
++    }
++    p->pon_premises = NULL;
++}
++
++/*
++ * Extrai a tag de tipo de um termo mensagem.
++ * Para tuplas: usa o primeiro elemento.
++ * Para termos simples: usa o prprio termo.
++ * Retorna os 8 bits baixos (bucket index).
++ */
++static Uint
++pon_extract_type_tag(Eterm term)
++{
++    if (is_tuple(term)) {
++        Eterm *ptr = tuple_val(term);
++        return pon_type_tag(ptr[0]);
++    }
++    return pon_type_tag(term);
++}
++
++/*
++ * Insere uma mensagem na fila de tipo (bucket) correspondente.
++ */
++static void
++pon_enqueue_to_type_queue(Process *p, struct erl_mesg *msg, Uint bucket)
++{
++    ErtsSignalPrivQueues *qs = &p->sig_qs;
++    ErtsMessage **queue = &qs->type_queues[bucket];
++
++    /* Insere no final da fila de tipo */
++    if (*queue == NULL) {
++        *queue = msg;
++    } else {
++        ErtsMessage *last = *queue;
++        while (last->next)
++            last = last->next;
++        last->next = msg;
++    }
++    qs->type_queue_len[bucket]++;
++
++    PON_STATS_INC(messages_classified);
++    if (qs->type_queue_len[bucket] > 1)
++        PON_STATS_INC(messages_type_collision);
++}
++
++/*
++ * Notifica as Premises do processo sobre a chegada de uma mensagem.
++ * Retorna o nmero de Premises que matcharam.
++ */
++int
++erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term)
++{
++    ASSERT(p != NULL);
++    ASSERT(msg != NULL);
++    ASSERT(is_value(term));
++
++    if (!p->pon_premises)
++        return 0;
++
++    /* Extrai tag de tipo e classifica */
++    Uint bucket = pon_extract_type_tag(term);
++    pon_enqueue_to_type_queue(p, msg, bucket);
++
++    /* Notifica cada Premise que matcha o termo */
++    int matched = 0;
++    ErtsPremise *prem = p->pon_premises;
++    while (prem) {
++        if (!prem->has_match) {
++            int match_ok;
++            if (prem->match_fn)
++                match_ok = prem->match_fn(term);
++            else
++                match_ok = erts_pon_default_match(prem->pattern, term);
++
++            if (match_ok) {
++                prem->has_match = 1;
++                prem->matched_term = term;
++                prem->matched_msg = msg;
++                matched++;
++                PON_STATS_INC(premise_notifications);
++                PON_STATS_INC(mailbox_scans_avoided);
++            }
++        }
++        prem = prem->next_premise;
++    }
++
++    return matched;
++}
++
++/*
++ * Receive baseado em Premises.
++ * Retorna o termo da primeira Premise satisfeita, ou THE_NON_VALUE
++ * se nenhuma Premise est satisfeita (processo deve bloquear).
++ */
++Eterm
++erts_pon_receive(Process *p)
++{
++    ASSERT(p != NULL);
++
++    if (!p->pon_premises)
++        return THE_NON_VALUE;
++
++    /* Procura a primeira Premise satisfeita (pela ordem das clusulas) */
++    ErtsPremise *best = NULL;
++    ErtsPremise *prem = p->pon_premises;
++    while (prem) {
++        if (prem->has_match) {
++            if (!best || prem->clause_index < best->clause_index)
++                best = prem;
++        }
++        prem = prem->next_premise;
++    }
++
++    if (!best)
++        return THE_NON_VALUE;
++
++    /* Consome a mensagem */
++    Eterm result = best->matched_term;
++    best->has_match = 0;
++    best->matched_term = THE_NON_VALUE;
++    best->matched_msg = NULL;
++
++    return result;
++}
++
++#endif /* PON_BEAM */
+diff --git a/otp/erts/include/internal/pon_premise.h b/otp/erts/include/internal/pon_premise.h
+new file mode 100644
+index 0000000..97e76b5
+--- /dev/null
++++ b/otp/erts/include/internal/pon_premise.h
+@@ -0,0 +1,86 @@
++/*
++ * pon_premise.h — Premises PON-BEAM
++ *
++ * Definição da entidade Premise do Paradigma Orientado a Notificações
++ * adaptada para o selective receive da BEAM.
++ *
++ * Uma Premise representa um padrão de mensagem compilado. Quando uma
++ * mensagem compatível chega na mailbox, a Premise é notificada — em vez
++ * de escanear a mailbox linearmente.
++ *
++ * Só compilado quando PON_BEAM está definido.
++ */
++
++#ifndef PON_PREMISE_H__
++#define PON_PREMISE_H__
++
++#ifdef PON_BEAM
++
++#include "sys.h"
++#include "erl_term.h"
++
++/* Forward declaration — ErtsMessage é definido em erl_message.h */
++struct erl_mesg;
++
++/*
++ * Tag de tipo para classificação rápida de mensagens.
++ * Extraída do primeiro elemento da tupla mensagem.
++ * Ex: {call, From, Req} -> tag = tag_atom(call) & 0xFF
++ */
++#define PON_TYPE_TAG_BITS  8
++#define PON_NUM_TYPE_BUCKETS (1 << PON_TYPE_TAG_BITS)
++
++#define pon_type_tag(term) ((Uint)(term) & (PON_NUM_TYPE_BUCKETS - 1))
++
++/*
++ * Estrutura de uma Premise.
++ * Cada cláusula de `receive` compila para uma Premise.
++ */
++typedef struct ErtsPremise_ {
++    Eterm                pattern;        /* Padrão compilado (como termo) */
++    int                  (*match_fn)(Eterm); /* Função de match otimizada */
++    int                  has_match;      /* 1 se há mensagem casada disponível */
++    Eterm                matched_term;   /* Termo da mensagem casada */
++    struct erl_mesg      *matched_msg;   /* Referência para a mensagem */
++    Uint                 clause_index;   /* Índice da cláusula (ordem) */
++    struct ErtsPremise_  *next_premise;  /* Lista ligada de premises */
++} ErtsPremise;
++
++/*
++ * Inicializa uma Premise.
++ */
++#define ERTS_INIT_PREMISE(PREM, PAT, MATCH_FN, CIDX)                      \
++    do {                                                                   \
++        (PREM)->pattern      = (PAT);                                      \
++        (PREM)->match_fn     = (MATCH_FN);                                 \
++        (PREM)->has_match    = 0;                                          \
++        (PREM)->matched_term = THE_NON_VALUE;                              \
++        (PREM)->matched_msg  = NULL;                                       \
++        (PREM)->clause_index = (CIDX);                                     \
++        (PREM)->next_premise = NULL;                                       \
++    } while (0)
++
++/*
++ * Registra uma lista de premises no processo.
++ */
++void erts_pon_register_premises(Process *p, ErtsPremise *premises);
++
++/*
++ * Remove todas as premises registradas no processo.
++ */
++void erts_pon_unregister_premises(Process *p);
++
++/*
++ * Função de match default (fallback): faz pattern matching completo.
++ * Usada quando a Premise não tem match_fn especializada.
++ */
++int erts_pon_default_match(Eterm pattern, Eterm term);
++
++/*
++ * Notifica as premises do processo sobre a chegada de uma mensagem.
++ * Retorna o número de premises que matcharam.
++ */
++int erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term);
++
++#endif /* PON_BEAM */
++#endif /* PON_PREMISE_H__ */
+diff --git a/otp/erts/include/internal/pon_stats.h b/otp/erts/include/internal/pon_stats.h
+new file mode 100644
+index 0000000..d362a38
+--- /dev/null
++++ b/otp/erts/include/internal/pon_stats.h
+@@ -0,0 +1,65 @@
++/*
++ * pon_stats.h — Contadores de instrumentação PON-BEAM
++ *
++ * Contadores thread-local (per-scheduler) para validação do comportamento
++ * dos subsistemas PON. Ativados com PON_BEAM_DEBUG.
++ *
++ * Uso:
++ *   PON_STATS_INC(premise_notifications);
++ *   PON_STATS_ADD(mailbox_scans_avoided, 42);
++ *
++ * Sem PON_BEAM_DEBUG, todas as macros são vazias (custo zero).
++ */
++
++#ifndef PON_STATS_H__
++#define PON_STATS_H__
++
++#ifdef PON_BEAM
++
++#ifdef PON_BEAM_DEBUG
++
++#include "sys.h"
++#include "erl_term.h"
++
++/* Estrutura de contadores — um por scheduler (thread-local) */
++typedef struct {
++    /* === PON-Receive === */
++    Uint64 premises_registered;      /* Premises registradas */
++    Uint64 premise_notifications;    /* Premises notificadas na chegada de msg */
++    Uint64 mailbox_scans_avoided;    /* Scans lineares evitados */
++    Uint64 messages_classified;      /* Mensagens classificadas por tipo */
++    Uint64 messages_type_collision;  /* Colisões no bucket de tipo */
++    Uint64 messages_pon_queued;      /* Mensagens enfileiradas via PON path */
++
++    /* === Temporais === */
++    Uint64 pon_overhead_us;          /* Microssegundos gastos em infra PON */
++} PonStats;
++
++/* Ponteiro thread-local para stats per-scheduler */
++extern __thread PonStats pon_stats;
++
++/* Atalhos para incremento */
++#define PON_STATS_INC(field)           (pon_stats.field++)
++#define PON_STATS_ADD(field, n)        (pon_stats.field += (n))
++
++/* Marca tempo de início/fim para medir overhead (ms) */
++#define PON_STATS_BEGIN_TIMER()        Uint64 __pon_start = erts_timestamp_millis()
++#define PON_STATS_END_TIMER()          PON_STATS_ADD(pon_overhead_us, (erts_timestamp_millis() - __pon_start) * 1000)
++
++/* Inicializa stats (chamado uma vez por scheduler) */
++void pon_stats_init(void);
++void pon_stats_destroy(void);
++
++#else
++/* Sem PON_BEAM_DEBUG: macros vazias — custo zero */
++#define PON_STATS_INC(field)
++#define PON_STATS_ADD(field, n)
++#define PON_STATS_BEGIN_TIMER()
++#define PON_STATS_END_TIMER()
++
++#define pon_stats_init()
++#define pon_stats_destroy()
++#endif /* PON_BEAM_DEBUG */
++
++#endif /* PON_BEAM */
++#endif /* PON_STATS_H__ */
+-- 
+2.34.1
+
