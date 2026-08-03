@@ -1,4 +1,4 @@
--module(sched_idle_cpu).
+-module(fase4_sched_idle).
 -export([run/0]).
 
 %% sched_idle_cpu.erl — CPU do scheduler ocioso

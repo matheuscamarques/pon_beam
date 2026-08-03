@@ -1,4 +1,4 @@
--module(receive_mailbox_size).
+-module(fase1_size).
 -export([run/0]).
 
 %% receive_mailbox_size.erl — Escalabilidade: N mensagens na mailbox × latency

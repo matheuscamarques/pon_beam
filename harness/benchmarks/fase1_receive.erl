@@ -1,4 +1,4 @@
--module(receive_mailbox_scan).
+-module(fase1_receive).
 -export([run/0]).
 
 %% receive_mailbox_scan.erl — Benchmark de scanning linear vs Premises

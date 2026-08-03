@@ -1,4 +1,4 @@
--module(ets_read_repeat).
+-module(fase5_ets_read).
 -export([run/0]).
 
 %% ets_read_repeat.erl — Lookup repetido com/sem watcher

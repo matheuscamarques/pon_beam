@@ -1,4 +1,4 @@
--module(compile_receive).
+-module(fase6_compile).
 -export([run/0]).
 
 %% compile_receive.erl — Benchmark de compilao de receives com PON

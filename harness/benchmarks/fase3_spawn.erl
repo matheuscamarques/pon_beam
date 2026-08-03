@@ -1,4 +1,4 @@
--module(spawn_latency).
+-module(fase3_spawn).
 -export([run/0]).
 
 %% spawn_latency.erl — Mede latncia entre spawn e primeira execuo

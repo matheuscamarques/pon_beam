@@ -1,4 +1,4 @@
--module(gc_heap_scan).
+-module(fase7_gc_scan).
 -export([run/0]).
 
 %% gc_heap_scan.erl — Benchmark de GC: heap grande com muitos objetos mortos
@@ -41,7 +41,7 @@ create_dead_chain(N) ->
 
 die_soon() -> ok.
 
-gc_loop(N, Ref) ->
+gc_loop(_N, Ref) ->
     Ref ! {alive, self()},
     timer:sleep(60000).
 

@@ -1,4 +1,4 @@
--module(timer_idle_cpu).
+-module(fase2_timer_idle).
 -export([run/0]).
 
 %% timer_idle_cpu.erl — Mede CPU consumida pelo timer wheel sem timers ativos
