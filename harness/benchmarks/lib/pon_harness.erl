@@ -2,25 +2,24 @@
 -export([run/2, run_suite/2, run_benchmark/3]).
 
 %% run(NomeBenchmark, OutputPath) -> ok
-%% Executa o benchmark e salva resultado JSON.
+%% Executa o benchmark e salva resultado como termo Erlang.
 run(Name, OutputPath) ->
     Module = ensure_loaded(Name),
     io:format("[pon_harness] ~s: iniciando...~n", [Name]),
     {TimeUs, Result} = timer:tc(fun() -> Module:run() end),
     Stats = collect_stats(),
-    Json = jsx:encode(#{
+    Data = #{
         benchmark => Name,
         duration_us => TimeUs,
         result => Result,
         stats => Stats,
         timestamp => erlang:system_time(microsecond)
-    }),
-    ok = file:write_file(OutputPath, Json),
+    },
+    Text = io_lib:format("~tp.~n", [Data]),
+    ok = file:write_file(OutputPath, Text),
     io:format("[pon_harness] ~s: concluído em ~.3fms~n", [Name, TimeUs / 1000]),
     ok.
 
-%% run_suite(BenchDir, OutputDir) -> ok
-%% Executa todos os benchmarks .erl em BenchDir.
 run_suite(BenchDir, OutputDir) ->
     case file:list_dir(BenchDir) of
         {ok, Files} ->
@@ -36,24 +35,22 @@ run_suite(BenchDir, OutputDir) ->
             io:format("[pon_harness] erro ao ler ~s: ~p~n", [BenchDir, Reason])
     end.
 
-%% run_benchmark(Module, OutputPath, CustomStats) -> ok
-%% Como run/2 mas permite stats customizados.
 run_benchmark(Name, OutputPath, CustomStats) ->
     Module = ensure_loaded(Name),
     {TimeUs, Result} = timer:tc(fun() -> Module:run() end),
     Stats = maps:merge(collect_stats(), CustomStats),
-    Json = jsx:encode(#{
+    Data = #{
         benchmark => Name,
         duration_us => TimeUs,
         result => Result,
         stats => Stats,
         timestamp => erlang:system_time(microsecond)
-    }),
-    ok = file:write_file(OutputPath, Json),
+    },
+    Text = io_lib:format("~tp.~n", [Data]),
+    ok = file:write_file(OutputPath, Text),
     io:format("[pon_harness] ~s: ~.3fms~n", [Name, TimeUs / 1000]),
     ok.
 
-%% collect_stats() -> #{}
 collect_stats() ->
     #{
         cpu_utilization => cpu_util(),

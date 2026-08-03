@@ -1,8 +1,6 @@
 -module(pon_diff).
 -export([generate/1, generate/2]).
 
-%% generate(ResultsDir) -> ok
-%% Gera diff report HTML no diretório ResultsDir/diff/
 generate(ResultsDir) ->
     generate(ResultsDir, "Diff Report").
 
@@ -22,7 +20,6 @@ generate(ResultsDir, Title) ->
     io:format("[pon_diff] Relatório: ~s~n", [OutPath]),
     ok.
 
-%% load_results(Dir) -> #{Name => #{metric => value}}
 load_results(Dir) ->
     case file:list_dir(Dir) of
         {ok, Files} ->
@@ -30,12 +27,11 @@ load_results(Dir) ->
                 case filename:extension(F) of
                     ".json" ->
                         Path = filename:join(Dir, F),
-                        case file:read_file(Path) of
-                            {ok, Bin} ->
-                                try jsx:decode(Bin, [return_maps]) of
-                                    #{<<"benchmark">> := Name} = Data ->
-                                        maps:put(Name, Data, Acc)
-                                catch _:_ -> Acc
+                        case file:consult(Path) of
+                            {ok, [Data]} when is_map(Data) ->
+                                case maps:get(benchmark, Data, undefined) of
+                                    undefined -> Acc;
+                                    Name -> maps:put(Name, Data, Acc)
                                 end;
                             _ -> Acc
                         end;
@@ -45,7 +41,6 @@ load_results(Dir) ->
         {error, _} -> #{}
     end.
 
-%% compute_diff(Baseline, PonBeam) -> #{Name => DiffMap}
 compute_diff(Baseline, PonBeam) ->
     Keys = maps:keys(Baseline) ++ maps:keys(PonBeam),
     lists:foldl(fun(K, Acc) ->
@@ -55,17 +50,13 @@ compute_diff(Baseline, PonBeam) ->
         maps:put(K, #{baseline => B, ponbeam => P, ratio => Ratio}, Acc)
     end, #{}, lists:usort(Keys)).
 
-compute_ratio(#{<<"duration_us">> := BD}, #{<<"duration_us">> := PD}) when PD > 0 ->
+compute_ratio(#{duration_us := BD}, #{duration_us := PD}) when PD > 0 ->
     BD / PD;
-compute_ratio(#{<<"result">> := BR}, #{<<"result">> := PR}) when is_number(BR), is_number(PR), PR > 0 ->
-    PR / BR;
 compute_ratio(_, _) -> undefined.
 
-%% render_html(Title, Diff, Baseline, PonBeam) -> iolist()
 render_html(Title, Diff, _Baseline, _PonBeam) ->
     Rows = render_rows(Diff),
     Stats = render_pon_stats(Diff),
-
     [
         "<!DOCTYPE html>\n"
         "<html lang=\"pt-BR\">\n"
@@ -112,8 +103,8 @@ render_html(Title, Diff, _Baseline, _PonBeam) ->
 
 render_rows(Diff) ->
     maps:fold(fun(Name, #{baseline := B, ponbeam := P, ratio := Ratio}, Acc) ->
-        BDur = format_duration(maps:get(<<"duration_us">>, B, undefined)),
-        PDur = format_duration(maps:get(<<"duration_us">>, P, undefined)),
+        BDur = format_duration(maps:get(duration_us, B, undefined)),
+        PDur = format_duration(maps:get(duration_us, P, undefined)),
         RatioStr = format_ratio(Ratio),
         Class = ratio_class(Ratio),
         [Acc,
@@ -123,8 +114,8 @@ render_rows(Diff) ->
 
 render_pon_stats(Diff) ->
     PonBase = maps:fold(fun(_Name, #{ponbeam := P}, Acc) ->
-        case maps:get(<<"stats">>, P, #{}) of
-            #{<<"pon">> := Stats} -> maps:merge(Acc, Stats);
+        case maps:get(stats, P, #{}) of
+            #{pon := Stats} when is_map(Stats) -> maps:merge(Acc, Stats);
             _ -> Acc
         end
     end, #{}, Diff),

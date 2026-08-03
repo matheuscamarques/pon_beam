@@ -100,7 +100,7 @@ run_benchmarks() {
         echo -e "  ${YELLOW}[$label]${NC} $name..."
         local out="$output_dir/${name}.json"
         "$erl" -noshell $pa_opts \
-            -eval "pon_harness:run('$name', \"$out\"), halt()." 2>&1 | sed 's/^/    /'
+            -eval "pon_harness:run(\"$name\", \"$out\"), halt()." 2>&1 | sed 's/^/    /'
     done
 }
 
