@@ -41,14 +41,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /usr/src/otp
 RUN git clone --single-branch --depth 1 \
-    https://github.com/erlang/otp.git . \
-    && ./otp_build autoconf
+    https://github.com/erlang/otp.git .
 
-# Aplica o patch PON-BEAM
+# Aplica o patch PON-BEAM (contém erts/configure.ac e erts/emulator/Makefile.in)
 COPY pon-beam-erts.tar.gz /tmp/
 RUN tar xzf /tmp/pon-beam-erts.tar.gz -C /usr/src/otp \
     && rm /tmp/pon-beam-erts.tar.gz \
     && ls -la erts/emulator/beam/pon_*.c erts/include/internal/pon_*.h
+
+# Autoconf DEPOIS do patch: --enable-pon-beam so e reconhecido se o
+# configure.ac patchado for processado pelo autoconf
+RUN ./otp_build autoconf
 
 RUN ./configure --prefix=/opt/erlang-pon \
                 --without-javac --without-odbc \
