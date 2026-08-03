@@ -1,8 +1,9 @@
 # PON-BEAM Benchmark — Docker Compose
 #
 # Uso:
-#   docker compose up --build   # Constrói + executa
-#   docker compose run --rm bench   # Só executa
+#   docker compose build    # Constrói (leva ~30 min)
+#   docker compose up       # Executa benchmarks
+#   docker compose down     # Limpa container
 
 services:
   bench:
@@ -10,9 +11,6 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     image: pon-beam-bench:latest
-    container_name: pon-beam-bench
+    container_name: pon-beam-results
     volumes:
       - ./results:/pon-beam/harness/results/latest
-    environment:
-      - OTP_BASELINE_ROOT=/opt/erlang/30-stock
-      - OTP_PONBEAM_ROOT=/opt/erlang/30-pon
