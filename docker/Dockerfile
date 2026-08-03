@@ -87,8 +87,13 @@ echo ""\n\
 echo "PON-BEAM:"\n\
 /opt/erlang-pon/bin/erl -noshell -eval '\''\
   io:format("  Versao: ~s~n", [erlang:system_info(otp_release)]),\
-  io:format("  PON_BEAM: ~p~n", [erlang:system_info(pon_stats) /= undefined]),\
   halt().'\''\n\
+PON_SYMBOLS=$$(strings /opt/erlang-pon/lib/erlang/erts-*/bin/beam.smp | grep -c "erts_pon_receive\|erts_pon_notify_premises\|pon_enqueue_to_type_queue")\n\
+if [ "$$PON_SYMBOLS" -gt 0 ]; then\n\
+  echo "  PON-BEAM: ativo ($$PON_SYMBOLS simbolos PON no beam.smp)"\n\
+else\n\
+  echo "  ERRO: PON-BEAM inativo no binario (0 simbolos)"\n\
+fi\n\
 echo ""\n\
 echo "========================================="\n\
 echo "Executando benchmarks..."\n\
