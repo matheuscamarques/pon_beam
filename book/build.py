@@ -221,7 +221,7 @@ def render_chapter(ch, body_html, config):
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
 <body class="{body_class}">
-    <button class="menu-toggle" aria-label="Abrir menu" onclick="document.body.classList.toggle('sidebar-hidden')">☰</button>
+    <button class="menu-toggle" aria-label="Abrir menu" onclick="var b=document.body;b.classList.toggle('sidebar-hidden');this.innerHTML=b.classList.contains('sidebar-hidden')?'&#9776;':'&#10005;'">&#9776;</button>
     <div class="layout">
         {toc}
         <main class="content">

@@ -33,34 +33,45 @@ body {
 
 /* ===== Menu Toggle Button ===== */
 .menu-toggle {
-    display: none;
     position: fixed;
-    top: 0.6rem;
-    left: 0.6rem;
+    top: 0.75rem;
+    left: 0.75rem;
     z-index: 100;
     background: var(--bg-tertiary);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     border: 1px solid var(--border);
-    padding: 0.3rem 0.6rem;
-    font-size: 1.2rem;
+    padding: 0.35rem 0.5rem 0.2rem 0.5rem;
+    font-size: 1.1rem;
     cursor: pointer;
     line-height: 1;
+    transition: color 0.15s, background 0.15s;
 }
 
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: block;
-    }
+.menu-toggle:hover {
+    color: var(--text-primary);
+    background: var(--border);
 }
 
-/* ===== Sidebar hidden toggle ===== */
+/* ===== Sidebar toggle ===== */
+.sidebar-nav {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
 .sidebar-hidden .sidebar-nav {
-    display: none;
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+    position: fixed;
 }
 
 .sidebar-hidden .content {
     max-width: 900px;
     margin: 0 auto;
+}
+
+body:not(.sidebar-hidden) .sidebar-nav {
+    transform: translateX(0);
+    opacity: 1;
 }
 
 /* ===== Sidebar Navigation ===== */
