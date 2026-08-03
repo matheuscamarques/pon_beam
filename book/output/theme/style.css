@@ -31,8 +31,39 @@ body {
     min-height: 100vh;
 }
 
+/* ===== Menu Toggle Button ===== */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 100;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.6rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+}
+
+/* ===== Sidebar hidden toggle ===== */
+.sidebar-hidden .sidebar-nav {
+    display: none;
+}
+
+.sidebar-hidden .content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
 /* ===== Sidebar Navigation ===== */
-.sidebar-nav {
     width: var(--sidebar-width);
     min-width: var(--sidebar-width);
     background: var(--bg-secondary);
@@ -453,13 +484,10 @@ blockquote:has(strong) {
 }
 
 /* ===== ABNT Book Structure Pages ===== */
-body.capa .sidebar-nav,
 body.capa .chapter-nav,
 body.capa .chapter-header,
-body.folha-de-rosto .sidebar-nav,
 body.folha-de-rosto .chapter-nav,
 body.folha-de-rosto .chapter-header,
-body.contra-capa .sidebar-nav,
 body.contra-capa .chapter-nav,
 body.contra-capa .chapter-header {
     display: none;
@@ -468,6 +496,10 @@ body.contra-capa .chapter-header {
 body.capa .layout,
 body.folha-de-rosto .layout,
 body.contra-capa .layout {
+    display: block;
+}
+
+body.capa .menu-toggle {
     display: block;
 }
 

@@ -201,13 +201,14 @@ def render_chapter(ch, body_html, config):
     
     toc = make_toc(chapters, ch["id"])
     
-    # ABNT special pages
-    body_class = ch["id"] if ch["id"] in ("capa", "folha-de-rosto", "contra-capa") else ""
+    # ABNT special pages — hidden sidebar by default
+    is_special = ch["id"] in ("capa", "folha-de-rosto", "contra-capa")
+    body_class = f'{ch["id"]} sidebar-hidden' if is_special else ''
 
     prev_html = f'<a href="{prev_ch["id"]}.html" class="nav-prev">← {prev_ch["title"]}</a>' if prev_ch else ''
     next_html = f'<a href="{next_ch["id"]}.html" class="nav-next">{next_ch["title"]} →</a>' if next_ch else ''
 
-    hide_header = ch["id"] in ("capa", "folha-de-rosto", "contra-capa")
+    hide_header = is_special
     header_html = f'<header class="chapter-header"><h1>{ch["title"]}</h1></header>' if not hide_header else ''
     
     return f'''<!DOCTYPE html>
@@ -220,6 +221,7 @@ def render_chapter(ch, body_html, config):
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
 <body class="{body_class}">
+    <button class="menu-toggle" aria-label="Abrir menu" onclick="document.body.classList.toggle('sidebar-hidden')">☰</button>
     <div class="layout">
         {toc}
         <main class="content">
