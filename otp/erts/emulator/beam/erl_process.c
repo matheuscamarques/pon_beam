@@ -7021,10 +7021,27 @@ schedule_process(Process *p, erts_aint32_t in_state, ErtsProcLocks locks)
     add2runq(enqueue, enq_prio, p, state);
 }
 
+#ifdef PON_BEAM
+/*
+ * PON-BEAM: notifica o scheduler alvo que h um novo processo pronto.
+ * Na Fase 3 (PON-Spawn), esta funo incrementa o contador de stats.
+ * Na Fase 4 (PON-Scheduler), ser substituda por eventfd/condition.
+ */
+static ERTS_INLINE void
+erts_pon_schedule_notify(Process *p)
+{
+    (void)p;
+    PON_STATS_INC(condition_notifications);
+}
+#endif
+
 void
 erts_schedule_process(Process *p, erts_aint32_t state, ErtsProcLocks locks)
 {
     schedule_process(p, state, locks);
+#ifdef PON_BEAM
+    erts_pon_schedule_notify(p);
+#endif
 }
 
 /* Enqueues the given sys task on the process and schedules it. The task may be
