@@ -42,6 +42,10 @@ typedef struct {
     Uint64 condition_notifications;  /* Notificaes para Condition */
     Uint64 scheduler_idle_blocks;    /* Vezes que scheduler bloqueou no eventfd */
 
+    /* === PON-ETS === */
+    Uint64 ets_watchers_registered;  /* Watchers registrados */
+    Uint64 ets_watcher_hits;         /* Lookups evitados por notificao */
+
     /* === Temporais === */
     Uint64 pon_overhead_us;          /* Microssegundos gastos em infra PON */
 } PonStats;
