@@ -61,6 +61,21 @@ benchmark-list:
 report:
 	open harness/results/latest/diff/index.html 2>/dev/null || xdg-open harness/results/latest/diff/index.html 2>/dev/null || echo "Relatório: harness/results/latest/diff/index.html"
 
+## === Livro PON-BEAM ===
+
+BOOK_DIR = book
+
+book-build:
+	@echo "=== Gerando site HTML do livro PON-BEAM ==="
+	python3 $(BOOK_DIR)/build.py
+
+book-open:
+	@echo "=== Abrindo livro PON-BEAM ==="
+	open $(BOOK_DIR)/output/index.html 2>/dev/null || xdg-open $(BOOK_DIR)/output/index.html 2>/dev/null || echo "Índice: $(BOOK_DIR)/output/index.html"
+
+book-clean:
+	rm -rf $(BOOK_DIR)/output
+
 ## === Utilitários ===
 
 status:

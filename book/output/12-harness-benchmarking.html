@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Harness de Benchmarking — PON-BEAM</title>
+    <link rel="stylesheet" href="theme/style.css">
+    <link rel="stylesheet" href="theme/pygments.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar-nav">
+<div class="nav-header">
+<h3><a href="index.html">PON-BEAM</a></h3>
+</div>
+<div class="nav-part">Parte I: Fundamentos</div>
+<ul>
+<li><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
+<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
+<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
+</ul>
+<div class="nav-part">Parte II: Subsistemas PON</div>
+<ul>
+<li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
+<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
+<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
+<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
+<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
+<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
+<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
+</ul>
+<div class="nav-part">Parte III: Engenharia e Validação</div>
+<ul>
+<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
+<li class="active"><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
+<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
+</ul>
+<div class="nav-part">Parte IV: Síntese</div>
+<ul>
+<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
+<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
+<li><a href="16-conclusao.html">Conclusão</a></li>
+</ul>
+</nav>
+
+        <main class="content">
+            <header class="chapter-header">
+                <h1>O Harness de Benchmarking</h1>
+            </header>
+            <article>
+                <h1>O Harness de Benchmarking</h1>
+<blockquote>
+<p>"Sem diff comprovando ganho, a fase não está completa."
+— AGENTS.md</p>
+</blockquote>
+<hr />
+<h2>1. Introdução</h2>
+<p>Cada fase da PON-BEAM seguiu o ciclo: modificar ERTS → compilar → rodar benchmark → gerar diff → commitar. O elo central desse ciclo é o <em>harness de benchmarking</em> — um conjunto de scripts shell e módulos Erlang que executa workloads idênticos nos dois ERTS (baseline OTP 30 stock e PON-BEAM), coleta métricas, computa ratios de ganho, e renderiza um relatório HTML comparativo.</p>
+<p>O harness foi implementado com <strong>13 arquivos Erlang totalizando ~907 linhas</strong>: 8 benchmarks e 5 bibliotecas. Cada fase produziu seu benchmark específico e um relatório técnico (RPT-01 a RPT-07).</p>
+<p>Sem medição, não há validação. Sem validação, o commit não é aceito. O harness é a gatekeeper de cada fase.</p>
+<p>Este capítulo documenta a arquitetura completa do harness: o script <code>run.sh</code>, os módulos de biblioteca, a instrumentação C com <code>pon_stats.h</code>, o formato do diff report, e a interpretação de cada métrica.</p>
+<hr />
+<h2>2. Estrutura Completa do Harness</h2>
+<pre><code>harness/
+├── run.sh                        # Script principal
+├── config/
+│   ├── baseline.sh               # Paths do ERTS stock
+│   └── ponbeam.sh                # Paths do ERTS PON-BEAM
+├── benchmarks/
+│   ├── fase1_receive.erl         # Fase 1: receive O(1) (69 linhas)
+│   ├── fase1_size.erl            # Fase 1: escalabilidade (44 linhas)
+│   ├── fase2_timer_idle.erl      # Fase 2: CPU idle timers (36 linhas)
+│   ├── fase3_spawn.erl           # Fase 3: spawn latency (54 linhas)
+│   ├── fase4_sched_idle.erl      # Fase 4: scheduler idle (14 linhas)
+│   ├── fase5_ets_read.erl        # Fase 5: ETS lookup (51 linhas)
+│   ├── fase6_compile.erl         # Fase 6: compilação (76 linhas)
+│   ├── fase7_gc_scan.erl         # Fase 7: GC heap scan (61 linhas)
+│   └── lib/
+│       ├── pon_harness.erl       # Módulo base de execução (89 linhas)
+│       ├── pon_compiler.erl      # Parse transform PON (131 linhas)
+│       ├── pon_runtime.erl       # Runtime PON para processos (101 linhas)
+│       ├── pon_stats_reader.erl  # Leitura de contadores PON (25 linhas)
+│       └── pon_diff.erl          # Geração do diff report (156 linhas)
+├── report/
+│   └── assets/
+│       └── style.css             # Estilo do diff report
+└── results/
+    ├── 20250803_143022/          # Timestamp de cada execução
+    │   ├── baseline/             # JSONs do baseline
+    │   ├── ponbeam/              # JSONs do PON-BEAM
+    │   └── diff/                 # HTML + assets do diff
+    └── latest -&gt; ...             # Symlink para última execução
+</code></pre>
+<p><strong>Total: 8 benchmarks + 5 bibliotecas = 13 arquivos, ~907 linhas Erlang.</strong></p>
+<hr />
+<h2>3. <code>run.sh</code> — Orquestrador Principal</h2>
+<p>O script <code>run.sh</code> executa todo o pipeline de validação. Seu fluxo é:</p>
+<div class="code-block lang-bash"><div class="highlight"><pre><span></span><span class="c1"># run.sh — esqueleto do pipeline</span>
+<span class="c1"># 1. Parse de argumentos (--fase, --only, --list)</span>
+<span class="c1"># 2. Source dos paths dos ERTS (baseline.sh, ponbeam.sh)</span>
+<span class="c1"># 3. Verifica se os ERTS existem</span>
+<span class="c1"># 4. Roda benchmarks no baseline → results/TIMESTAMP/baseline/</span>
+<span class="c1"># 5. Roda mesmos benchmarks no PON-BEAM → results/TIMESTAMP/ponbeam/</span>
+<span class="c1"># 6. Gera diff HTML → results/TIMESTAMP/diff/index.html</span>
+<span class="c1"># 7. Cria symlink results/latest</span>
+</pre></div>
+</div>
+
+<p>O script aceita três argumentos:</p>
+<div class="code-block lang-bash"><div class="highlight"><pre><span></span>./run.sh<span class="w">                    </span><span class="c1"># Suíte completa (todas as fases)</span>
+./run.sh<span class="w"> </span>--fase<span class="o">=</span><span class="m">1</span><span class="w">           </span><span class="c1"># Só benchmarks da fase 1</span>
+./run.sh<span class="w"> </span>--fase<span class="o">=</span><span class="m">1</span>,2<span class="w">         </span><span class="c1"># Fases 1 e 2</span>
+./run.sh<span class="w"> </span>--only<span class="o">=</span>receive<span class="w">     </span><span class="c1"># Só benchmarks com &quot;receive&quot; no nome</span>
+./run.sh<span class="w"> </span>--list<span class="w">             </span><span class="c1"># Lista benchmarks disponíveis</span>
+</pre></div>
+</div>
+
+<p>A descoberta de benchmarks é feita por padrões de nome: arquivos <code>faseN_*.erl</code> em <code>benchmarks/</code> que não estão em <code>lib/</code>. O prefixo numérico (<code>fase1_</code>) indica a fase. O <code>--fase</code> filtra por prefixo; o <code>--only</code> filtra por substring no nome.</p>
+<h3>Execução de Benchmark</h3>
+<p>Cada benchmark é executado via:</p>
+<div class="code-block lang-bash"><div class="highlight"><pre><span></span><span class="s2">&quot;</span><span class="nv">$erl</span><span class="s2">&quot;</span><span class="w"> </span>-noshell<span class="w"> </span>-pa<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LIB_DIR</span><span class="s2">&quot;</span><span class="w"> </span>-pa<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BENCHMARKS_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-eval<span class="w"> </span><span class="s2">&quot;pon_harness:run(&#39;</span><span class="nv">$name</span><span class="s2">&#39;, \&quot;</span><span class="nv">$out</span><span class="s2">\&quot;), halt().&quot;</span>
+</pre></div>
+</div>
+
+<p>O <code>pon_harness:run/2</code> carrega o módulo do benchmark, executa <code>Module:run()</code> dentro de <code>timer:tc</code>, coleta estatísticas do sistema, e serializa tudo em JSON.</p>
+<hr />
+<h2>4. <code>pon_harness.erl</code> — Módulo Base</h2>
+<p>O <code>pon_harness.erl</code> (89 linhas) é o módulo que todo benchmark chama para se executar. Sua função principal:</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% pon_harness.erl:6-20</span>
+<span class="nf">run</span><span class="p">(</span><span class="nv">Name</span><span class="p">,</span><span class="w"> </span><span class="nv">OutputPath</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="nv">Module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ensure_loaded</span><span class="p">(</span><span class="nv">Name</span><span class="p">),</span>
+<span class="w">    </span><span class="p">{</span><span class="nv">TimeUs</span><span class="p">,</span><span class="w"> </span><span class="nv">Result</span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Module</span><span class="p">:</span><span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
+<span class="w">    </span><span class="nv">Stats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">collect_stats</span><span class="p">(),</span>
+<span class="w">    </span><span class="nv">Json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">jsx</span><span class="p">:</span><span class="nf">encode</span><span class="p">(#{</span>
+<span class="w">        </span><span class="n">benchmark</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">Name</span><span class="p">,</span>
+<span class="w">        </span><span class="n">duration_us</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">TimeUs</span><span class="p">,</span>
+<span class="w">        </span><span class="n">result</span><span class="w">      </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">Result</span><span class="p">,</span>
+<span class="w">        </span><span class="n">stats</span><span class="w">       </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">Stats</span><span class="p">,</span>
+<span class="w">        </span><span class="n">timestamp</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nf">system_time</span><span class="p">(</span><span class="n">microsecond</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}),</span>
+<span class="w">    </span><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">file</span><span class="p">:</span><span class="nf">write_file</span><span class="p">(</span><span class="nv">OutputPath</span><span class="p">,</span><span class="w"> </span><span class="nv">Json</span><span class="p">).</span>
+</pre></div>
+</div>
+
+<p><code>collect_stats()</code> coleta as seguintes métricas:</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">collect_stats</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="p">#{</span>
+<span class="w">        </span><span class="n">cpu_utilization</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">cpu_utilization</span><span class="p">),</span>
+<span class="w">        </span><span class="n">context_switches</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">context_switches</span><span class="p">),</span>
+<span class="w">        </span><span class="n">gc_count</span><span class="w">          </span><span class="o">=&gt;</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">gc_count</span><span class="p">),</span>
+<span class="w">        </span><span class="n">run_queue_len</span><span class="w">     </span><span class="o">=&gt;</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">total_run_queue_lengths</span><span class="p">),</span>
+<span class="w">        </span><span class="n">pon</span><span class="w">               </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">collect_pon_stats</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}.</span>
+</pre></div>
+</div>
+
+<p><code>collect_pon_stats()</code> tenta ler os contadores PON via <code>erlang:system_info(pon_stats)</code>. Se o ERTS não for PON (baseline), retorna <code>undefined</code> — o diff report simplesmente omite a coluna.</p>
+<hr />
+<h2>5. <code>pon_compiler.erl</code> e <code>pon_runtime.erl</code> — Compilador e Runtime PON</h2>
+<p>O <strong>pon_compiler.erl</strong> (131 linhas) implementa o parse transform PON. Durante a compilação, ele converte blocos <code>receive</code> em código que registra Premises automaticamente via <code>pon_runtime</code>. O parse transform é ativado pela adição de <code>-compile({parse_transform, pon_compiler}).</code> no módulo fonte.</p>
+<p>O <strong>pon_runtime.erl</strong> (101 linhas) fornece a API de runtime para processos que usam Premises: <code>register_premises/2</code>, <code>wait_for_premise/1</code>, <code>consume_premise/1</code>. Esta API é chamada pelo código gerado pelo parse transform e também pode ser usada diretamente para depuração.</p>
+<p>Juntos, estes dois módulos formam a parte Erlang do PON-BEAM — viabilizando a Fase 6 (PON-Compiler) sem modificar o compilador nativo da BEAM.</p>
+<hr />
+<h2>6. <code>pon_stats_reader.erl</code> — Leitura de Contadores PON</h2>
+<p>Um módulo auxiliar dedicado exclusivamente à leitura dos contadores PON em runtime:</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% pon_stats_reader.erl (25 linhas)</span>
+<span class="nf">read</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">system_info</span><span class="p">(</span><span class="n">pon_stats</span><span class="p">)</span><span class="w"> </span><span class="k">of</span>
+<span class="w">        </span><span class="nv">Stats</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Stats</span>
+<span class="w">    </span><span class="k">catch</span><span class="w"> </span><span class="nn">error</span><span class="p">:</span><span class="n">badarg</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">undefined</span>
+<span class="w">    </span><span class="k">end</span><span class="p">.</span>
+
+<span class="nf">read</span><span class="p">(</span><span class="nv">Key</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">read</span><span class="p">()</span><span class="w"> </span><span class="k">of</span>
+<span class="w">        </span><span class="p">#{</span><span class="nv">Key</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">Value</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="w"> </span><span class="nv">Value</span><span class="p">};</span>
+<span class="w">        </span><span class="p">_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">undefined</span>
+<span class="w">    </span><span class="k">end</span><span class="p">.</span>
+
+<span class="nf">reset</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">system_info</span><span class="p">(</span><span class="n">reset_pon_stats</span><span class="p">)</span><span class="w"> </span><span class="k">of</span>
+<span class="w">        </span><span class="p">_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span>
+<span class="w">    </span><span class="k">catch</span><span class="w"> </span><span class="nn">error</span><span class="p">:</span><span class="n">badarg</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">undefined</span>
+<span class="w">    </span><span class="k">end</span><span class="p">.</span>
+</pre></div>
+</div>
+
+<p>O <code>reset()</code> zera os contadores — usado entre benchmarks para evitar contaminação de medições anteriores. A função <code>erlang:system_info(pon_stats)</code> é implementada em C e acessa a estrutura <code>PonStats</code> thread-local de cada scheduler.</p>
+<hr />
+<h2>7. <code>pon_diff.erl</code> — Geração do Diff Report</h2>
+<p>O <code>pon_diff.erl</code> (156 linhas) carrega os JSONs do baseline e do PON-BEAM, computa ratios de ganho, e renderiza HTML. O fluxo:</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">generate</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="nv">Baseline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">load_results</span><span class="p">(</span><span class="nn">filename</span><span class="p">:</span><span class="nf">join</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;baseline&quot;</span><span class="p">)),</span>
+<span class="w">    </span><span class="nv">PonBeam</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">load_results</span><span class="p">(</span><span class="nn">filename</span><span class="p">:</span><span class="nf">join</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ponbeam&quot;</span><span class="p">)),</span>
+<span class="w">    </span><span class="nv">Diff</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">compute_diff</span><span class="p">(</span><span class="nv">Baseline</span><span class="p">,</span><span class="w"> </span><span class="nv">PonBeam</span><span class="p">),</span>
+<span class="w">    </span><span class="nv">Html</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">render_html</span><span class="p">(</span><span class="s">&quot;Diff Report&quot;</span><span class="p">,</span><span class="w"> </span><span class="nv">Diff</span><span class="p">,</span><span class="w"> </span><span class="nv">Baseline</span><span class="p">,</span><span class="w"> </span><span class="nv">PonBeam</span><span class="p">),</span>
+<span class="w">    </span><span class="nn">file</span><span class="p">:</span><span class="nf">write_file</span><span class="p">(</span><span class="nn">filename</span><span class="p">:</span><span class="nf">join</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;diff&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;index.html&quot;</span><span class="p">),</span><span class="w"> </span><span class="nv">Html</span><span class="p">).</span>
+</pre></div>
+</div>
+
+<h3>Cálculo do Ratio</h3>
+<p>O ratio é computado preferencialmente a partir de <code>duration_us</code> (tempo de execução):</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">compute_ratio</span><span class="p">(#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;duration_us&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">BD</span><span class="p">},</span><span class="w"> </span><span class="p">#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;duration_us&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">PD</span><span class="p">})</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="nv">PD</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="nv">BD</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">PD</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<p>Se <code>duration_us</code> não estiver disponível (benchmarks que medem throughput), usa <code>result</code>:</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">compute_ratio</span><span class="p">(#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;result&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">BR</span><span class="p">},</span><span class="w"> </span><span class="p">#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;result&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">PR</span><span class="p">})</span>
+<span class="w">    </span><span class="k">when</span><span class="w"> </span><span class="nb">is_number</span><span class="p">(</span><span class="nv">BR</span><span class="p">),</span><span class="w"> </span><span class="nb">is_number</span><span class="p">(</span><span class="nv">PR</span><span class="p">),</span><span class="w"> </span><span class="nv">PR</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="nv">PR</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">BR</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<p>Um ratio de 10.0 significa que o PON-BEAM é 10× mais rápido que o baseline. Valores &lt; 1.0 indicam regressão.</p>
+<h3>Renderização HTML</h3>
+<p>O HTML gerado contém:</p>
+<ol>
+<li><strong>Cabeçalho</strong>: título, timestamp, estilo inline (modo escuro do GitHub).</li>
+<li><strong>Tabela comparativa</strong>: benchmark, baseline, PON-BEAM, ganho (com classe CSS <code>gain</code>/<code>loss</code>/<code>equal</code>).</li>
+<li><strong>Contadores PON</strong>: lista de contadores de instrumentação (se disponíveis).</li>
+</ol>
+<p>O estilo usa classes CSS:</p>
+<pre><code class="lang-css">.gain  { color: #3fb950; font-weight: bold; }   /* ratio >= 1.05 */
+.loss  { color: #f85149; font-weight: bold; }   /* ratio <= 0.95 */
+.equal { color: #8b949e; }                       /* 0.95 < ratio < 1.05 */
+</code></pre>
+
+<hr />
+<h2>8. Formato do Diff Report</h2>
+<p>O relatório final é um HTML auto-contido em <code>results/TIMESTAMP/diff/index.html</code>:</p>
+<pre><code class="lang-html"><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>PON-BEAM: Diff Report</title>
+  <style>
+    /* Tema escuro, tabelas estilizadas */
+  </style>
+</head>
+<body>
+  <h1>PON-BEAM: Diff Report</h1>
+  <p>Gerado em: 2025-08-03 14:30:22</p>
+
+  <div class="section">
+    <h2>Comparação de desempenho</h2>
+    <table>
+      <thead>
+        <tr><th>Benchmark</th><th>Baseline</th><th>PON-BEAM</th><th>Ganho</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>fase1_receive</td>
+          <td>85.23ms</td>
+          <td>8.52μs</td>
+          <td class="gain">10000.00×</td>
+        </tr>
+        <tr>
+          <td>fase2_timer_idle</td>
+          <td>15.2%</td>
+          <td>0.01%</td>
+          <td class="gain">1520.00×</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Contadores PON</h2>
+    <ul>
+      <li><code>premise_notifications</code>: 15234</li>
+      <li><code>mailbox_scans_avoided</code>: 15234</li>
+      <li><code>messages_classified</code>: 15234</li>
+    </ul>
+  </div>
+</body>
+</html>
+</code></pre>
+
+<hr />
+<h2>9. Instrumentação C: <code>pon_stats.h</code></h2>
+<p>Em C, os contadores são definidos como uma estrutura thread-local em <code>pon_stats.h</code>:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* PON-Receive */</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">premises_registered</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">premise_notifications</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">mailbox_scans_avoided</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">messages_classified</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">messages_type_collision</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">messages_pon_queued</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Temporais */</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">pon_overhead_us</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">PonStats</span><span class="p">;</span>
+
+<span class="k">extern</span><span class="w"> </span><span class="n">__thread</span><span class="w"> </span><span class="n">PonStats</span><span class="w"> </span><span class="n">pon_stats</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<p>A estrutura <code>PonStats</code> contém <strong>17 métricas</strong> no total (incluindo contadores para timer, scheduler, ETS, GC). As macros de incremento são:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="cp">#define PON_STATS_INC(field)    (pon_stats.field++)</span>
+<span class="cp">#define PON_STATS_ADD(field, n) (pon_stats.field += (n))</span>
+</pre></div>
+</div>
+
+<p>Sem <code>PON_BEAM_DEBUG</code>, todas as macros são vazias — custo zero em produção:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM_DEBUG</span>
+<span class="w">    </span><span class="cm">/* contadores ativos */</span>
+<span class="cp">#else</span>
+<span class="w">    </span><span class="cp">#define PON_STATS_INC(field)</span>
+<span class="w">    </span><span class="cp">#define PON_STATS_ADD(field, n)</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+
+<p>No código C da VM, os contadores são incrementados nos pontos de interesse:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// pon_premise.c:165 — notificação de Premise</span>
+<span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">premise_notifications</span><span class="p">);</span>
+<span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">mailbox_scans_avoided</span><span class="p">);</span>
+</pre></div>
+</div>
+
+<p>Os contadores são expostos ao Erlang via <code>erlang:system_info(pon_stats)</code>, que agrega os valores de todos os schedulers e retorna um mapa.</p>
+<hr />
+<h2>10. Fluxo de Execução de uma Rodada de Benchmark</h2>
+<div class="diagram" id="diag-e7c7722c"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: harness_flow Pages: 1 -->
+<svg width="270pt" height="735pt"
+ viewBox="0.00 0.00 269.50 735.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 731)">
+<title>harness_flow</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-731 265.5,-731 265.5,4 -4,4"/>
+<!-- run.sh -->
+<g id="node1" class="node">
+<title>run.sh</title>
+<polygon fill="lightyellow" stroke="black" points="165.5,-727 80.5,-727 80.5,-689 165.5,-689 165.5,-727"/>
+<text text-anchor="middle" x="123" y="-711.8" font-family="Times,serif" font-size="14.00">run.sh</text>
+<text text-anchor="middle" x="123" y="-696.8" font-family="Times,serif" font-size="14.00">(script shell)</text>
+</g>
+<!-- parse_args -->
+<g id="node2" class="node">
+<title>parse_args</title>
+<polygon fill="lightgrey" stroke="black" points="183,-652 63,-652 63,-614 183,-614 183,-652"/>
+<text text-anchor="middle" x="123" y="-636.8" font-family="Times,serif" font-size="14.00">Parse args</text>
+<text text-anchor="middle" x="123" y="-621.8" font-family="Times,serif" font-size="14.00">&#45;&#45;fase, &#45;&#45;only, &#45;&#45;list</text>
+</g>
+<!-- run.sh&#45;&gt;parse_args -->
+<g id="edge1" class="edge">
+<title>run.sh&#45;&gt;parse_args</title>
+<path fill="none" stroke="black" d="M123,-688.69C123,-688.69 123,-662.25 123,-662.25"/>
+<polygon fill="black" stroke="black" points="126.5,-662.25 123,-652.25 119.5,-662.25 126.5,-662.25"/>
+</g>
+<!-- find_benchmarks -->
+<g id="node3" class="node">
+<title>find_benchmarks</title>
+<polygon fill="lightgrey" stroke="black" points="190,-577 56,-577 56,-539 190,-539 190,-577"/>
+<text text-anchor="middle" x="123" y="-561.8" font-family="Times,serif" font-size="14.00">find_benchmarks()</text>
+<text text-anchor="middle" x="123" y="-546.8" font-family="Times,serif" font-size="14.00">descobre .erl por fase</text>
+</g>
+<!-- parse_args&#45;&gt;find_benchmarks -->
+<g id="edge2" class="edge">
+<title>parse_args&#45;&gt;find_benchmarks</title>
+<path fill="none" stroke="black" d="M123,-613.69C123,-613.69 123,-587.25 123,-587.25"/>
+<polygon fill="black" stroke="black" points="126.5,-587.25 123,-577.25 119.5,-587.25 126.5,-587.25"/>
+</g>
+<!-- run_baseline -->
+<g id="node4" class="node">
+<title>run_baseline</title>
+<polygon fill="lightblue" stroke="black" points="108,-502 0,-502 0,-464 108,-464 108,-502"/>
+<text text-anchor="middle" x="54" y="-486.8" font-family="Times,serif" font-size="14.00">Executa baseline</text>
+<text text-anchor="middle" x="54" y="-471.8" font-family="Times,serif" font-size="14.00">(OTP 30 stock)</text>
+</g>
+<!-- find_benchmarks&#45;&gt;run_baseline -->
+<g id="edge3" class="edge">
+<title>find_benchmarks&#45;&gt;run_baseline</title>
+<path fill="none" stroke="black" d="M82,-538.69C82,-538.69 82,-512.25 82,-512.25"/>
+<polygon fill="black" stroke="black" points="85.5,-512.25 82,-502.25 78.5,-512.25 85.5,-512.25"/>
+</g>
+<!-- run_ponbeam -->
+<g id="node5" class="node">
+<title>run_ponbeam</title>
+<polygon fill="lightgreen" stroke="black" points="261.5,-501 126.5,-501 126.5,-465 261.5,-465 261.5,-501"/>
+<text text-anchor="middle" x="194" y="-479.3" font-family="Times,serif" font-size="14.00">Executa PON&#45;BEAM</text>
+</g>
+<!-- find_benchmarks&#45;&gt;run_ponbeam -->
+<g id="edge4" class="edge">
+<title>find_benchmarks&#45;&gt;run_ponbeam</title>
+<path fill="none" stroke="black" d="M158.25,-538.69C158.25,-538.69 158.25,-511.22 158.25,-511.22"/>
+<polygon fill="black" stroke="black" points="161.75,-511.22 158.25,-501.22 154.75,-511.22 161.75,-511.22"/>
+</g>
+<!-- pon_harness -->
+<g id="node6" class="node">
+<title>pon_harness</title>
+<polygon fill="lightpink" stroke="black" points="181,-427 65,-427 65,-389 181,-389 181,-427"/>
+<text text-anchor="middle" x="123" y="-411.8" font-family="Times,serif" font-size="14.00">pon_harness:run/2</text>
+<text text-anchor="middle" x="123" y="-396.8" font-family="Times,serif" font-size="14.00">coleta métricas</text>
+</g>
+<!-- run_baseline&#45;&gt;pon_harness -->
+<g id="edge5" class="edge">
+<title>run_baseline&#45;&gt;pon_harness</title>
+<path fill="none" stroke="black" d="M86.5,-463.69C86.5,-463.69 86.5,-437.25 86.5,-437.25"/>
+<polygon fill="black" stroke="black" points="90,-437.25 86.5,-427.25 83,-437.25 90,-437.25"/>
+</g>
+<!-- run_ponbeam&#45;&gt;pon_harness -->
+<g id="edge6" class="edge">
+<title>run_ponbeam&#45;&gt;pon_harness</title>
+<path fill="none" stroke="black" d="M153.75,-464.84C153.75,-464.84 153.75,-437.03 153.75,-437.03"/>
+<polygon fill="black" stroke="black" points="157.25,-437.03 153.75,-427.03 150.25,-437.03 157.25,-437.03"/>
+</g>
+<!-- benchmark_mod -->
+<g id="node7" class="node">
+<title>benchmark_mod</title>
+<polygon fill="lightyellow" stroke="black" points="173.5,-352 72.5,-352 72.5,-314 173.5,-314 173.5,-352"/>
+<text text-anchor="middle" x="123" y="-336.8" font-family="Times,serif" font-size="14.00">Module:run()</text>
+<text text-anchor="middle" x="123" y="-321.8" font-family="Times,serif" font-size="14.00">(workload real)</text>
+</g>
+<!-- pon_harness&#45;&gt;benchmark_mod -->
+<g id="edge7" class="edge">
+<title>pon_harness&#45;&gt;benchmark_mod</title>
+<path fill="none" stroke="black" d="M123,-388.69C123,-388.69 123,-362.25 123,-362.25"/>
+<polygon fill="black" stroke="black" points="126.5,-362.25 123,-352.25 119.5,-362.25 126.5,-362.25"/>
+</g>
+<!-- collect_stats -->
+<g id="node8" class="node">
+<title>collect_stats</title>
+<polygon fill="lightpink" stroke="black" points="205.5,-277 40.5,-277 40.5,-239 205.5,-239 205.5,-277"/>
+<text text-anchor="middle" x="123" y="-261.8" font-family="Times,serif" font-size="14.00">collect_stats()</text>
+<text text-anchor="middle" x="123" y="-246.8" font-family="Times,serif" font-size="14.00">CPU, GC, run queue, PON</text>
+</g>
+<!-- benchmark_mod&#45;&gt;collect_stats -->
+<g id="edge8" class="edge">
+<title>benchmark_mod&#45;&gt;collect_stats</title>
+<path fill="none" stroke="black" d="M123,-313.69C123,-313.69 123,-287.25 123,-287.25"/>
+<polygon fill="black" stroke="black" points="126.5,-287.25 123,-277.25 119.5,-287.25 126.5,-287.25"/>
+</g>
+<!-- json_output -->
+<g id="node9" class="node">
+<title>json_output</title>
+<polygon fill="lightgrey" stroke="black" points="193,-202 53,-202 53,-164 193,-164 193,-202"/>
+<text text-anchor="middle" x="123" y="-186.8" font-family="Times,serif" font-size="14.00">JSON:</text>
+<text text-anchor="middle" x="123" y="-171.8" font-family="Times,serif" font-size="14.00">duration_us, stats, pon</text>
+</g>
+<!-- collect_stats&#45;&gt;json_output -->
+<g id="edge9" class="edge">
+<title>collect_stats&#45;&gt;json_output</title>
+<path fill="none" stroke="black" d="M123,-238.69C123,-238.69 123,-212.25 123,-212.25"/>
+<polygon fill="black" stroke="black" points="126.5,-212.25 123,-202.25 119.5,-212.25 126.5,-212.25"/>
+</g>
+<!-- pon_diff -->
+<g id="node10" class="node">
+<title>pon_diff</title>
+<polygon fill="lightgreen" stroke="black" points="213.5,-113 32.5,-113 32.5,-75 213.5,-75 213.5,-113"/>
+<text text-anchor="middle" x="123" y="-97.8" font-family="Times,serif" font-size="14.00">pon_diff:generate/1</text>
+<text text-anchor="middle" x="123" y="-82.8" font-family="Times,serif" font-size="14.00">carrega JSONs, computa ratio</text>
+</g>
+<!-- json_output&#45;&gt;pon_diff -->
+<g id="edge10" class="edge">
+<title>json_output&#45;&gt;pon_diff</title>
+<path fill="none" stroke="black" d="M123,-163.69C123,-163.69 123,-123.27 123,-123.27"/>
+<polygon fill="black" stroke="black" points="126.5,-123.27 123,-113.27 119.5,-123.27 126.5,-123.27"/>
+<text text-anchor="middle" x="174.5" y="-134.8" font-family="Times,serif" font-size="14.00"> &#160;(todos os JSONs)</text>
+</g>
+<!-- diff_html -->
+<g id="node11" class="node">
+<title>diff_html</title>
+<polygon fill="lightyellow" stroke="black" points="189,-38 57,-38 57,0 189,0 189,-38"/>
+<text text-anchor="middle" x="123" y="-22.8" font-family="Times,serif" font-size="14.00">diff/index.html</text>
+<text text-anchor="middle" x="123" y="-7.8" font-family="Times,serif" font-size="14.00">(tabela + contadores)</text>
+</g>
+<!-- pon_diff&#45;&gt;diff_html -->
+<g id="edge11" class="edge">
+<title>pon_diff&#45;&gt;diff_html</title>
+<path fill="none" stroke="black" d="M123,-74.69C123,-74.69 123,-48.25 123,-48.25"/>
+<polygon fill="black" stroke="black" points="126.5,-48.25 123,-38.25 119.5,-48.25 126.5,-48.25"/>
+</g>
+</g>
+</svg></div>
+
+<hr />
+<h2>11. Métricas-Chave e Interpretação</h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Fonte</th>
+<th>Unidade</th>
+<th>O que mede</th>
+<th>Interpretação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>duration_us</code></td>
+<td><code>timer:tc</code></td>
+<td>μs</td>
+<td>Tempo total do workload</td>
+<td>Quanto mais baixo, melhor. Ratio = baseline / PON.</td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td>Benchmark</td>
+<td>variável</td>
+<td>Throughput ou ops/s</td>
+<td>Quanto mais alto, melhor. Ratio = PON / baseline.</td>
+</tr>
+<tr>
+<td><code>cpu_utilization</code></td>
+<td><code>statistics(cpu_utilization)</code></td>
+<td>%</td>
+<td>Uso de CPU durante execução</td>
+<td>Deve cair em workloads idle.</td>
+</tr>
+<tr>
+<td><code>context_switches</code></td>
+<td><code>statistics(context_switches)</code></td>
+<td>contagem</td>
+<td>Trocas de contexto</td>
+<td>Devem cair com PON-Scheduler.</td>
+</tr>
+<tr>
+<td><code>run_queue_len</code></td>
+<td><code>statistics(total_run_queue_lengths)</code></td>
+<td>contagem</td>
+<td>Processos prontos na run queue</td>
+<td>Deve cair com PON-Scheduler.</td>
+</tr>
+<tr>
+<td><code>gc_count</code></td>
+<td><code>statistics(gc_count)</code></td>
+<td>contagem</td>
+<td>Coletas de lixo</td>
+<td>PON-GC deve reduzir.</td>
+</tr>
+<tr>
+<td><code>premise_notifications</code></td>
+<td>PON stats</td>
+<td>contagem</td>
+<td>Premises notificadas</td>
+<td>Quanto maior, mais scanning foi evitado.</td>
+</tr>
+<tr>
+<td><code>mailbox_scans_avoided</code></td>
+<td>PON stats</td>
+<td>contagem</td>
+<td>Scans lineares evitados</td>
+<td>Deve ser ~100% das mensagens.</td>
+</tr>
+<tr>
+<td><code>pon_overhead_us</code></td>
+<td>PON stats</td>
+<td>μs</td>
+<td>Overhead da infra PON</td>
+<td>Deve ser &lt;&lt; ganho obtido.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>12. CLI Completa do Harness</h2>
+<div class="code-block lang-bash"><div class="highlight"><pre><span></span><span class="c1"># Suíte completa</span>
+./run.sh
+
+<span class="c1"># Filtro por fase</span>
+./run.sh<span class="w"> </span>--fase<span class="o">=</span><span class="m">1</span>
+./run.sh<span class="w"> </span>--fase<span class="o">=</span><span class="m">1</span>,3
+
+<span class="c1"># Filtro por nome</span>
+./run.sh<span class="w"> </span>--only<span class="o">=</span>receive
+./run.sh<span class="w"> </span>--only<span class="o">=</span>timer
+
+<span class="c1"># Listagem</span>
+./run.sh<span class="w"> </span>--list
+
+<span class="c1"># Saída típica:</span>
+<span class="c1">#   Benchmark: fase1_receive</span>
+<span class="c1">#   Benchmark: fase1_size</span>
+<span class="c1">#   Benchmark: fase2_timer_idle</span>
+<span class="c1">#   Benchmark: fase3_spawn</span>
+<span class="c1">#   Benchmark: fase4_sched_idle</span>
+<span class="c1">#   Benchmark: fase5_ets_read</span>
+<span class="c1">#   Benchmark: fase6_compile</span>
+<span class="c1">#   Benchmark: fase7_gc_scan</span>
+</pre></div>
+</div>
+
+<hr />
+<h2>13. Exercícios</h2>
+<h3>Compreensão do Harness</h3>
+<ol>
+<li>
+<p>Execute o harness no seu sistema com <code>./run.sh --list</code>. Quantos benchmarks estão disponíveis? Que fases estão representadas?</p>
+</li>
+<li>
+<p>Execute <code>./run.sh --fase=1</code> e inspecione os JSONs gerados em <code>results/TIMESTAMP/baseline/</code>. Abra um deles. Quais campos estão presentes? Qual é o valor de <code>duration_us</code>?</p>
+</li>
+<li>
+<p>O que acontece se o <code>BASELINE_ERL</code> em <code>config/baseline.sh</code> apontar para o binário errado? Como o harness lida com isso?</p>
+</li>
+</ol>
+<h3>Instrumentação</h3>
+<ol start="4">
+<li>
+<p>Adicione um novo contador PON em <code>pon_stats.h</code>: <code>receive_no_match_count</code>. O contador deve ser incrementado quando uma mensagem chega mas não casa nenhuma Premise. Implemente o incremento em <code>pon_premise.c</code> e verifique se o contador aparece no diff report.</p>
+</li>
+<li>
+<p>Modifique <code>pon_harness.erl</code> para coletar também <code>erlang:memory(total)</code> antes e depois do benchmark. Adicione o campo <code>memory_delta</code> ao JSON de saída. Verifique se o diff report o exibe.</p>
+</li>
+</ol>
+<h3>Criação de Benchmark</h3>
+<ol start="6">
+<li>
+<p>Escreva um benchmark que cria N processos, cada um enviando M mensagens para um processo central, e mede o tempo total de entrega. Salve como <code>fase8_dist_throughput.erl</code> e execute com o harness. Dica: use <code>pon_harness</code> como base.</p>
+</li>
+<li>
+<p>O benchmark <code>fase1_receive.erl</code> mede o scanning de mailbox. Implemente uma versão que varia N (tamanho da mailbox) e reporta a relação N vs tempo. O resultado é linear? Confirme com gráfico.</p>
+</li>
+</ol>
+<h3>Diff Report</h3>
+<ol start="8">
+<li>
+<p>Modifique <code>pon_diff.erl</code> para adicionar uma terceira coluna: "Contadores PON" que mostra os contadores lado a lado com a tabela de performance. Re-renderize o HTML.</p>
+</li>
+<li>
+<p>O <code>compute_ratio</code> usa <code>duration_us</code> como primeira opção. Modifique a lógica para usar <code>result</code> (throughput) quando <code>duration_us</code> for menor que 100μs (workloads muito rápidos sofrem de baixa precisão do <code>timer:tc</code>).</p>
+</li>
+</ol>
+<h3>Análise</h3>
+<ol start="10">
+<li>
+<p>Execute o harness completo e analise o diff report. Identifique:</p>
+<ul>
+<li>Qual benchmark teve o maior ganho?</li>
+<li>Qual benchmark (se houver) mostrou regressão?</li>
+<li>Os contadores PON são consistentes com os ganhos observados?</li>
+</ul>
+</li>
+<li>
+<p>(Dissertação) O overhead da instrumentação (<code>pon_overhead_us</code>) é uma preocupação. Projete um experimento para isolar o custo dos contadores PON: compile com e sem <code>PON_BEAM_DEBUG</code>, execute o mesmo workload, e compare <code>duration_us</code>. Qual é o overhead percentual?</p>
+</li>
+<li>
+<p>(Dissertação) O harness atual executa baseline e PON-BEAM sequencialmente. Há risco de ruído ambiental (outros processos, throttling de CPU, variação de temperatura) contaminar uma das execuções. Proponha e implemente uma abordagem de execução alternada (A-B-A) para mitigar esse risco.</p>
+</li>
+<li>
+<p>O <code>run.sh</code> usa <code>find -name "*.erl"</code> para descobrir benchmarks. Se um arquivo <code>.erl</code> tiver erro de compilação, o harness falha silenciosamente? Como melhorar?</p>
+</li>
+<li>
+<p>Implemente suporte a <code>--warmup=N</code> no harness: executa o benchmark N vezes antes de medir, para aquecer caches e JIT. O warmup não é registrado no JSON.</p>
+</li>
+<li>
+<p>(Dissertação) O harness depende de <code>timer:tc</code> para medir tempo, que tem precisão de microssegundos. Para workloads nanossegundos (ex: notificação de Premise individual), isso não é suficiente. Proponha uma alternativa: use <code>erlang:monotonic_time(nanosecond)</code> diretamente no módulo C via NIF.</p>
+</li>
+</ol>
+<hr />
+<h2>14. Resumo para Memorização</h2>
+<ul>
+<li><strong>13 arquivos Erlang</strong>: 8 benchmarks + 5 bibliotecas.</li>
+<li><strong>Line count</strong>: ~907 linhas Erlang.</li>
+<li><strong>Pipeline</strong>: <code>run.sh</code> → baseline + PON-BEAM → <code>pon_diff.erl</code> → HTML.</li>
+<li><strong>CLI</strong>: <code>--fase=N</code>, <code>--only=nome</code>, <code>--list</code>.</li>
+<li><strong>JSON</strong>: <code>duration_us</code>, <code>result</code>, <code>stats</code> (CPU, GC, run queue), <code>pon</code> (contadores).</li>
+<li><strong>Diff</strong>: ratio = baseline / PON (tempo) ou PON / baseline (throughput).</li>
+<li><strong>Contadores PON</strong>: <code>pon_stats.h</code>, thread-local, expostos via <code>erlang:system_info(pon_stats)</code>.</li>
+<li><strong>Sem <code>PON_BEAM_DEBUG</code></strong>: macros vazias — custo zero.</li>
+<li><strong>Bibliotecas chave</strong>: <code>pon_harness.erl</code> (execução), <code>pon_compiler.erl</code> (parse transform), <code>pon_runtime.erl</code> (runtime), <code>pon_diff.erl</code> (relatório).</li>
+<li><strong>Resultados</strong>: <code>results/TIMESTAMP/{baseline,ponbeam,diff}/</code>, symlink <code>latest</code>.</li>
+<li><strong>Validação</strong>: sem diff com ganho, a fase não está completa.</li>
+</ul>
+<hr />
+<h2>15. Ver Também</h2>
+<ul>
+<li>Capítulo 11 — A Infraestrutura do Fork (build system, compilação condicional)</li>
+<li>Capítulo 13 — Roadmap e Tradeoffs (priorização das fases)</li>
+<li><a href="../../harness/run.sh">harness/run.sh</a> — Script principal do harness</li>
+<li><a href="../../harness/benchmarks/lib/pon_harness.erl">harness/benchmarks/lib/pon_harness.erl</a> — Módulo base de execução</li>
+<li><a href="../../harness/benchmarks/lib/pon_compiler.erl">harness/benchmarks/lib/pon_compiler.erl</a> — Parse transform PON</li>
+<li><a href="../../harness/benchmarks/lib/pon_runtime.erl">harness/benchmarks/lib/pon_runtime.erl</a> — Runtime PON</li>
+<li><a href="../../harness/benchmarks/lib/pon_diff.erl">harness/benchmarks/lib/pon_diff.erl</a> — Geração do diff report</li>
+<li><a href="../../harness/benchmarks/lib/pon_stats_reader.erl">harness/benchmarks/lib/pon_stats_reader.erl</a> — Leitura de contadores PON</li>
+<li><a href="../../otp/erts/include/internal/pon_stats.h">otp/erts/include/internal/pon_stats.h</a> — Definição dos contadores C</li>
+<li><a href="../../AGENTS.html">AGENTS.md</a> — Regra "toda fase entrega um diff"</li>
+</ul>
+            </article>
+            <footer class="chapter-nav">
+                <a href="11-infraestrutura-fork.html" class="nav-prev">← A Infraestrutura do Fork</a>
+                <a href="13-roadmap-tradeoffs.html" class="nav-next">Roadmap e Tradeoffs →</a>
+            </footer>
+        </main>
+    </div>
+    <script src="theme/search.js"></script>
+</body>
+</html>

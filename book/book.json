@@ -1,0 +1,26 @@
+{
+  "title": "PON-BEAM — Uma Máquina Virtual Orientada a Notificações",
+  "subtitle": "Re-arquitetura da BEAM usando o Paradigma Orientado a Notificações de Jean Marcelo Simão",
+  "author": "Matheus de Camargo Marques",
+  "language": "pt-BR",
+  "version": "0.1.0",
+  "repo": "https://github.com/matheuscamarques/pon-beam",
+  "chapters": [
+    {"id": "01-problema-polling",        "title": "O Problema: Custos Ocultos do Polling na BEAM", "part": "I"},
+    {"id": "02-paradigma-pon",           "title": "O Paradigma Orientado a Notificações", "part": "I"},
+    {"id": "03-visao-geral",             "title": "Visão Geral da PON-BEAM", "part": "I"},
+    {"id": "04-pon-receive",             "title": "PON-Receive: Selective Receive por Premises", "part": "II"},
+    {"id": "05-pon-timer",               "title": "PON-Timer: Instigações com timerfd", "part": "II"},
+    {"id": "06-pon-spawn",               "title": "PON-Spawn: Notificação Imediata", "part": "II"},
+    {"id": "07-pon-scheduler",           "title": "PON-Scheduler: Condition e eventfd", "part": "II"},
+    {"id": "08-pon-ets",                 "title": "PON-ETS: Base de Fatos Notificante", "part": "II"},
+    {"id": "09-pon-gc",                  "title": "PON-GC: Coleta por Cadeia Causal", "part": "II"},
+    {"id": "10-pon-compiler",            "title": "PON-Compiler: Geração Automática de Premises", "part": "II"},
+    {"id": "11-infraestrutura-fork",     "title": "A Infraestrutura do Fork", "part": "III"},
+    {"id": "12-harness-benchmarking",    "title": "O Harness de Benchmarking", "part": "III"},
+    {"id": "13-roadmap-tradeoffs",       "title": "Roadmap e Tradeoffs", "part": "III"},
+    {"id": "14-casos-estudo",            "title": "Casos de Estudo", "part": "IV"},
+    {"id": "15-trabalhos-relacionados",  "title": "Trabalhos Relacionados e Posicionamento", "part": "IV"},
+    {"id": "16-conclusao",               "title": "Conclusão", "part": "IV"}
+  ]
+}

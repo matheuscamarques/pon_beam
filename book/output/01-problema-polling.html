@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Problema: Custos Ocultos do Polling na BEAM — PON-BEAM</title>
+    <link rel="stylesheet" href="theme/style.css">
+    <link rel="stylesheet" href="theme/pygments.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar-nav">
+<div class="nav-header">
+<h3><a href="index.html">PON-BEAM</a></h3>
+</div>
+<div class="nav-part">Parte I: Fundamentos</div>
+<ul>
+<li class="active"><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
+<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
+<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
+</ul>
+<div class="nav-part">Parte II: Subsistemas PON</div>
+<ul>
+<li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
+<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
+<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
+<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
+<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
+<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
+<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
+</ul>
+<div class="nav-part">Parte III: Engenharia e Validação</div>
+<ul>
+<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
+<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
+<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
+</ul>
+<div class="nav-part">Parte IV: Síntese</div>
+<ul>
+<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
+<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
+<li><a href="16-conclusao.html">Conclusão</a></li>
+</ul>
+</nav>
+
+        <main class="content">
+            <header class="chapter-header">
+                <h1>O Problema: Custos Ocultos do Polling na BEAM</h1>
+            </header>
+            <article>
+                <h1>O Problema: Custos Ocultos do Polling na BEAM</h1>
+<blockquote>
+<p>"O polling é o pecado original dos sistemas reativos."
+— Joe Armstrong (atribuído)</p>
+</blockquote>
+<hr />
+<h2>1. Introdução</h2>
+<p>Todo sistema de software que espera por eventos pode fazê-lo de duas maneiras: perguntando repetidamente (polling) ou sendo avisado quando o evento ocorre (notificação). São duas filosofias opostas. No polling, um fio de execução interroga um recurso em intervalos regulares: "Tem trabalho?", "Chegou mensagem?", "Timer expirou?", "Heap está cheio?". Cada interrogação consome CPU, acessa memória, e — na imensa maioria dos casos — obtém a mesma resposta da vez anterior: não. Nada mudou. O recurso está exatamente como estava no último ciclo. A pergunta foi redundante.</p>
+<p>A BEAM (Bogdan/Björn's Erlang Abstract Machine) é a máquina virtual que executa Erlang e Elixir. Ela foi projetada para concorrência massiva, escalabilidade horizontal e sistemas que nunca param — os chamados sistemas <em>soft real-time</em> do mundo das telecomunicações (Ericsson AXE). A BEAM é conhecida por sua elegância: processos leves, troca de mensagens assíncrona, coleta de lixo por processo, tolerância a falhas. No entanto, examinando seus subsistemas internos — o scheduler, o selective receive, a timer wheel, o ETS e o garbage collector — encontramos um padrão recorrente e preocupante: todos eles usam polling ou scanning como mecanismo primário de operação. A BEAM, apesar de ser uma VM projetada para concorrência massiva e disponibilidade 24/7, emprega polling em vários de seus subsistemas centrais.</p>
+<p>Este capítulo faz o diagnóstico. Examinamos cada subsistema, abrimos seu código-fonte em C, identificamos os loops de polling e scanning, e quantificamos seu custo. Não se trata de um exercício acadêmico vazio — o polling na BEAM tem custos reais. Em idle, um scheduler BEAM pode consumir 5 a 30% de um core apenas verificando se há trabalho. O selective receive, na pior das hipóteses, é O(N×M) — cada mensagem na mailbox avalia cada cláusula do receive. A timer wheel executa milhares de verificações por segundo mesmo quando não há timers ativos. ETS adquire locks e percorre árvores mesmo quando os dados não mudaram. O garbage collector varre todo o heap a cada coleta major.</p>
+<p>O diagnóstico precede a cura. Antes de propor a re-arquitetura (Capítulo 2), antes de mostrar cada subsistema redesenhado (Capítulos 4–10), antes de medir e validar (Capítulos 11–13), precisamos entender exatamente onde e como a BEAM desperdiça ciclos. Este capítulo é a radiografia.</p>
+<hr />
+<h2>2. O Custo do Polling: Redundância Temporal</h2>
+<p>O conceito central que unifica todas as críticas a seguir vem de Jean Marcelo Simão, em sua tese sobre o Paradigma Orientado a Notificações (2008–2009). Simão chama de <em>redundância temporal</em> o fenômeno em que um sistema reavalia repetidamente uma expressão cujos operandos não mudaram. Em um loop <code>while (x &gt; 5)</code>, a expressão <code>x &gt; 5</code> é reavaliada a cada iteração — mas se <code>x</code> não muda entre iterações, cada avaliação exceto a primeira é redundante. A CPU queima ciclos, os caches são poluídos, a energia é dissipada — e o resultado é sempre o mesmo.</p>
+<p>A BEAM sofre de redundância temporal em múltiplos subsistemas. Considere:</p>
+<p><strong>Scheduler.</strong> Em <code>erl_process.c:3457</code>, a função <code>scheduler_wait()</code> é chamada quando a run queue está vazia. O scheduler então entra em um loop de espera: ele verifica a run queue, verifica timers, verifica I/O, e se nada houver, dorme com timeout — e acorda para verificar tudo de novo. Se não há trabalho, cada ciclo é redundante.</p>
+<p><strong>Selective receive.</strong> Em toda instrução <code>receive</code>, a BEAM percorre a mailbox linearmente, do início ao fim, comparando cada mensagem com cada cláusula. Mensagens que já foram examinadas em receives anteriores e não corresponderam são reexaminadas do zero. Se um processo tem 10.000 mensagens na mailbox e faz 10 receives, cada mensagem é percorrida 10 vezes — 100.000 comparações no total. Tudo redundante.</p>
+<p><strong>Timer wheel.</strong> Em <code>time.c:784</code>, <code>erts_bump_timers()</code> é chamado a cada tick do scheduler (~1ms). A função percorre os slots da timer wheel verificando se há timers expirados. Se não há timers ativos — o que é comum — a verificação inteira é redundante. Com 32 schedulers, são 32.000 verificações por segundo sem nenhum timer.</p>
+<p><strong>ETS.</strong> Operações de lookup em ETS adquirem locks de leitura e percorrem a CA tree (uma árvore balanceada) para encontrar a entrada. Em tabelas que raramente mudam, o lock e a busca são redundantes: os dados são os mesmos da última consulta.</p>
+<p><strong>Garbage collector.</strong> Em <code>erl_gc.c:759</code>, a função <code>garbage_collect()</code> varre todas as raízes do processo — pilha, registros, mensagens — e percorre todo o heap jovem a cada coleta minor. Em uma coleta major, varre o heap inteiro. Se o grafo de objetos mudou pouco, a varredura é quase toda redundante.</p>
+<div class="diagram" id="diag-4916fa68"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: redundancia_temporal Pages: 1 -->
+<svg width="1016pt" height="130pt"
+ viewBox="0.00 0.00 1015.98 130.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 126)">
+<title>redundancia_temporal</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-126 1011.98,-126 1011.98,4 -4,4"/>
+<!-- Recurso -->
+<g id="node1" class="node">
+<title>Recurso</title>
+<polygon fill="lightyellow" stroke="black" points="179,-47 0,-47 0,-9 179,-9 179,-47"/>
+<text text-anchor="middle" x="89.5" y="-31.8" font-family="Times,serif" font-size="14.00">Recurso</text>
+<text text-anchor="middle" x="89.5" y="-16.8" font-family="Times,serif" font-size="14.00">(x, mailbox, run queue, heap)</text>
+</g>
+<!-- Estado -->
+<g id="node2" class="node">
+<title>Estado</title>
+<polygon fill="lightyellow" stroke="black" points="347,-83 264,-83 264,-45 347,-45 347,-83"/>
+<text text-anchor="middle" x="305.5" y="-67.8" font-family="Times,serif" font-size="14.00">Estado atual</text>
+<text text-anchor="middle" x="305.5" y="-52.8" font-family="Times,serif" font-size="14.00">(inalterado)</text>
+</g>
+<!-- Recurso&#45;&gt;Estado -->
+<g id="edge1" class="edge">
+<title>Recurso&#45;&gt;Estado</title>
+<path fill="none" stroke="black" d="M179.11,-41.5C238.67,-41.5 305.98,-41.5 305.98,-41.5 305.98,-41.5 305.98,-41.81 305.98,-41.81"/>
+<polygon fill="black" stroke="black" points="302.48,-34.63 305.98,-44.63 309.48,-34.63 302.48,-34.63"/>
+<text text-anchor="middle" x="221.5" y="-55.8" font-family="Times,serif" font-size="14.00"> &#160;persiste</text>
+</g>
+<!-- Decisao -->
+<g id="node4" class="node">
+<title>Decisao</title>
+<polygon fill="lightyellow" stroke="black" points="518.99,-96 462.01,-78 518.99,-60 575.96,-78 518.99,-96"/>
+<text text-anchor="middle" x="518.99" y="-74.3" font-family="Times,serif" font-size="14.00">Mudou?</text>
+</g>
+<!-- Estado&#45;&gt;Decisao -->
+<g id="edge3" class="edge">
+<title>Estado&#45;&gt;Decisao</title>
+<path fill="none" stroke="black" d="M347.17,-71.5C347.17,-71.5 472.41,-71.5 472.41,-71.5"/>
+<polygon fill="black" stroke="black" points="472.41,-75 482.41,-71.5 472.41,-68 472.41,-75"/>
+<text text-anchor="middle" x="404.5" y="-72.8" font-family="Times,serif" font-size="14.00"> &#160;fornece</text>
+</g>
+<!-- Polling -->
+<g id="node3" class="node">
+<title>Polling</title>
+<polygon fill="lightyellow" stroke="black" points="1007.98,-122 876.98,-122 876.98,-84 1007.98,-84 1007.98,-122"/>
+<text text-anchor="middle" x="942.48" y="-106.8" font-family="Times,serif" font-size="14.00">Polling/Scanning</text>
+<text text-anchor="middle" x="942.48" y="-91.8" font-family="Times,serif" font-size="14.00">(verifica novamente)</text>
+</g>
+<!-- Polling&#45;&gt;Decisao -->
+<g id="edge2" class="edge">
+<title>Polling&#45;&gt;Decisao</title>
+<path fill="none" stroke="black" d="M876.92,-110C758.25,-110 519.98,-110 519.98,-110 519.98,-110 519.98,-105.87 519.98,-105.87"/>
+<polygon fill="black" stroke="black" points="523.48,-105.87 519.98,-95.87 516.48,-105.87 523.48,-105.87"/>
+</g>
+<!-- Redundancia -->
+<g id="node5" class="node">
+<title>Redundancia</title>
+<polygon fill="lightcoral" stroke="black" points="755.98,-98 639.98,-98 639.98,-60 755.98,-60 755.98,-98"/>
+<text text-anchor="middle" x="697.98" y="-82.8" font-family="Times,serif" font-size="14.00">REDUNDÂNCIA</text>
+<text text-anchor="middle" x="697.98" y="-67.8" font-family="Times,serif" font-size="14.00">(pula a ação)</text>
+</g>
+<!-- Decisao&#45;&gt;Redundancia -->
+<g id="edge4" class="edge">
+<title>Decisao&#45;&gt;Redundancia</title>
+<path fill="none" stroke="black" d="M576.11,-78C576.11,-78 629.86,-78 629.86,-78"/>
+<polygon fill="black" stroke="black" points="629.86,-81.5 639.86,-78 629.86,-74.5 629.86,-81.5"/>
+<text text-anchor="middle" x="607.98" y="-86.8" font-family="Times,serif" font-size="14.00"> &#160;não</text>
+</g>
+<!-- Acao -->
+<g id="node6" class="node">
+<title>Acao</title>
+<polygon fill="lightgreen" stroke="black" points="725.48,-38 670.48,-38 670.48,0 725.48,0 725.48,-38"/>
+<text text-anchor="middle" x="697.98" y="-22.8" font-family="Times,serif" font-size="14.00">Ação</text>
+<text text-anchor="middle" x="697.98" y="-7.8" font-family="Times,serif" font-size="14.00">(reage)</text>
+</g>
+<!-- Decisao&#45;&gt;Acao -->
+<g id="edge5" class="edge">
+<title>Decisao&#45;&gt;Acao</title>
+<path fill="none" stroke="black" d="M519.98,-60.07C519.98,-45.84 519.98,-28.33 519.98,-28.33 519.98,-28.33 660.16,-28.33 660.16,-28.33"/>
+<polygon fill="black" stroke="black" points="660.16,-31.83 670.16,-28.33 660.16,-24.83 660.16,-31.83"/>
+<text text-anchor="middle" x="607.98" y="-48.8" font-family="Times,serif" font-size="14.00"> &#160;sim</text>
+</g>
+<!-- Redundancia&#45;&gt;Polling -->
+<g id="edge6" class="edge">
+<title>Redundancia&#45;&gt;Polling</title>
+<path fill="none" stroke="black" d="M756.23,-91C756.23,-91 866.91,-91 866.91,-91"/>
+<polygon fill="black" stroke="black" points="866.91,-94.5 876.91,-91 866.91,-87.5 866.91,-94.5"/>
+<text text-anchor="middle" x="816.48" y="-91.8" font-family="Times,serif" font-size="14.00"> &#160;próximo ciclo</text>
+</g>
+<!-- Acao&#45;&gt;Recurso -->
+<g id="edge7" class="edge">
+<title>Acao&#45;&gt;Recurso</title>
+<path fill="none" stroke="black" d="M670.25,-18.67C670.25,-18.67 189.17,-18.67 189.17,-18.67"/>
+<polygon fill="black" stroke="black" points="189.17,-15.17 179.17,-18.67 189.17,-22.17 189.17,-15.17"/>
+<text text-anchor="middle" x="404.5" y="-30.8" font-family="Times,serif" font-size="14.00"> &#160;modifica</text>
+<text text-anchor="middle" x="404.5" y="-15.8" font-family="Times,serif" font-size="14.00">(se for o caso)</text>
+</g>
+</g>
+</svg></div>
+
+<p>O diagrama acima mostra o ciclo da redundância temporal: o polling verifica, o recurso não mudou, a ação é pulada — e o ciclo recomeça. A pergunta que o PON faz é: por que verificar? Se o recurso notificasse os dependentes quando muda, todo o ciclo de verificação desapareceria.</p>
+<p>O custo acumulado dessa redundância é difícil de medir em sistemas simples, mas torna-se dominante em sistemas com muitos processos, muitas mensagens, muitos timers, muitas tabelas ETS e heaps grandes. A BEAM foi projetada para escalar em <em>throughput</em>, não em <em>eficiência energética</em> ou <em>latência de ociosidade</em>. Em 1986, quando a Ericsson começou a desenvolver Erlang, CPU era cara, mas o custo de uma interrupção de serviço era muito mais caro. O polling era aceitável — desde que o sistema nunca parasse. Em 2025, o contexto é outro.</p>
+<div class="diagram" id="diag-3c78dfe0"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: custo_acumulado Pages: 1 -->
+<svg width="1027pt" height="262pt"
+ viewBox="0.00 0.00 1026.50 262.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 258)">
+<title>custo_acumulado</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-258 1022.5,-258 1022.5,4 -4,4"/>
+<!-- Scheduler\n5&#45;30% CPU idle -->
+<g id="node1" class="node">
+<title>Scheduler\n5&#45;30% CPU idle</title>
+<polygon fill="lightblue" stroke="black" points="107,-254 0,-254 0,-216 107,-216 107,-254"/>
+<text text-anchor="middle" x="53.5" y="-238.8" font-family="Times,serif" font-size="14.00">Scheduler</text>
+<text text-anchor="middle" x="53.5" y="-223.8" font-family="Times,serif" font-size="14.00">5&#45;30% CPU idle</text>
+</g>
+<!-- Receive\nO(NxM) scanning -->
+<g id="node2" class="node">
+<title>Receive\nO(NxM) scanning</title>
+<polygon fill="lightblue" stroke="black" points="241.5,-254 125.5,-254 125.5,-216 241.5,-216 241.5,-254"/>
+<text text-anchor="middle" x="183.5" y="-238.8" font-family="Times,serif" font-size="14.00">Receive</text>
+<text text-anchor="middle" x="183.5" y="-223.8" font-family="Times,serif" font-size="14.00">O(NxM) scanning</text>
+</g>
+<!-- Timer\n32K checks/sec idle -->
+<g id="node3" class="node">
+<title>Timer\n32K checks/sec idle</title>
+<polygon fill="lightblue" stroke="black" points="385,-254 260,-254 260,-216 385,-216 385,-254"/>
+<text text-anchor="middle" x="322.5" y="-238.8" font-family="Times,serif" font-size="14.00">Timer</text>
+<text text-anchor="middle" x="322.5" y="-223.8" font-family="Times,serif" font-size="14.00">32K checks/sec idle</text>
+</g>
+<!-- ETS\n200&#45;500ns/lookup -->
+<g id="node4" class="node">
+<title>ETS\n200&#45;500ns/lookup</title>
+<polygon fill="lightblue" stroke="black" points="518,-254 403,-254 403,-216 518,-216 518,-254"/>
+<text text-anchor="middle" x="460.5" y="-238.8" font-family="Times,serif" font-size="14.00">ETS</text>
+<text text-anchor="middle" x="460.5" y="-223.8" font-family="Times,serif" font-size="14.00">200&#45;500ns/lookup</text>
+</g>
+<!-- GC\n1&#45;100ms/pausa -->
+<g id="node5" class="node">
+<title>GC\n1&#45;100ms/pausa</title>
+<polygon fill="lightblue" stroke="black" points="635,-254 536,-254 536,-216 635,-216 635,-254"/>
+<text text-anchor="middle" x="585.5" y="-238.8" font-family="Times,serif" font-size="14.00">GC</text>
+<text text-anchor="middle" x="585.5" y="-223.8" font-family="Times,serif" font-size="14.00">1&#45;100ms/pausa</text>
+</g>
+<!-- Custo Acumulado -->
+<g id="node6" class="node">
+<title>Custo Acumulado</title>
+<polygon fill="lightcoral" stroke="black" stroke-width="3" points="905,-179 790,-179 790,-143 905,-143 905,-179"/>
+<text text-anchor="middle" x="847.5" y="-157.3" font-family="Times,serif" font-size="14.00">Custo Acumulado</text>
+</g>
+<!-- Impacto -->
+<g id="node12" class="node">
+<title>Impacto</title>
+<polygon fill="lightgrey" stroke="black" points="956,-92 733,-92 733,0 962,0 962,-86 956,-92"/>
+<polyline fill="none" stroke="black" points="956,-92 956,-86 "/>
+<polyline fill="none" stroke="black" points="962,-86 956,-86 "/>
+<text text-anchor="start" x="790" y="-77.8" font-family="Times,serif" font-weight="bold" font-size="14.00">Impacto observável</text>
+<text text-anchor="start" x="778" y="-63.8" font-family="Times,serif" font-size="14.00">CPU idle elevado (cloud)</text>
+<text text-anchor="start" x="758.5" y="-49.8" font-family="Times,serif" font-size="14.00">Latência de receive imprevisível</text>
+<text text-anchor="start" x="769" y="-35.8" font-family="Times,serif" font-size="14.00">Consumo energético em IoT</text>
+<text text-anchor="start" x="758.5" y="-21.8" font-family="Times,serif" font-size="14.00">Pausas de GC em grandes heaps</text>
+<text text-anchor="start" x="741" y="-7.8" font-family="Times,serif" font-size="14.00">Overhead de locks em ETS concorrido</text>
+</g>
+<!-- Custo Acumulado&#45;&gt;Impacto -->
+<g id="edge6" class="edge">
+<title>Custo Acumulado&#45;&gt;Impacto</title>
+<path fill="none" stroke="black" d="M847.5,-142.78C847.5,-142.78 847.5,-102.42 847.5,-102.42"/>
+<polygon fill="black" stroke="black" points="851,-102.42 847.5,-92.42 844,-102.42 851,-102.42"/>
+<text text-anchor="middle" x="914" y="-113.8" font-family="Times,serif" font-size="14.00"> &#160;em sistemas modernos</text>
+</g>
+<!-- Scheduler -->
+<g id="node7" class="node">
+<title>Scheduler</title>
+<polygon fill="lightgrey" stroke="black" points="724,-253 653,-253 653,-217 724,-217 724,-253"/>
+<text text-anchor="middle" x="688.5" y="-231.3" font-family="Times,serif" font-size="14.00">Scheduler</text>
+</g>
+<!-- Scheduler&#45;&gt;Custo Acumulado -->
+<g id="edge1" class="edge">
+<title>Scheduler&#45;&gt;Custo Acumulado</title>
+<path fill="none" stroke="black" d="M688.5,-216.71C688.5,-194.79 688.5,-161 688.5,-161 688.5,-161 779.65,-161 779.65,-161"/>
+<polygon fill="black" stroke="black" points="779.65,-164.5 789.65,-161 779.65,-157.5 779.65,-164.5"/>
+</g>
+<!-- Receive -->
+<g id="node8" class="node">
+<title>Receive</title>
+<polygon fill="lightgrey" stroke="black" points="802.5,-253 742.5,-253 742.5,-217 802.5,-217 802.5,-253"/>
+<text text-anchor="middle" x="772.5" y="-231.3" font-family="Times,serif" font-size="14.00">Receive</text>
+</g>
+<!-- Receive&#45;&gt;Custo Acumulado -->
+<g id="edge2" class="edge">
+<title>Receive&#45;&gt;Custo Acumulado</title>
+<path fill="none" stroke="black" d="M796.25,-216.71C796.25,-216.71 796.25,-189.08 796.25,-189.08"/>
+<polygon fill="black" stroke="black" points="799.75,-189.08 796.25,-179.08 792.75,-189.08 799.75,-189.08"/>
+</g>
+<!-- Timer -->
+<g id="node9" class="node">
+<title>Timer</title>
+<polygon fill="lightgrey" stroke="black" points="874.5,-253 820.5,-253 820.5,-217 874.5,-217 874.5,-253"/>
+<text text-anchor="middle" x="847.5" y="-231.3" font-family="Times,serif" font-size="14.00">Timer</text>
+</g>
+<!-- Timer&#45;&gt;Custo Acumulado -->
+<g id="edge3" class="edge">
+<title>Timer&#45;&gt;Custo Acumulado</title>
+<path fill="none" stroke="black" d="M847.5,-216.71C847.5,-216.71 847.5,-189.08 847.5,-189.08"/>
+<polygon fill="black" stroke="black" points="851,-189.08 847.5,-179.08 844,-189.08 851,-189.08"/>
+</g>
+<!-- ETS -->
+<g id="node10" class="node">
+<title>ETS</title>
+<polygon fill="lightgrey" stroke="black" points="946.5,-253 892.5,-253 892.5,-217 946.5,-217 946.5,-253"/>
+<text text-anchor="middle" x="919.5" y="-231.3" font-family="Times,serif" font-size="14.00">ETS</text>
+</g>
+<!-- ETS&#45;&gt;Custo Acumulado -->
+<g id="edge4" class="edge">
+<title>ETS&#45;&gt;Custo Acumulado</title>
+<path fill="none" stroke="black" d="M898.75,-216.71C898.75,-216.71 898.75,-189.08 898.75,-189.08"/>
+<polygon fill="black" stroke="black" points="902.25,-189.08 898.75,-179.08 895.25,-189.08 902.25,-189.08"/>
+</g>
+<!-- GC -->
+<g id="node11" class="node">
+<title>GC</title>
+<polygon fill="lightgrey" stroke="black" points="1018.5,-253 964.5,-253 964.5,-217 1018.5,-217 1018.5,-253"/>
+<text text-anchor="middle" x="991.5" y="-231.3" font-family="Times,serif" font-size="14.00">GC</text>
+</g>
+<!-- GC&#45;&gt;Custo Acumulado -->
+<g id="edge5" class="edge">
+<title>GC&#45;&gt;Custo Acumulado</title>
+<path fill="none" stroke="black" d="M991.5,-216.71C991.5,-194.79 991.5,-161 991.5,-161 991.5,-161 915.24,-161 915.24,-161"/>
+<polygon fill="black" stroke="black" points="915.24,-157.5 905.24,-161 915.24,-164.5 915.24,-157.5"/>
+</g>
+</g>
+</svg></div>
+
+<hr />
+<h2>3. Anatomia do Polling em Cada Subsistema</h2>
+<h3>3.1 Scheduler</h3>
+<p>O scheduler é o coração da BEAM. É ele que decide qual processo executar, quando, e por quanto tempo. A cada ciclo, o scheduler:</p>
+<ol>
+<li>Finaliza o processo atual e o devolve à run queue (<code>erl_process.c:9665-9798</code>);</li>
+<li>Verifica se há atividades pendentes — timers, migração de processos, balanceamento (<code>9802-9976</code>);</li>
+<li>Escolhe o próximo processo da run queue (<code>9981-10049</code>);</li>
+<li>Executa o processo por um número de reductions (<code>beam_emu.c:356-375</code>);</li>
+<li>Repete.</li>
+</ol>
+<p>Quando a run queue está vazia, o scheduler entra em <code>scheduler_wait()</code> (<code>erl_process.c:3457</code>). Esta função merece atenção especial.</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_process.c:3457</span>
+<span class="n">scheduler_wait</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fcalls</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span><span class="n">rq</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErtsSchedulerSleepInfo</span><span class="w"> </span><span class="o">*</span><span class="n">ssi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">ssi</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">spincount</span><span class="p">;</span>
+<span class="w">    </span><span class="n">erts_aint32_t</span><span class="w"> </span><span class="n">aux_work</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">thr_prgr_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">erts_aint32_t</span><span class="w"> </span><span class="n">flgs</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ERTS_MSACC_PUSH_STATE</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">ERTS_LC_ASSERT</span><span class="p">(</span><span class="n">erts_lc_runq_is_locked</span><span class="p">(</span><span class="n">rq</span><span class="p">));</span>
+<span class="w">    </span><span class="n">flgs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sched_prep_spin_wait</span><span class="p">(</span><span class="n">ssi</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flgs</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ERTS_SSI_FLG_SUSPENDED</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// ... registro na lista de sleepers ...</span>
+
+<span class="w">    </span><span class="n">spincount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sched_get_busy_wait_params</span><span class="p">(</span><span class="n">esdp</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">tse</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">aux_work</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_atomic32_read_acqb</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ssi</span><span class="o">-&gt;</span><span class="n">aux_work</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">aux_work</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Processa trabalho auxiliar (timers, I/O, etc.)</span>
+<span class="w">            </span><span class="n">handle_aux_work</span><span class="p">(</span><span class="o">&amp;</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">aux_work_data</span><span class="p">,</span><span class="w"> </span><span class="n">aux_work</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">            </span><span class="c1">// Verifica timers expirados</span>
+<span class="w">            </span><span class="n">current_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_get_monotonic_time</span><span class="p">(</span><span class="n">esdp</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">erts_next_timeout_time</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">next_tmo_ref</span><span class="p">))</span>
+<span class="w">                </span><span class="n">erts_bump_timers</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">timer_wheel</span><span class="p">,</span><span class="w"> </span><span class="n">current_time</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Busy-wait (spin) seguido de sleep com timeout</span>
+<span class="w">            </span><span class="n">timeout_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_check_next_timeout_time</span><span class="p">(</span><span class="n">esdp</span><span class="p">);</span>
+<span class="w">            </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERTS_MONOTONIC_TO_NSEC</span><span class="p">(</span><span class="n">timeout_time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">current_time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">                </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_tse_twait</span><span class="p">(</span><span class="n">ssi</span><span class="o">-&gt;</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">);</span>
+<span class="w">                </span><span class="n">current_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_get_monotonic_time</span><span class="p">(</span><span class="n">esdp</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">res</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EINTR</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// Ao acordar, verifica timers novamente</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">timeout_time</span><span class="p">)</span>
+<span class="w">                </span><span class="n">erts_bump_timers</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">timer_wheel</span><span class="p">,</span><span class="w"> </span><span class="n">current_time</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// Verifica se deve continuar dormindo</span>
+<span class="w">        </span><span class="n">flgs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sched_prep_cont_spin_wait</span><span class="p">(</span><span class="n">ssi</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">flgs</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ERTS_SSI_FLG_WAITING</span><span class="p">))</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>O que este código revela:</p>
+<ol>
+<li>O scheduler dorme com timeout — mesmo sem trabalho. Ele acorda após o timeout, verifica timers (que podem não ter expirado nada), verifica trabalho auxiliar, e se nada houver, volta a dormir.</li>
+<li>O <code>erts_tse_twait</code> é uma chamada de sistema condicional (futex no Linux). Mesmo dormindo, o scheduler gasta ciclos para entrar e sair do sono — cada transição custa microssegundos.</li>
+<li>Em idle, o scheduler alterna entre dormir e acordar dezenas de vezes por segundo. Cada despertar é um falso positivo: "será que tem trabalho? Não. Volta a dormir."</li>
+</ol>
+<p>O custo é significativo. Com 32 schedulers em um sistema multicore, 5-30% de um core pode ser consumido apenas por este ciclo de acordar-verificar-dormir. Em clouds onde cada mili-core é faturado, este custo é direto e mensurável.</p>
+<h3>3.2 Selective Receive</h3>
+<p>O selective receive é o mecanismo mais icônico e controverso da BEAM. Quando um processo Erlang executa:</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="k">receive</span>
+<span class="w">    </span><span class="p">{</span><span class="n">ping</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">From</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">pong</span><span class="p">;</span>
+<span class="w">    </span><span class="p">{</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="nv">Payload</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="nv">Payload</span><span class="p">);</span>
+<span class="w">    </span><span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">timeout</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+
+<p>A VM precisa encontrar na mailbox a primeira mensagem que corresponde a alguma cláusula. Se nenhuma mensagem corresponde, o processo bloqueia até que uma mensagem compatível chegue (ou o timeout expire).</p>
+<p>O algoritmo é ingênuo por design: um loop aninhado, mensagens × cláusulas. Para cada mensagem na mailbox (da mais antiga para a mais nova), a BEAM testa cada cláusula em ordem. Se a mensagem corresponde, ela é removida da mailbox e o corpo é executado. Se não corresponde, a mensagem é mantida — e reexaminada no próximo <code>receive</code>.</p>
+<p>O código de matching em si está espalhado pelo <em>emulator</em> (instruções específicas da BEAM), mas a estrutura lógica é capturada pelo sistema de <em>receive markers</em> em <code>erl_message.h:305-331</code>:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_message.h:305</span>
+<span class="cp">#define ERTS_RECV_MARKER_TYPE_RECV              0</span>
+<span class="cp">#define ERTS_RECV_MARKER_TYPE_YIELD             1</span>
+<span class="cp">#define ERTS_RECV_MARKER_TYPE_PRIO_Q_END        2</span>
+<span class="cp">#define ERTS_RECV_MARKER_TYPE_PRIO_Q_CONT       3</span>
+
+<span class="cp">#define ERTS_RECV_MARKER_BLOCK_SIZE 8</span>
+
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Eterm</span><span class="w"> </span><span class="n">ref</span><span class="p">[</span><span class="n">ERTS_RECV_MARKER_BLOCK_SIZE</span><span class="p">];</span>
+<span class="w">    </span><span class="n">ErtsRecvMarker</span><span class="w"> </span><span class="n">marker</span><span class="p">[</span><span class="n">ERTS_RECV_MARKER_BLOCK_SIZE</span><span class="p">];</span>
+<span class="p">}</span><span class="w"> </span><span class="n">ErtsRecvMarkerBlock</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_message.h:385-399 (struct ErtsSignalPrivQueues)</span>
+<span class="w">    </span><span class="cm">/* inner queue (message queue) */</span>
+<span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">*</span><span class="n">first</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">**</span><span class="n">last</span><span class="p">;</span><span class="w">  </span><span class="cm">/* point to the last next pointer */</span>
+<span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">**</span><span class="n">save</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Sint</span><span class="w"> </span><span class="n">mq_len</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Message queue length */</span>
+
+<span class="w">    </span><span class="cm">/* middle queue */</span>
+<span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">*</span><span class="n">cont</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">**</span><span class="n">cont_last</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErtsMsgQNMSigs</span><span class="w"> </span><span class="n">nmsigs</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Sint</span><span class="w"> </span><span class="n">mlenoffs</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Common for inner and middle queue */</span>
+<span class="w">    </span><span class="n">ErtsRecvMarkerBlock</span><span class="w"> </span><span class="o">*</span><span class="n">recv_mrk_blk</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint32</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<p>O campo <code>save</code> é o ponteiro que marca até onde já scanneamos. A cada <code>receive</code>, a BEAM começa de <code>save</code> e percorre até o fim. Mensagens antes de <code>save</code> já foram examinadas em receives anteriores e não corresponderam. Elas serão reexaminadas no próximo receive porque uma nova cláusula pode corresponder — mas este é o ponto: se as cláusulas são as mesmas, reexaminar é redundância temporal.</p>
+<p>O custo assintótico é O(N×M) onde N = número de mensagens na mailbox e M = número de cláusulas. Em condições normais, N é pequeno (tipicamente &lt; 10). Mas em sistemas de alta concorrência — um servidor web recebendo 100.000 requisições por segundo — um processo pode acumular milhares de mensagens na mailbox. Cada <code>receive</code> percorre a lista linearmente. O custo deixa de ser desprezível.</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">% Experimento: custo do scanning linear</span>
+<span class="c">% Crie um processo com N mensagens na mailbox e meça o tempo de receive</span>
+<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">scan_cost</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">test</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
+
+<span class="nf">test</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">receive</span><span class="w"> </span><span class="k">after</span><span class="w"> </span><span class="n">infinity</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
+<span class="w">    </span><span class="p">[</span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="nv">I</span><span class="p">}</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">)],</span>
+<span class="w">    </span><span class="p">{</span><span class="nv">Time</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">wake</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">()},</span>
+<span class="w">        </span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">wake</span><span class="p">,</span><span class="w"> </span><span class="nv">Pid</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span>
+<span class="w">    </span><span class="k">end</span><span class="p">),</span>
+<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;N=</span><span class="si">~p</span><span class="s"> time=</span><span class="si">~p~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">Time</span><span class="p">]).</span>
+</pre></div>
+</div>
+
+<p>O scanning linear não é apenas caro — ele é imprevisível. O custo de um <code>receive</code> depende do número de mensagens na mailbox, que depende da carga do sistema. Esta imprevisibilidade contraria a filosofia de <em>soft real-time</em> que a BEAM supostamente defende.</p>
+<h3>3.3 Timer Wheel</h3>
+<p>A BEAM gerencia timers através de uma timer wheel — uma estrutura de dados clássica para gerenciar expirações futuras. A cada tick (~1ms), o scheduler chama <code>erts_bump_timers()</code> para avançar a roda e disparar timers expirados.</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/time.c:784</span>
+<span class="kt">void</span>
+<span class="nf">erts_bump_timers</span><span class="p">(</span><span class="n">ErtsTimerWheel</span><span class="w"> </span><span class="o">*</span><span class="n">tiw</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsMonotonicTime</span><span class="w"> </span><span class="n">curr_time</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">slot</span><span class="p">,</span><span class="w"> </span><span class="n">restarted</span><span class="p">,</span><span class="w"> </span><span class="n">yield_count</span><span class="p">,</span><span class="w"> </span><span class="n">slots</span><span class="p">,</span><span class="w"> </span><span class="n">scnt_ix</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErtsMonotonicTime</span><span class="w"> </span><span class="n">bump_to</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Sint</span><span class="w"> </span><span class="o">*</span><span class="n">scnt</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">bump_scnt</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ERTS_MSACC_PUSH_AND_SET_STATE_M_X</span><span class="p">(</span><span class="n">ERTS_MSACC_STATE_TIMERS</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">yield_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERTS_TWHEEL_BUMP_YIELD_LIMIT</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">scnt</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">    </span><span class="n">bump_scnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">bump_scnt</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">slot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">yield_slot</span><span class="p">;</span>
+<span class="w">    </span><span class="n">restarted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">ERTS_TW_SLOT_INACTIVE</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">restarted</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bump_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">pos</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">slot</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">ERTS_TW_LATER_WHEEL_FIRST_SLOT</span><span class="p">)</span>
+<span class="w">            </span><span class="k">goto</span><span class="w"> </span><span class="n">restart_yielded_later_slot</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">yield_slot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERTS_TW_SLOT_INACTIVE</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bump_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERTS_MONOTONIC_TO_CLKTCKS</span><span class="p">(</span><span class="n">curr_time</span><span class="p">);</span>
+<span class="w">        </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">true_next_timeout_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">next_timeout_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bump_to</span><span class="p">;</span>
+<span class="w">        </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">next_timeout_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERTS_CLKTCKS_TO_MONOTONIC</span><span class="p">(</span><span class="n">bump_to</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">ErtsTWheelTimer</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">nto</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nl">empty_wheel</span><span class="p">:</span>
+<span class="w">                </span><span class="n">ERTS_TW_DBG_VERIFY_EMPTY_SOON_SLOTS</span><span class="p">(</span><span class="n">tiw</span><span class="p">,</span><span class="w"> </span><span class="n">bump_to</span><span class="p">);</span>
+<span class="w">                </span><span class="c1">// ...</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="c1">// Percorre slots e dispara timers expirados</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(...);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>O problema: <code>erts_bump_timers</code> é chamado mesmo quando <code>tiw-&gt;nto == 0</code> — isto é, quando não há timers ativos. A função percorre a estrutura, verifica slots vazios, e retorna sem fazer nada. O custo individual é pequeno (~200ns), mas o custo agregado é significativo:</p>
+<ul>
+<li>1 chamada por scheduler por tick</li>
+<li>1 tick ≈ 1ms</li>
+<li>32 schedulers</li>
+<li>32.000 chamadas/segundo</li>
+<li>32.000 × 200ns = 6.4ms/segundo de CPU desperdiçada</li>
+</ul>
+<p>Em sistemas embarcados ou IoT, este overhead é inaceitável. Em servidores cloud com centenas de VMs, o custo se multiplica.</p>
+<h3>3.4 ETS (Erlang Term Storage)</h3>
+<p>ETS é o banco de dados na memória embutido na BEAM. Tabelas ETS são implementadas como árvores balanceadas (CA trees — uma variação de B-tree adaptada para Erlang terms). Operações de lookup adquirem locks de leitura e percorrem a árvore.</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_db.c:1393</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tb</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">meth</span><span class="o">-&gt;</span><span class="n">db_lookup_dbterm</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">default_obj</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">handle</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">is_non_value</span><span class="p">(</span><span class="n">default_obj</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB_ERROR_BADKEY</span><span class="p">;</span>
+<span class="w">    </span><span class="k">goto</span><span class="w"> </span><span class="n">bail_out</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>Aqui, <code>db_lookup_dbterm</code> é um ponteiro de função — a implementação concreta depende do tipo de tabela (set, ordered_set, bag, duplicate_bag). Para <code>ordered_set</code>, por exemplo, a implementação percorre a CA tree comparando chaves:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// Lógica simplificada de db_lookup_dbterm (CA tree traversal)</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<span class="nf">db_lookup_dbterm</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">DbTable</span><span class="w"> </span><span class="o">*</span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">key</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">Eterm</span><span class="w"> </span><span class="n">default_obj</span><span class="p">,</span><span class="w"> </span><span class="n">DbTermHandle</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">DbFragment</span><span class="w"> </span><span class="o">*</span><span class="n">frag</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">res</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Adquire lock de leitura na tabela</span>
+<span class="w">    </span><span class="n">erts_smp_db_lock</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">ERTS_DB_LOCK_READ</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db_tree_lookup</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Libera lock</span>
+<span class="w">    </span><span class="n">erts_smp_db_unlock</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">ERTS_DB_LOCK_READ</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>Cada lookup envolve:
+1. Aquisição de lock (barreira de memória + possível contenção)
+2. Travessia da árvore (O(log N) comparações de Erlang terms)
+3. Liberação do lock</p>
+<p>Em tabelas altamente concorridas, o lock é o gargalo. Mas mesmo em tabelas sem contenção, cada lookup é um custo fixo: a árvore é percorrida mesmo que os dados não tenham mudado desde a última consulta. Se um processo consulta a mesma chave repetidamente, cada consulta após a primeira é redundante.</p>
+<h3>3.5 Garbage Collector</h3>
+<p>O garbage collector da BEAM é generacional e por processo. Cada processo tem seu próprio heap. A coleta minor varre o heap jovem (a geração mais recente); a coleta major varre todo o heap.</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_gc.c:759</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span>
+<span class="nf">garbage_collect</span><span class="p">(</span><span class="n">Process</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">ErlHeapFragment</span><span class="w"> </span><span class="o">*</span><span class="n">live_hf_end</span><span class="p">,</span>
+<span class="w">                </span><span class="n">Uint</span><span class="w"> </span><span class="n">need</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="o">*</span><span class="w"> </span><span class="n">objv</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nobj</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fcalls</span><span class="p">,</span>
+<span class="w">                </span><span class="n">Uint</span><span class="w"> </span><span class="n">max_young_gen_usage</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">Uint</span><span class="w"> </span><span class="n">reclaimed_now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint</span><span class="w"> </span><span class="n">ygen_usage</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// ...</span>
+
+<span class="w">    </span><span class="c1">// Determina se é minor ou major</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GEN_GCS</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MAX_GEN_GCS</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="p">(</span><span class="n">FLAGS</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">F_NEED_FULLSWEEP</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Coleta minor: varre apenas heap jovem</span>
+<span class="w">        </span><span class="n">reds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">minor_collection</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">live_hf_end</span><span class="p">,</span><span class="w"> </span><span class="n">need</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ext_msg_usage</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">objv</span><span class="p">,</span><span class="w"> </span><span class="n">nobj</span><span class="p">,</span><span class="w"> </span><span class="n">ygen_usage</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">reclaimed_now</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reds</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Minor falhou (precisa de major)</span>
+<span class="w">            </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">F_NEED_FULLSWEEP</span><span class="p">;</span>
+<span class="w">            </span><span class="k">goto</span><span class="w"> </span><span class="n">do_major_collection</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="nl">do_major_collection</span><span class="p">:</span>
+<span class="w">        </span><span class="c1">// Coleta major: varre TODO o heap</span>
+<span class="w">        </span><span class="n">reds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">major_collection</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">live_hf_end</span><span class="p">,</span><span class="w"> </span><span class="n">need</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ext_msg_usage</span><span class="p">,</span>
+<span class="w">                                </span><span class="n">objv</span><span class="p">,</span><span class="w"> </span><span class="n">nobj</span><span class="p">,</span><span class="w"> </span><span class="n">ygen_usage</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">reclaimed_now</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>O custo é proporcional ao tamanho do heap. Para um processo com heap de 10MB, uma coleta major percorre 10MB de memória — mesmo que apenas 1% dos objetos esteja morto. A varredura de raízes (pilha, registros, mailbox) é feita integralmente a cada coleta.</p>
+<p>O problema fundamental é que o GC é acionado por falta de espaço, não por notificação de morte de objetos. Em termos PON, a coleta deveria ser notificada quando objetos se tornam inalcançáveis, não acordar periodicamente para verificar. Esta é a <em>redundância temporal</em> do GC: o heap é varrido para descobrir o que já poderia ser conhecido se a VM mantivesse um grafo causal de dependências.</p>
+<hr />
+<h2>4. Análise Quantitativa</h2>
+<p>A tabela abaixo resume os custos de polling em cada subsistema. Os valores são aproximados e dependem da configuração (número de schedulers, tamanho de heap, carga do sistema), mas representam ordens de grandeza observadas empiricamente.</p>
+<table>
+<thead>
+<tr>
+<th>Subsistema</th>
+<th>Mecanismo</th>
+<th>Custo assintótico</th>
+<th>Custo típico (idle)</th>
+<th>Custo típico (carga)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scheduler</td>
+<td>Polling da run queue</td>
+<td>O(1) × polling interval</td>
+<td>5-30% CPU</td>
+<td>~1% (scheduling overhead)</td>
+</tr>
+<tr>
+<td>Selective Receive</td>
+<td>Scanning linear da mailbox</td>
+<td>O(N×M)</td>
+<td>0 (processo bloqueado)</td>
+<td>500-50000 trials/mensagem</td>
+</tr>
+<tr>
+<td>Timer Wheel</td>
+<td>Tick check com bump</td>
+<td>O(1) × tick</td>
+<td>0.3-3% CPU</td>
+<td>0.3-3% + overhead de timers</td>
+</tr>
+<tr>
+<td>ETS</td>
+<td>Lock + busca em CA tree</td>
+<td>O(log N)</td>
+<td>0</td>
+<td>200-500ns/lookup sem contenção</td>
+</tr>
+<tr>
+<td>GC (major)</td>
+<td>Varredura de raízes e heap</td>
+<td>O(heap)</td>
+<td>0</td>
+<td>1-100ms/pausa</td>
+</tr>
+</tbody>
+</table>
+<p>A coluna "custo (idle)" é a mais reveladora. O scheduler e a timer wheel consomem CPU mesmo quando o sistema não tem trabalho. Em uma VM com 32 cores em idle, 5-30% significa que 1,6 a 9,6 cores estão consumindo energia para dizer "não tem nada para fazer".</p>
+<p>Para quantificar: em uma cloud AWS c5.xlarge (4 vCPUs, ~$0,17/hora), 10% de idle CPU desperdiçado equivale a ~$0,017/hora por VM. Com 1000 VMs, são ~$17/hora, ~$12.240/mês — para não fazer nada. O polling tem um custo financeiro direto.</p>
+<p>Experimento simples para verificar o custo idle:</p>
+<div class="code-block lang-console"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="c1"># Inicie uma VM Erlang sem aplicação e meça o CPU</span>
+$<span class="w"> </span>erl<span class="w"> </span>-noshell<span class="w"> </span>-eval<span class="w"> </span><span class="s1">&#39;timer:sleep(60000), halt().&#39;</span><span class="w"> </span><span class="p">&amp;</span>
+$<span class="w"> </span><span class="nv">pid</span><span class="o">=</span><span class="nv">$!</span>
+$<span class="w"> </span>ps<span class="w"> </span>-p<span class="w"> </span><span class="nv">$pid</span><span class="w"> </span>-o<span class="w"> </span>%cpu,%mem
+<span class="c1"># Observe o %CPU — tipicamente 5-30% de um core</span>
+$<span class="w"> </span><span class="nb">kill</span><span class="w"> </span><span class="nv">$pid</span>
+
+$<span class="w"> </span><span class="c1"># Compare com uma VM &quot;adormecida&quot; usando um truque:</span>
+$<span class="w"> </span><span class="c1"># Se pudéssemos desligar o scheduler polling, o CPU idle cairia para ~0%</span>
+</pre></div>
+</div>
+
+<p>O custo do selective receive sob carga é igualmente significativo. Um benchmark simples:</p>
+<div class="code-block lang-console"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="c1"># Benchmark de throughput de receive com mailbox cheia</span>
+$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>bench_recv.erl<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">-module(bench_recv).</span>
+<span class="s">-export([run/0]).</span>
+
+<span class="s">run() -&gt;</span>
+<span class="s">    Pid = spawn(fun() -&gt; loop(0) end),</span>
+<span class="s">    [Pid ! {msg, I} || I &lt;- lists:seq(1, 10000)],</span>
+<span class="s">    {Time, _} = timer:tc(fun() -&gt;</span>
+<span class="s">        Pid ! {done, self()},</span>
+<span class="s">        receive {done, Pid} -&gt; ok end</span>
+<span class="s">    end),</span>
+<span class="s">    io:format(&quot;Time: ~p us~n&quot;, [Time]).</span>
+
+<span class="s">loop(N) -&gt;</span>
+<span class="s">    receive</span>
+<span class="s">        {done, Pid} -&gt; Pid ! {done, self()};</span>
+<span class="s">        {msg, _} -&gt; loop(N + 1)</span>
+<span class="s">    end.</span>
+<span class="s">EOF</span>
+$<span class="w"> </span>erlc<span class="w"> </span>bench_recv.erl<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>erl<span class="w"> </span>-noshell<span class="w"> </span>-eval<span class="w"> </span><span class="s1">&#39;bench_recv:run(), halt().&#39;</span>
+<span class="c1"># O tempo cresce linearmente com o número de mensagens na mailbox</span>
+</pre></div>
+</div>
+
+<hr />
+<h2>5. O Paradoxo da BEAM</h2>
+<p>A BEAM foi projetada na década de 1990 para um contexto muito específico: centrais telefônicas Ericsson AXE. Neste contexto, o requisito número um é <em>disponibilidade</em>. O sistema não pode parar. Se um módulo de software falha, outro assume. Se uma chamada cai, o sistema continua funcionando. Neste mundo, CPU ociosa é sinal de capacidade ociosa — e capacidade ociosa é sinal de que o sistema pode absorver picos de tráfego. Polling é aceitável porque CPU não é o gargalo; confiabilidade é.</p>
+<p>Este é o paradoxo da BEAM: a mesma arquitetura que a torna incrivelmente robusta para sistemas de telecom — scheduling preemptivo, isolamento de processos, tolerância a falhas — contém mecanismos de polling que são ineficientes para os padrões modernos.</p>
+<p>Em 2025, o cenário mudou:</p>
+<ul>
+<li><strong>Cloud computing.</strong> Empresas pagam por CPU por milissegundo. 10% de CPU idle em 10.000 VMs é um custo anual de centenas de milhares de dólares. A disponibilidade continua sendo crítica, mas a eficiência também.</li>
+<li><strong>Datacenters com 128+ cores.</strong> A escalabilidade horizontal da BEAM (mais núcleos = mais schedulers) multiplica o custo do polling: cada scheduler faz polling independentemente.</li>
+<li><strong>IoT e edge computing.</strong> Dispositivos com bateria, CPUs ARM de baixo consumo, redes intermitentes. Cada ciclo de CPU desperdiçado encurta a vida da bateria. Polling não é aceitável.</li>
+<li><strong>Sistemas financeiros e jogos.</strong> Latência previsível é mais importante que throughput máximo. O selective receive O(N×M) introduz jitter imprevisível.</li>
+</ul>
+<p>O paradoxo se resolve quando percebemos que polling não é um requisito da disponibilidade — é um <em>artefato de implementação</em>. A BEAM poderia ser igualmente disponível (ou mais) sem polling. A questão é: como substituir polling por notificação sem quebrar a semântica da linguagem?</p>
+<hr />
+<h2>6. A Solução: Substituir Polling por Notificação</h2>
+<p>A resposta é o tema central deste livro. Em vez de perguntar, ser avisado. Em vez de escanear, reagir. Em vez de verificar, notificar.</p>
+<p>Cada subsistema identificado neste capítulo pode ser redesenhado usando os princípios do Paradigma Orientado a Notificações (PON):</p>
+<ul>
+<li><strong>Scheduler:</strong> em vez de pollar a run queue, usar <code>eventfd</code> para ser acordado apenas quando um processo fica pronto. O scheduler dorme em modo <em>blocking wait</em> — zero CPU, zero polling.</li>
+<li><strong>Selective receive:</strong> em vez de escanear a mailbox linearmente, usar <em>Premises</em> — entidades PON que observam o tipo de mensagem e notificam o processo quando a mensagem correta chega.</li>
+<li><strong>Timer wheel:</strong> em vez de tick check a cada 1ms, usar <code>timerfd</code> do Linux — o kernel acorda o scheduler apenas quando um timer expira.</li>
+<li><strong>ETS:</strong> em vez de lock + busca, tratar cada tabela como um <em>Fact Base Element (FBE)</em> que notifica dependentes quando dados mudam.</li>
+<li><strong>GC:</strong> em vez de varredura de raízes, manter uma <em>cadeia causal</em> de referências — quando um objeto perde todas as referências, o GC é notificado imediatamente.</li>
+</ul>
+<p>Cada uma destas transformações elimina a redundância temporal do subsistema correspondente. O resultado é uma BEAM onde CPU idle significa <em>zero instruções executadas</em>, onde o custo de um <code>receive</code> não depende do tamanho da mailbox, onde timers não custam nada quando não há timers ativos.</p>
+<p>O Capítulo 2 apresenta formalmente o Paradigma Orientado a Notificações. Os Capítulos 4 a 10 detalham cada transformação. Este capítulo estabeleceu o <em>por quê</em>; os próximos estabelecem o <em>como</em>.</p>
+<div class="diagram" id="diag-f4ff2c14"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: solucao Pages: 1 -->
+<svg width="407pt" height="325pt"
+ viewBox="0.00 0.00 407.00 325.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 321)">
+<title>solucao</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-321 403,-321 403,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_problema</title>
+<polygon fill="none" stroke="red" points="0,-8 0,-309 120,-309 120,-8 0,-8"/>
+<text text-anchor="middle" x="60" y="-293.8" font-family="Times,serif" font-size="14.00">Problema (polling)</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_solucao</title>
+<polygon fill="none" stroke="green" points="266,-8 266,-309 399,-309 399,-8 266,-8"/>
+<text text-anchor="middle" x="332.5" y="-293.8" font-family="Times,serif" font-size="14.00">Solução (notificação)</text>
+</g>
+<!-- Sched&#45;poll -->
+<g id="node1" class="node">
+<title>Sched&#45;poll</title>
+<polygon fill="lightgrey" stroke="black" points="95,-278 24,-278 24,-240 95,-240 95,-278"/>
+<text text-anchor="middle" x="59.5" y="-262.8" font-family="Times,serif" font-size="14.00">Scheduler</text>
+<text text-anchor="middle" x="59.5" y="-247.8" font-family="Times,serif" font-size="14.00">run queue</text>
+</g>
+<!-- Sched&#45;pon -->
+<g id="node6" class="node">
+<title>Sched&#45;pon</title>
+<polygon fill="lightgrey" stroke="black" points="360.5,-278 303.5,-278 303.5,-240 360.5,-240 360.5,-278"/>
+<text text-anchor="middle" x="332" y="-262.8" font-family="Times,serif" font-size="14.00">eventfd</text>
+<text text-anchor="middle" x="332" y="-247.8" font-family="Times,serif" font-size="14.00">wait</text>
+</g>
+<!-- Sched&#45;poll&#45;&gt;Sched&#45;pon -->
+<g id="edge1" class="edge">
+<title>Sched&#45;poll&#45;&gt;Sched&#45;pon</title>
+<path fill="none" stroke="black" d="M95.12,-259C95.12,-259 293.42,-259 293.42,-259"/>
+<polygon fill="black" stroke="black" points="293.42,-262.5 303.42,-259 293.42,-255.5 293.42,-262.5"/>
+<text text-anchor="middle" x="193" y="-262.8" font-family="Times,serif" font-size="14.00"> &#160;poll → eventfd</text>
+</g>
+<!-- Recv&#45;poll -->
+<g id="node2" class="node">
+<title>Recv&#45;poll</title>
+<polygon fill="lightgrey" stroke="black" points="90.5,-222 28.5,-222 28.5,-184 90.5,-184 90.5,-222"/>
+<text text-anchor="middle" x="59.5" y="-206.8" font-family="Times,serif" font-size="14.00">Receive</text>
+<text text-anchor="middle" x="59.5" y="-191.8" font-family="Times,serif" font-size="14.00">mailbox</text>
+</g>
+<!-- Recv&#45;pon -->
+<g id="node7" class="node">
+<title>Recv&#45;pon</title>
+<polygon fill="lightgrey" stroke="black" points="366,-222 298,-222 298,-184 366,-184 366,-222"/>
+<text text-anchor="middle" x="332" y="-206.8" font-family="Times,serif" font-size="14.00">Premises</text>
+<text text-anchor="middle" x="332" y="-191.8" font-family="Times,serif" font-size="14.00">matching</text>
+</g>
+<!-- Recv&#45;poll&#45;&gt;Recv&#45;pon -->
+<g id="edge2" class="edge">
+<title>Recv&#45;poll&#45;&gt;Recv&#45;pon</title>
+<path fill="none" stroke="black" d="M90.76,-203C90.76,-203 287.69,-203 287.69,-203"/>
+<polygon fill="black" stroke="black" points="287.69,-206.5 297.69,-203 287.69,-199.5 287.69,-206.5"/>
+<text text-anchor="middle" x="193" y="-206.8" font-family="Times,serif" font-size="14.00"> &#160;scan → Premise</text>
+</g>
+<!-- Timer&#45;poll -->
+<g id="node3" class="node">
+<title>Timer&#45;poll</title>
+<polygon fill="lightgrey" stroke="black" points="86.5,-166 32.5,-166 32.5,-128 86.5,-128 86.5,-166"/>
+<text text-anchor="middle" x="59.5" y="-150.8" font-family="Times,serif" font-size="14.00">Timer</text>
+<text text-anchor="middle" x="59.5" y="-135.8" font-family="Times,serif" font-size="14.00">wheel</text>
+</g>
+<!-- Timer&#45;pon -->
+<g id="node8" class="node">
+<title>Timer&#45;pon</title>
+<polygon fill="lightgrey" stroke="black" points="363.5,-166 300.5,-166 300.5,-128 363.5,-128 363.5,-166"/>
+<text text-anchor="middle" x="332" y="-150.8" font-family="Times,serif" font-size="14.00">timerfd</text>
+<text text-anchor="middle" x="332" y="-135.8" font-family="Times,serif" font-size="14.00">expiracy</text>
+</g>
+<!-- Timer&#45;poll&#45;&gt;Timer&#45;pon -->
+<g id="edge3" class="edge">
+<title>Timer&#45;poll&#45;&gt;Timer&#45;pon</title>
+<path fill="none" stroke="black" d="M86.62,-147C86.62,-147 290.4,-147 290.4,-147"/>
+<polygon fill="black" stroke="black" points="290.4,-150.5 300.4,-147 290.4,-143.5 290.4,-150.5"/>
+<text text-anchor="middle" x="193" y="-150.8" font-family="Times,serif" font-size="14.00"> &#160;tick → timerfd</text>
+</g>
+<!-- ETS&#45;poll -->
+<g id="node4" class="node">
+<title>ETS&#45;poll</title>
+<polygon fill="lightgrey" stroke="black" points="89,-110 30,-110 30,-72 89,-72 89,-110"/>
+<text text-anchor="middle" x="59.5" y="-94.8" font-family="Times,serif" font-size="14.00">ETS</text>
+<text text-anchor="middle" x="59.5" y="-79.8" font-family="Times,serif" font-size="14.00">CA tree</text>
+</g>
+<!-- ETS&#45;pon -->
+<g id="node9" class="node">
+<title>ETS&#45;pon</title>
+<polygon fill="lightgrey" stroke="black" points="361.5,-110 302.5,-110 302.5,-72 361.5,-72 361.5,-110"/>
+<text text-anchor="middle" x="332" y="-94.8" font-family="Times,serif" font-size="14.00">FBE</text>
+<text text-anchor="middle" x="332" y="-79.8" font-family="Times,serif" font-size="14.00">watcher</text>
+</g>
+<!-- ETS&#45;poll&#45;&gt;ETS&#45;pon -->
+<g id="edge4" class="edge">
+<title>ETS&#45;poll&#45;&gt;ETS&#45;pon</title>
+<path fill="none" stroke="black" d="M89.18,-91C89.18,-91 292.36,-91 292.36,-91"/>
+<polygon fill="black" stroke="black" points="292.36,-94.5 302.36,-91 292.36,-87.5 292.36,-94.5"/>
+<text text-anchor="middle" x="193" y="-94.8" font-family="Times,serif" font-size="14.00"> &#160;lock → notificação</text>
+</g>
+<!-- GC&#45;poll -->
+<g id="node5" class="node">
+<title>GC&#45;poll</title>
+<polygon fill="lightgrey" stroke="black" points="92.5,-54 26.5,-54 26.5,-16 92.5,-16 92.5,-54"/>
+<text text-anchor="middle" x="59.5" y="-38.8" font-family="Times,serif" font-size="14.00">GC</text>
+<text text-anchor="middle" x="59.5" y="-23.8" font-family="Times,serif" font-size="14.00">root scan</text>
+</g>
+<!-- GC&#45;pon -->
+<g id="node10" class="node">
+<title>GC&#45;pon</title>
+<polygon fill="lightgrey" stroke="black" points="359,-54 305,-54 305,-16 359,-16 359,-54"/>
+<text text-anchor="middle" x="332" y="-38.8" font-family="Times,serif" font-size="14.00">Cadeia</text>
+<text text-anchor="middle" x="332" y="-23.8" font-family="Times,serif" font-size="14.00">causal</text>
+</g>
+<!-- GC&#45;poll&#45;&gt;GC&#45;pon -->
+<g id="edge5" class="edge">
+<title>GC&#45;poll&#45;&gt;GC&#45;pon</title>
+<path fill="none" stroke="black" d="M92.64,-35C92.64,-35 294.81,-35 294.81,-35"/>
+<polygon fill="black" stroke="black" points="294.81,-38.5 304.81,-35 294.81,-31.5 294.81,-38.5"/>
+<text text-anchor="middle" x="193" y="-38.8" font-family="Times,serif" font-size="14.00"> &#160;scan → cadeia causal</text>
+</g>
+</g>
+</svg></div>
+
+<hr />
+<h2>A Lente Multidisciplinar</h2>
+<blockquote>
+<p><strong>Cognitivo / Computacional.</strong> "A atenção é um recurso finito. Sistemas que exigem atenção contínua para eventos que não ocorrem são intrinsecamente ineficientes." — Herbert A. Simon, <em>Administrative Behavior</em>, 1947<br />
+O polling pode ser entendido como uma forma computacional de <em>atenção forçada</em>: um fio de execução é obrigado a dirigir sua atenção a um recurso em intervalos fixos, independentemente de o recurso ter mudado. Isto contrasta com a <em>atenção orientada a eventos</em> dos sistemas notificantes, onde a atenção é dirigida apenas quando relevante. Simon demonstrou que a atenção é o gargalo fundamental da cognição humana; o PON mostra que o mesmo vale para a computação. Sistemas que não separam <em>mudança</em> de <em>verificação</em> desperdiçam seu recurso mais precioso: ciclos de processamento.</p>
+<p><strong>Sociológico / Jurídico.</strong> "A lei de Moore dobrou a capacidade dos processadores, mas a lei de Wirth (software fica mais lento que hardware) manteve a experiência do usuário estagnada. O polling é um dos mecanismos que viabilizam esta estagnação." — Niklaus Wirth, <em>A Plea for Lean Software</em>, 1995<br />
+Juridicamente, o polling em sistemas críticos levanta questões de due diligence. Um fabricante de dispositivos IoT que utiliza polling em vez de notificação está desperdiçando bateria — e portanto, encurtando a vida útil do dispositivo. Em contratos de SLA (Service Level Agreements), o consumo de CPU em idle por polling pode ser interpretado como <em>ineficiência evitável</em>, potencialmente caracterizando violação de cláusulas de "melhores esforços" ou "uso eficiente de recursos". A tendência regulatória europeia (Diretiva de Ecodesign) e brasileira (Lei de Eficiência Energética) pode, no futuro, exigir que sistemas computacionais demonstrem eficiência energética — e polling não-notificado será difícil de justificar.</p>
+</blockquote>
+<hr />
+<h2>30 Exercícios práticos e conceituais</h2>
+<h3>Bloco A — Questões Conceituais e Fundamentos (1–10)</h3>
+<ol>
+<li>
+<p><strong>Pergunta conceitual 1:</strong> Explique o conceito de <em>redundância temporal</em> de Simão &amp; Stadzisz (2009b) com suas próprias palavras. Dê um exemplo computacional fora da BEAM.</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 2:</strong> Por que o polling é descrito como "o pecado original dos sistemas reativos"? O que esta frase de Joe Armstrong revela sobre a história da computação concorrente?</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 3:</strong> Liste os cinco subsistemas da BEAM analisados neste capítulo e, para cada um, identifique o mecanismo de polling/scanning específico que ele utiliza.</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 4:</strong> Qual é a diferença entre polling (ex: scheduler verificando run queue) e scanning (ex: selective receive percorrendo mailbox)? Ambos são exemplos de redundância temporal?</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 5:</strong> Por que o custo do polling em idle é particularmente problemático em sistemas cloud? E em sistemas IoT?</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 6:</strong> Como o contexto histórico da BEAM (Ericsson AXE, anos 1990) justifica a adoção de polling? Por que este contexto mudou?</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 7:</strong> O que significa O(N×M) no contexto do selective receive? O que são N e M?</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 8:</strong> Por que o GC major da BEAM varre todo o heap mesmo que apenas uma pequena fração dos objetos esteja morta? Como a redundância temporal se manifesta aqui?</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 9:</strong> O conceito de <em>falso positivo</em> no scheduler_wait: explique por que cada despertar do scheduler sem trabalho é um falso positivo e qual o custo associado.</p>
+</li>
+<li>
+<p><strong>Pergunta conceitual 10:</strong> Em sistemas PON, entidades <em>notificam</em> quando seu estado muda. Qual entidade PON substituiria (a) o scheduler polling, (b) o scanning do receive, (c) o tick check do timer?</p>
+</li>
+</ol>
+<h3>Bloco B — Análise de Código Fonte e Verificação <code>file:line</code> (11–20)</h3>
+<ol start="11">
+<li>
+<p><strong>Análise de fonte 1:</strong> Localize a função <code>scheduler_wait</code> em <code>erl_process.c</code>. Qual linha inicia o <code>while(1)</code> que faz polling? Identifique o ponto onde o scheduler decide dormir (<code>erts_tse_twait</code>).</p>
+</li>
+<li>
+<p><strong>Análise de fonte 2:</strong> Em <code>time.c</code>, localize a função <code>erts_bump_timers</code>. Identifique o trecho onde a função verifica se <code>tiw-&gt;nto == 0</code> (wheel vazia). Qual é o custo de chamar esta função quando não há timers?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 3:</strong> Em <code>erl_message.h</code>, examine a estrutura <code>ErtsSignalPrivQueues</code>. Identifique o campo <code>save</code> e explique seu papel no selective receive. Por que o <code>save</code> não elimina a redundância temporal?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 4:</strong> Em <code>erl_gc.c:759</code>, localize a função <code>garbage_collect</code>. Onde a decisão entre minor e major collection é tomada? Qual variável controla a geração atual?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 5:</strong> Em <code>erl_db.c:1393</code>, localize a chamada a <code>db_lookup_dbterm</code>. Quais locks são adquiridos antes e depois da chamada? Por que locks são necessários mesmo para leitura?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 6:</strong> Em <code>erl_process.c:9886</code>, a condição <code>!runq_got_work_to_execute_flags(flags)</code> determina se o scheduler deve esperar. Qual linha chama <code>scheduler_wait</code>? O que acontece se a run queue está vazia mas há timers expirados?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 7:</strong> Em <code>erl_process.c:3460-3465</code>, examine as declarações iniciais de <code>scheduler_wait</code>. Qual é o papel de <code>ErtsSchedulerSleepInfo</code>? Como a BEAM gerencia a transição entre estados de sono e vigília?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 8:</strong> Em <code>erl_process.c:9981-10049</code>, o scheduler encontra o próximo processo. Id-entifique o <code>dequeue_process</code> e explique como a prioridade é usada para seleção. Onde está o polling neste trecho?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 9:</strong> Em <code>time.c:816-829</code>, examine o loop principal de <code>erts_bump_timers</code>. O que são <code>ERTS_TW_SLOT_INACTIVE</code>, <code>ERTS_TW_SLOT_AT_ONCE</code> e <code>ERTS_TW_SOON_WHEEL_SIZE</code>?</p>
+</li>
+<li>
+<p><strong>Análise de fonte 10:</strong> Em <code>erl_gc.c:831-849</code>, examine a lógica de decisão minor vs major. Qual é o papel de <code>GEN_GCS(p)</code>, <code>MAX_GEN_GCS(p)</code> e <code>F_NEED_FULLSWEEP</code>?</p>
+</li>
+</ol>
+<h3>Bloco C — Experimentos Práticos (21–27)</h3>
+<ol start="21">
+<li>
+<p><strong>Experimento 1:</strong> Compile e execute o benchmark <code>scan_cost.erl</code> deste capítulo com N = 100, 1000, 10000. Meça o tempo e trace um gráfico. A curva é linear? Explique.</p>
+</li>
+<li>
+<p><strong>Experimento 2:</strong> Use <code>perf</code> no Linux para contar instruções de CPU durante um segundo de idle da BEAM: <code>perf stat -e instructions:u erl -noshell -eval 'timer:sleep(1000), halt()'</code>. Quantas instruções são executadas em idle? Compare com uma VM "dormente" (sleep puro).</p>
+</li>
+<li>
+<p><strong>Experimento 3:</strong> Escreva um programa Erlang que cria 100.000 timers simultâneos com <code>timer:send_after/2</code>. Use <code>perf</code> para medir o custo de CPU do timer subsystem. Como o custo escala com o número de timers?</p>
+</li>
+<li>
+<p><strong>Experimento 4:</strong> Crie um processo que faz <code>receive</code> em loop, enquanto outro processo enche sua mailbox com mensagens irrelevantes. Meça o throughput de mensagens processadas. Agora repita sem as mensagens irrelevantes. Qual é a diferença e por quê?</p>
+</li>
+<li>
+<p><strong>Experimento 5:</strong> Use <code>erlang:system_info/1</code> para obter o número de schedulers na sua VM. Em seguida, use <code>erlang:statistics/1</code> para medir o total de reduções executadas e o tempo de CPU. Que fração do tempo de CPU é gasto em idle vs trabalho útil?</p>
+</li>
+<li>
+<p><strong>Experimento 6:</strong> Crie uma tabela ETS ordered_set com 1.000.000 de entradas. Meça o tempo médio de lookup com <code>timer:tc</code> para 10.000 lookups aleatórios. Depois, meça 10.000 lookups na mesma chave. O segundo caso é mais rápido? Se não, por que?</p>
+</li>
+<li>
+<p><strong>Experimento 7:</strong> Implemente um processo que aloca e descarta grandes termos binários em loop. Use <code>erlang:memory()</code> para monitorar o heap antes e depois de cada ciclo de GC. Meça a duração de cada pausa de GC com <code>erlang:system_monitor/2</code>. Qual é a latência máxima observada?</p>
+</li>
+</ol>
+<h3>Bloco D — Pontes Cognitivas, Invariantes e Desafios de Arquitetura (28–30)</h3>
+<ol start="28">
+<li>
+<p><strong>Ponte cognitiva:</strong> A redundância temporal computacional tem um análogo direto na cognição humana: a <em>atenção sustentada</em> (vigília). Um guarda de segurança que verifica uma porta a cada 30 segundos está fazendo polling. Explique como sistemas notificantes (ex: alarme na porta) são análogos ao PON. O que acontece com a atenção humana em tarefas de vigilância prolongada? E com a CPU em idle polling?</p>
+</li>
+<li>
+<p><strong>Invariante:</strong> A BEAM garante que um processo bloqueado em <code>receive</code> consuma zero CPU. Mas para chegar a este estado, o sistema precisa detectar que nenhuma mensagem corresponde — e esta detecção envolve scanning. Crie um invariante formal: <em>Em uma BEAM sem polling, o custo de decidir que um processo deve bloquear deve ser O(S) onde S é o número de cláusulas, independente do número de mensagens na mailbox</em>. Prove que o algoritmo atual viola este invariante.</p>
+</li>
+<li>
+<p><strong>Desafio de arquitetura:</strong> Projete um mecanismo de notificação para o selective receive que satisfaça o invariante do exercício 29. Use o seguinte esboço: cada tipo de mensagem (identificado pelo byte baixo do header) é encaminhado para uma fila por bucket. Premises observam buckets específicos. Quando uma mensagem chega em um bucket observado, a Premise é notificada. Quais são os casos de borda? Como lidar com cláusulas que correspondem a múltiplos tipos? Como lidar com o <code>after</code> do receive?</p>
+</li>
+</ol>
+<hr />
+<h2>Resumo para memorização</h2>
+<ul>
+<li><strong>Polling é redundância temporal:</strong> verificar o mesmo recurso repetidamente sem que ele tenha mudado desperdiça CPU, energia e polui caches.</li>
+<li><strong>A BEAM usa polling em 5 subsistemas:</strong> scheduler (run queue), receive (mailbox), timer (wheel), ETS (lookup lock), GC (root scan).</li>
+<li><strong>O custo idle é dominante:</strong> scheduler e timer consomem 5-30% de um core mesmo sem trabalho. Em clouds, este custo é financeiro.</li>
+<li><strong>Selective receive é O(N×M):</strong> cada mensagem na mailbox é comparada com cada cláusula, e mensagens não correspondentes são reexaminadas em receives futuros.</li>
+<li><strong>Timer wheel faz tick check a cada ~1ms:</strong> mesmo sem timers ativos, cada scheduler chama <code>erts_bump_timers()</code> gerando milhares de verificações por segundo.</li>
+<li><strong>ETS usa locks + busca em árvore:</strong> mesmo para leituras repetidas da mesma chave, a árvore é percorrida integralmente.</li>
+<li><strong>GC major varre todo o heap:</strong> proporcional ao heap total, não ao volume de objetos mortos — varredura ineficiente.</li>
+<li><strong>O paradoxo da BEAM:</strong> projetada para disponibilidade (onde polling é aceitável), ela enfrenta 2025 com clouds, IoT e edge — onde polling é um luxo.</li>
+<li><strong>A solução é notificação:</strong> em vez de perguntar, ser avisado. O Paradigma Orientado a Notificações (PON) oferece as entidades para esta transformação.</li>
+<li><strong>Este capítulo é o diagnóstico:</strong> o Capítulo 2 apresenta o PON formalmente; Capítulos 4–10 detalham a re-arquitetura de cada subsistema.</li>
+</ul>
+<hr />
+<blockquote>
+<p><strong>Estado do Projeto.</strong> Todos os subsistemas descritos neste capítulo já foram implementados na branch <code>pon-beam</code>. Consulte o relatório final em <code>docs/RPT-FINAL-pon-beam.md</code> e os capítulos seguintes para detalhes de cada implementação.</p>
+</blockquote>
+<h2>Ver também</h2>
+<ul>
+<li><a href="02-paradigma-pon.html">Capítulo 2: O Paradigma Orientado a Notificações</a> — fundamentos teóricos do PON</li>
+<li><a href="03-visao-geral.html">Capítulo 3: Visão Geral da PON-BEAM</a> — mapa arquitetural completo</li>
+<li><a href="04-pon-receive.html">Capítulo 4: PON-Receive</a> — selective receive por Premises</li>
+<li><a href="05-pon-timer.html">Capítulo 5: PON-Timer</a> — instigações com timerfd</li>
+<li><a href="07-pon-scheduler.html">Capítulo 7: PON-Scheduler</a> — Condition e eventfd</li>
+<li><a href="08-pon-ets.html">Capítulo 8: PON-ETS</a> — Base de Fatos Notificante</li>
+<li><a href="09-pon-gc.html">Capítulo 9: PON-GC</a> — Coleta por Cadeia Causal</li>
+<li><a href="08-scheduler-smp-e-run-queue.html">docs/chapters/08-scheduler-smp-e-run-queue.md</a> — detalhes do scheduler OTP</li>
+<li><a href="11-mensagens-e-mailbox.html">docs/chapters/11-mensagens-e-mailbox.md</a> — arquitetura de mensagens</li>
+<li><a href="12-timers-e-o-timer-wheel.html">docs/chapters/12-timers-e-o-timer-wheel.md</a> — timer wheel do OTP</li>
+<li><a href="07-coletor-de-lixo.html">docs/chapters/07-coletor-de-lixo.md</a> — garbage collector do OTP</li>
+<li><a href="25-ets-e-dets.html">docs/chapters/25-ets-e-dets.md</a> — ETS e DETS internos</li>
+<li><a href="EX-37-pon-beam-arquitetura-orientada-a-notificacoes.html">docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md</a> — tese PON-BEAM</li>
+<li><a href="EX-38-pon-beam-plano-de-engenharia.html">docs/extras/EX-38-pon-beam-plano-de-engenharia.md</a> — plano de engenharia</li>
+</ul>
+            </article>
+            <footer class="chapter-nav">
+                
+                <a href="02-paradigma-pon.html" class="nav-next">O Paradigma Orientado a Notificações →</a>
+            </footer>
+        </main>
+    </div>
+    <script src="theme/search.js"></script>
+</body>
+</html>

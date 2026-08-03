@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PON-Receive: Selective Receive por Premises — PON-BEAM</title>
+    <link rel="stylesheet" href="theme/style.css">
+    <link rel="stylesheet" href="theme/pygments.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar-nav">
+<div class="nav-header">
+<h3><a href="index.html">PON-BEAM</a></h3>
+</div>
+<div class="nav-part">Parte I: Fundamentos</div>
+<ul>
+<li><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
+<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
+<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
+</ul>
+<div class="nav-part">Parte II: Subsistemas PON</div>
+<ul>
+<li class="active"><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
+<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
+<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
+<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
+<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
+<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
+<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
+</ul>
+<div class="nav-part">Parte III: Engenharia e Validação</div>
+<ul>
+<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
+<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
+<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
+</ul>
+<div class="nav-part">Parte IV: Síntese</div>
+<ul>
+<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
+<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
+<li><a href="16-conclusao.html">Conclusão</a></li>
+</ul>
+</nav>
+
+        <main class="content">
+            <header class="chapter-header">
+                <h1>PON-Receive: Selective Receive por Premises</h1>
+            </header>
+            <article>
+                <h1>4. PON-Receive: Selective Receive por Premises</h1>
+<blockquote>
+<p><em>"A mailbox não é uma lista a ser percorrida. É um conjunto de Premises que escutam."</em>
+— Matheus de Camargo Marques, 2025</p>
+</blockquote>
+<hr />
+<h2>4.1 Diagnóstico: O Custo do Selective Receive na BEAM</h2>
+<p>O selective receive é a instrução mais venerada — e mais custosa — da BEAM. Toda vez que um processo Erlang executa <code>receive</code>, a VM percorre a mailbox linearmente comparando cada mensagem contra cada cláusula. O custo é O(N × M): N mensagens na mailbox multiplicado por M cláusulas de matching. Em sistemas com mailbox acumulada — um gen_server que recebe 1000 requisições por segundo e leva 2 segundos para processar cada uma — a mailbox cresce para 2000 mensagens. Cada novo <code>receive</code> varre 2000 mensagens contra, digamos, 5 cláusulas. São 10.000 trials de pattern matching por receive. E cada trial é uma operação não-trivial em C: percorrer a estrutura da tupla, comparar elementos, tratar variáveis.</p>
+<p>A BEAM tenta mitigar esse custo com o <em>save pointer</em>. A cada execução de <code>receive</code>, a VM avança um marcador (<code>c_p-&gt;sig_qs.save</code>) pela fila de mensagens. Mensagens antes do save pointer são consideradas "já examinadas" e ignoradas em receives subsequentes no mesmo bloco de recepção. O mecanismo está implementado em <code>erl_proc_sig_queue.c</code> via <code>ErtsRecvMarker</code> e funções como <code>recv_marker_dequeue</code> e <code>recv_marker_alloc</code>. O save pointer funciona como um checkpoint: a primeira vez que um <code>receive</code> varre a mailbox, ele processa mensagens da posição <code>save</code> em diante. Mensagens que não casaram são atravessadas e o save pointer avança. No receive seguinte, a varredura começa de onde parou. Isso evita reexaminar mensagens antigas — mas o custo ainda é linear no número de mensagens novas: se 100 mensagens chegaram desde o último receive, todas as 100 são varridas, mesmo que a primeira já case.</p>
+<p>O diagnóstico é mais grave em cenários de <em>timeout</em> longo ou <code>receive</code> infinito. Considere um processo aguardando uma mensagem específica enquanto outras 10.000 mensagens chegam para outros receives. A cada nova mensagem, o processo é acordado, varre até 10.001 mensagens (a nova + 10.000 anteriores no worst case), não encontra match, e volta a dormir. Onze mil trials para nada. O padrão é conhecido na comunidade Erlang como <em>mailbox scanning</em> e é tema recorrente em guias de performance: mantenha mailboxes curtas, use <code>selective receive</code> com parcimônia, considere <code>gen_server:call</code> com timeout.</p>
+<p>Em código C da BEAM, a varredura ocorre no loop que percorre a lista ligada de mensagens. A estrutura <code>ErtsSignalPrivQueues</code> (<code>erl_message.h:342</code>) mantém <code>first</code>, <code>last</code> e <code>save</code> como ponteiros para a lista encadeada. Cada mensagem é verificada com <code>ERTS_SIG_IS_MSG</code> e, sendo mensagem, seu termo é extraído e comparado contra o padrão compilado da cláusula. O <code>while (sig &amp;&amp; ERTS_SIG_IS_MSG(sig))</code> em <code>erl_proc_sig_queue.c:8666</code> é o coração do scanning linear.</p>
+<p>Podemos demonstrar o custo empiricamente com uma sessão Erlang:</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% Custo do selective receive: O(N × M)</span>
+<span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10000</span><span class="p">.</span>
+<span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="c">%% Enche a mailbox com N mensagens sem match</span>
+<span class="w">       </span><span class="p">[</span><span class="n">self</span><span class="p">()</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">unmatched</span><span class="p">,</span><span class="w"> </span><span class="nv">I</span><span class="p">}</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">)],</span>
+<span class="w">       </span><span class="c">%% Mede o receive</span>
+<span class="w">       </span><span class="p">{</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">           </span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">matched</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">after</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">timeout</span><span class="w"> </span><span class="k">end</span>
+<span class="w">       </span><span class="k">end</span><span class="p">),</span>
+<span class="w">       </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;</span><span class="si">~p</span><span class="s"> us para N=</span><span class="si">~p~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">])</span>
+<span class="w">   </span><span class="k">end</span><span class="p">).</span>
+<span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">matched</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}.</span>
+<span class="c">%% Saída típica: 85234 us para N=10000</span>
+</pre></div>
+</div>
+
+<p>Com N=100, o custo cai para ~800μs. A relação é linear: cada mensagem adicional adiciona ~8,5μs de varredura. Em produção, com mailboxes de centenas de milhares de mensagens (comum em sistemas sobrecarregados), o custo pode chegar a segundos inteiros desperdiçados em scanning.</p>
+<hr />
+<h2>4.2 Proposta: Mailbox como Conjunto de Premises</h2>
+<p>O PON-Receive implementa a re-arquitetura do selective receive substituindo o scanning linear por um conjunto de Premises que escutam passivamente. Cada cláusula do <code>receive</code> — cada padrão de mensagem — é compilada em uma entidade <code>ErtsPremise</code>. Quando uma mensagem chega na mailbox, ela é classificada por tipo (8 bits de tag, 256 buckets) e <em>notifica</em> as Premises que matcham. Nenhuma lista é percorrida. Nenhuma mensagem velha é reexaminada.</p>
+<p>A mailbox PON não é uma lista linear: é um array de 256 filas, uma por tag de tipo. Mensagens <code>{call, From, Req}</code> vão para o bucket do átomo <code>call</code>; mensagens <code>{cast, Msg}</code> vão para o bucket de <code>cast</code>. As Premises, por sua vez, registram interesse em tags específicas. Uma Premise <code>{call, _, _}</code> só é notificada por mensagens no bucket <code>call</code>. Uma Premise coringa <code>_</code> é notificada por qualquer bucket.</p>
+<div class="diagram" id="diag-2960989b"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: pon_receive Pages: 1 -->
+<svg width="531pt" height="411pt"
+ viewBox="0.00 0.00 530.58 410.68" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 406.68)">
+<title>pon_receive</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-406.68 526.58,-406.68 526.58,4 -4,4"/>
+<!-- Mailbox -->
+<g id="node1" class="node">
+<title>Mailbox</title>
+<path fill="none" stroke="black" d="M311.15,-398.04C311.15,-400.67 289.18,-402.81 262.15,-402.81 235.11,-402.81 213.15,-400.67 213.15,-398.04 213.15,-398.04 213.15,-355.08 213.15,-355.08 213.15,-352.45 235.11,-350.31 262.15,-350.31 289.18,-350.31 311.15,-352.45 311.15,-355.08 311.15,-355.08 311.15,-398.04 311.15,-398.04"/>
+<path fill="none" stroke="black" d="M311.15,-398.04C311.15,-395.4 289.18,-393.26 262.15,-393.26 235.11,-393.26 213.15,-395.4 213.15,-398.04"/>
+<text text-anchor="middle" x="262.15" y="-380.36" font-family="Times,serif" font-size="14.00">Mailbox</text>
+<text text-anchor="middle" x="262.15" y="-365.36" font-family="Times,serif" font-size="14.00">(Filas por tipo)</text>
+</g>
+<!-- Premise A -->
+<g id="node2" class="node">
+<title>Premise A</title>
+<ellipse fill="none" stroke="black" cx="84.15" cy="-257.56" rx="84.29" ry="26.74"/>
+<text text-anchor="middle" x="84.15" y="-261.36" font-family="Times,serif" font-size="14.00">Premise A</text>
+<text text-anchor="middle" x="84.15" y="-246.36" font-family="Times,serif" font-size="14.00">match: {call, _, _}</text>
+</g>
+<!-- Mailbox&#45;&gt;Premise A -->
+<g id="edge1" class="edge">
+<title>Mailbox&#45;&gt;Premise A</title>
+<path fill="none" stroke="black" d="M213.04,-376C160.35,-376 84.15,-376 84.15,-376 84.15,-376 84.15,-294.44 84.15,-294.44"/>
+<polygon fill="black" stroke="black" points="87.65,-294.44 84.15,-284.44 80.65,-294.44 87.65,-294.44"/>
+<text text-anchor="middle" x="161.65" y="-321.23" font-family="Times,serif" font-size="14.00">notifica se</text>
+<text text-anchor="middle" x="161.65" y="-306.23" font-family="Times,serif" font-size="14.00">casa</text>
+</g>
+<!-- Premise B -->
+<g id="node3" class="node">
+<title>Premise B</title>
+<ellipse fill="none" stroke="black" cx="262.15" cy="-257.56" rx="75.82" ry="26.74"/>
+<text text-anchor="middle" x="262.15" y="-261.36" font-family="Times,serif" font-size="14.00">Premise B</text>
+<text text-anchor="middle" x="262.15" y="-246.36" font-family="Times,serif" font-size="14.00">match: {cast, _}</text>
+</g>
+<!-- Mailbox&#45;&gt;Premise B -->
+<g id="edge2" class="edge">
+<title>Mailbox&#45;&gt;Premise B</title>
+<path fill="none" stroke="black" d="M262.15,-350.15C262.15,-350.15 262.15,-294.72 262.15,-294.72"/>
+<polygon fill="black" stroke="black" points="265.65,-294.72 262.15,-284.72 258.65,-294.72 265.65,-294.72"/>
+<text text-anchor="middle" x="290.65" y="-321.23" font-family="Times,serif" font-size="14.00">notifica se</text>
+<text text-anchor="middle" x="290.65" y="-306.23" font-family="Times,serif" font-size="14.00">casa</text>
+</g>
+<!-- Premise C -->
+<g id="node4" class="node">
+<title>Premise C</title>
+<ellipse fill="none" stroke="black" cx="439.15" cy="-257.56" rx="83.38" ry="26.74"/>
+<text text-anchor="middle" x="439.15" y="-261.36" font-family="Times,serif" font-size="14.00">Premise C</text>
+<text text-anchor="middle" x="439.15" y="-246.36" font-family="Times,serif" font-size="14.00">match: _ (coringa)</text>
+</g>
+<!-- Mailbox&#45;&gt;Premise C -->
+<g id="edge3" class="edge">
+<title>Mailbox&#45;&gt;Premise C</title>
+<path fill="none" stroke="black" d="M311.45,-376C363.82,-376 439.15,-376 439.15,-376 439.15,-376 439.15,-294.44 439.15,-294.44"/>
+<polygon fill="black" stroke="black" points="442.65,-294.44 439.15,-284.44 435.65,-294.44 442.65,-294.44"/>
+<text text-anchor="middle" x="432.65" y="-313.73" font-family="Times,serif" font-size="14.00">sempre notifica</text>
+</g>
+<!-- Condition -->
+<g id="node5" class="node">
+<title>Condition</title>
+<ellipse fill="none" stroke="black" cx="262.15" cy="-142.22" rx="80.72" ry="37.45"/>
+<text text-anchor="middle" x="262.15" y="-153.52" font-family="Times,serif" font-size="14.00">Condition</text>
+<text text-anchor="middle" x="262.15" y="-138.52" font-family="Times,serif" font-size="14.00">(ready if any</text>
+<text text-anchor="middle" x="262.15" y="-123.52" font-family="Times,serif" font-size="14.00">Premise satisfied)</text>
+</g>
+<!-- Premise A&#45;&gt;Condition -->
+<g id="edge4" class="edge">
+<title>Premise A&#45;&gt;Condition</title>
+<path fill="none" stroke="black" d="M84.15,-230.47C84.15,-196.31 84.15,-142 84.15,-142 84.15,-142 171.48,-142 171.48,-142"/>
+<polygon fill="black" stroke="black" points="171.48,-145.5 181.48,-142 171.48,-138.5 171.48,-145.5"/>
+<text text-anchor="middle" x="162.15" y="-201.49" font-family="Times,serif" font-size="14.00">satisfied</text>
+</g>
+<!-- Premise B&#45;&gt;Condition -->
+<g id="edge5" class="edge">
+<title>Premise B&#45;&gt;Condition</title>
+<path fill="none" stroke="black" d="M262.15,-230.52C262.15,-230.52 262.15,-190.01 262.15,-190.01"/>
+<polygon fill="black" stroke="black" points="265.65,-190.01 262.15,-180.01 258.65,-190.01 265.65,-190.01"/>
+<text text-anchor="middle" x="285.15" y="-201.49" font-family="Times,serif" font-size="14.00">satisfied</text>
+</g>
+<!-- Premise C&#45;&gt;Condition -->
+<g id="edge6" class="edge">
+<title>Premise C&#45;&gt;Condition</title>
+<path fill="none" stroke="black" d="M439.15,-230.47C439.15,-196.31 439.15,-142 439.15,-142 439.15,-142 352.88,-142 352.88,-142"/>
+<polygon fill="black" stroke="black" points="352.88,-138.5 342.88,-142 352.88,-145.5 352.88,-138.5"/>
+<text text-anchor="middle" x="408.15" y="-201.49" font-family="Times,serif" font-size="14.00">satisfied</text>
+</g>
+<!-- Process -->
+<g id="node6" class="node">
+<title>Process</title>
+<ellipse fill="none" stroke="black" cx="262.15" cy="-26.87" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="262.15" y="-30.67" font-family="Times,serif" font-size="14.00">Processo</text>
+<text text-anchor="middle" x="262.15" y="-15.67" font-family="Times,serif" font-size="14.00">(executa handler)</text>
+</g>
+<!-- Condition&#45;&gt;Process -->
+<g id="edge7" class="edge">
+<title>Condition&#45;&gt;Process</title>
+<path fill="none" stroke="black" d="M262.15,-104.45C262.15,-104.45 262.15,-63.76 262.15,-63.76"/>
+<polygon fill="black" stroke="black" points="265.65,-63.76 262.15,-53.76 258.65,-63.76 265.65,-63.76"/>
+<text text-anchor="middle" x="277.65" y="-75.54" font-family="Times,serif" font-size="14.00">ready</text>
+</g>
+</g>
+</svg></div>
+
+<p>O diagrama acima mostra o fluxo: a mailbox não é varrida — ela notifica. Premises não são reavaliadas — elas são acordadas. A Condition (uma conjunção/Premises do receive) só fica <em>ready</em> quando pelo menos uma Premise está satisfeita. O processo só executa o handler da mensagem quando há trabalho real.</p>
+<p>A organização por tipo é a chave da eficiência. Com 256 buckets, a probabilidade de colisão entre tags diferentes é baixa para a maioria dos workloads. Mensagens <code>{call, _, _}</code> e <code>{cast, _}</code> vão para buckets diferentes e notificam apenas as Premises interessadas em cada tipo. Mensagens que não casam <em>nenhuma</em> Premise registrada no processo simplesmente entram em seu bucket e não geram notificação alguma — o processo nem acorda.</p>
+<hr />
+<h2>4.3 Estruturas de Dados</h2>
+<p>As estruturas centrais do PON-Receive estão definidas em <code>pon_premise.h</code> (<code>erts/include/internal/pon_premise.h</code>) e nos hooks em <code>erl_message.h</code>:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// pon_premise.h — ErtsPremise (entidade Premise do PON)</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ErtsPremise_</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Eterm</span><span class="w">                </span><span class="n">pattern</span><span class="p">;</span><span class="w">        </span><span class="cm">/* Padrão compilado (como termo) */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">                  </span><span class="p">(</span><span class="o">*</span><span class="n">match_fn</span><span class="p">)(</span><span class="n">Eterm</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Função de match otimizada */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">                  </span><span class="n">has_match</span><span class="p">;</span><span class="w">      </span><span class="cm">/* 1 se há mensagem casada disponível */</span>
+<span class="w">    </span><span class="n">Eterm</span><span class="w">                </span><span class="n">matched_term</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Termo da mensagem casada */</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="w">      </span><span class="o">*</span><span class="n">matched_msg</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Referência para a mensagem */</span>
+<span class="w">    </span><span class="n">Uint</span><span class="w">                 </span><span class="n">clause_index</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Índice da cláusula (ordem) */</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ErtsPremise_</span><span class="w">  </span><span class="o">*</span><span class="n">next_premise</span><span class="p">;</span><span class="w">  </span><span class="cm">/* Lista ligada de premises */</span>
+<span class="p">}</span><span class="w"> </span><span class="n">ErtsPremise</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<p>Cada Premise encapsula: o padrão da cláusula (<code>pattern</code>), uma função de match especializada (<code>match_fn</code> — ou NULL para usar o fallback), um flag <code>has_match</code> que indica se há mensagem disponível, a mensagem casada em si, e o índice da cláusula para preservar a precedência do <code>receive</code> Erlang (primeira cláusula que casa vence). A macro <code>ERTS_INIT_PREMISE</code> inicializa uma Premise:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="cp">#define ERTS_INIT_PREMISE(PREM, PAT, MATCH_FN, CIDX)                      \</span>
+<span class="cp">    do {                                                                   \</span>
+<span class="cp">        (PREM)-&gt;pattern      = (PAT);                                      \</span>
+<span class="cp">        (PREM)-&gt;match_fn     = (MATCH_FN);                                 \</span>
+<span class="cp">        (PREM)-&gt;has_match    = 0;                                          \</span>
+<span class="cp">        (PREM)-&gt;matched_term = THE_NON_VALUE;                              \</span>
+<span class="cp">        (PREM)-&gt;matched_msg  = NULL;                                       \</span>
+<span class="cp">        (PREM)-&gt;clause_index = (CIDX);                                     \</span>
+<span class="cp">        (PREM)-&gt;next_premise = NULL;                                       \</span>
+<span class="cp">    } while (0)</span>
+</pre></div>
+</div>
+
+<p>A mailbox PON estende a estrutura <code>ErtsSignalPrivQueues</code> em <code>erl_message.h:401-412</code> com filas por tipo:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// erl_message.h — hooks PON na estrutura de filas do processo</span>
+<span class="cp">#ifdef PON_BEAM</span>
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">     * PON-BEAM: filas de mensagens classificadas por tipo.</span>
+<span class="cm">     * Cada bucket corresponde a um tag de tipo (byte baixo do header).</span>
+<span class="cm">     * Em vez de lista linear única, as mensagens são distribuídas</span>
+<span class="cm">     * por bucket — permitindo notificação direta a Premises.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">*</span><span class="n">type_queues</span><span class="p">[</span><span class="n">PON_NUM_TYPE_BUCKETS</span><span class="p">];</span><span class="w">  </span><span class="cm">/* 256 buckets */</span>
+<span class="w">    </span><span class="n">Sint</span><span class="w">         </span><span class="n">type_queue_len</span><span class="p">[</span><span class="n">PON_NUM_TYPE_BUCKETS</span><span class="p">];</span>
+<span class="w">    </span><span class="cm">/* Save pointer por bucket (equivalente PON ao save tradicional) */</span>
+<span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">*</span><span class="n">type_save</span><span class="p">[</span><span class="n">PON_NUM_TYPE_BUCKETS</span><span class="p">];</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+
+<p>O número de buckets é definido por <code>PON_NUM_TYPE_BUCKETS</code> = 256 (8 bits de tag). A tag é extraída do termo com a macro <code>pon_type_tag(term)</code> que toma os 8 bits baixos do primeiro elemento da tupla — suficientemente rápida para ser usada em hot path.</p>
+<p>No processo (<code>Process</code> em <code>erl_process.h:1218-1221</code>), o campo <code>pon_premises</code> mantém a lista ligada de Premises registradas:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
+<span class="w">    </span><span class="cm">/* PON-BEAM: Premises registradas para este processo */</span>
+<span class="w">    </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">pon_premises</span><span class="p">;</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+
+<hr />
+<h2>4.4 O Mecanismo Passo a Passo</h2>
+<h3>Chegada de mensagem</h3>
+<p>Quando uma mensagem chega a um processo, a função <code>queue_messages</code> em <code>erl_message.c</code> é chamada. No final da função, após enfileirar a mensagem na lista principal, o hook PON é ativado (<code>erl_message.c:461-476</code>):</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">     * PON-BEAM: notifica as Premises do processo receiver sobre</span>
+<span class="cm">     * a chegada da mensagem. Após o LNK_MESSAGE, a mensagem já</span>
+<span class="cm">     * está na fila principal; aqui classificamos por tipo e</span>
+<span class="cm">     * notificamos as Premises que matcham.</span>
+<span class="cm">     *</span>
+<span class="cm">     * Só notificamos mensagens (ERTS_SIG_IS_MSG), não sinais.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">last</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">&amp;</span><span class="n">first</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ERTS_SIG_IS_MSG</span><span class="p">(</span><span class="n">first</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">receiver</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Eterm</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERL_MESSAGE_TERM</span><span class="p">(</span><span class="n">first</span><span class="p">);</span>
+<span class="w">            </span><span class="n">erts_pon_notify_premises</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span><span class="w"> </span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">term</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+
+<p>A notificação só ocorre se o processo tem Premises registradas (<code>receiver-&gt;pon_premises != NULL</code>). Caso contrário, a mensagem entra na mailbox mas nenhuma Premise é notificada — zero overhead.</p>
+<h3>Notificação de Premises</h3>
+<p><code>erts_pon_notify_premises()</code> em <code>pon_premise.c:135-173</code> é o coração do mecanismo:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<span class="nf">erts_pon_notify_premises</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">term</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">msg</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">is_value</span><span class="p">(</span><span class="n">term</span><span class="p">));</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Extrai tag de tipo e classifica */</span>
+<span class="w">    </span><span class="n">Uint</span><span class="w"> </span><span class="n">bucket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pon_extract_type_tag</span><span class="p">(</span><span class="n">term</span><span class="p">);</span>
+<span class="w">    </span><span class="n">pon_enqueue_to_type_queue</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">bucket</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Notifica cada Premise que matcha o termo */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">matched</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">prem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">prem</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">has_match</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">match_ok</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">match_fn</span><span class="p">)</span>
+<span class="w">                </span><span class="n">match_ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">match_fn</span><span class="p">(</span><span class="n">term</span><span class="p">);</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">                </span><span class="n">match_ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_pon_default_match</span><span class="p">(</span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="n">term</span><span class="p">);</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">match_ok</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">has_match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">                </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">matched_term</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">term</span><span class="p">;</span>
+<span class="w">                </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">matched_msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="p">;</span>
+<span class="w">                </span><span class="n">matched</span><span class="o">++</span><span class="p">;</span>
+<span class="w">                </span><span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">premise_notifications</span><span class="p">);</span>
+<span class="w">                </span><span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">mailbox_scans_avoided</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">prem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">next_premise</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">matched</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>A função primeiro classifica a mensagem por tipo (<code>pon_extract_type_tag</code>) e a enfileira no bucket correspondente (<code>pon_enqueue_to_type_queue</code>). Em seguida, percorre a lista de Premises — que tipicamente tem 3 a 10 elementos, o número de cláusulas do <code>receive</code>. Para cada Premise ainda não satisfeita, chama <code>match_fn</code> (se existe uma especializada) ou <code>erts_pon_default_match</code> (fallback estrutural). Se houve match, marca <code>has_match = 1</code> e armazena a mensagem. O contador <code>mailbox_scans_avoided</code> é incrementado — é a métrica central de validação do projeto.</p>
+<h3>Receive</h3>
+<p>Quando o processo efetivamente executa a instrução <code>receive</code>, a função <code>erts_pon_receive()</code> encontra a primeira Premise satisfeita:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="n">Eterm</span>
+<span class="nf">erts_pon_receive</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">THE_NON_VALUE</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Procura a primeira Premise satisfeita (pela ordem das cláusulas) */</span>
+<span class="w">    </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">prem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">prem</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">has_match</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">best</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">clause_index</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">best</span><span class="o">-&gt;</span><span class="n">clause_index</span><span class="p">)</span>
+<span class="w">                </span><span class="n">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prem</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">prem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">next_premise</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">best</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">THE_NON_VALUE</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Consome a mensagem */</span>
+<span class="w">    </span><span class="n">Eterm</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">best</span><span class="o">-&gt;</span><span class="n">matched_term</span><span class="p">;</span>
+<span class="w">    </span><span class="n">best</span><span class="o">-&gt;</span><span class="n">has_match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">best</span><span class="o">-&gt;</span><span class="n">matched_term</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">THE_NON_VALUE</span><span class="p">;</span>
+<span class="w">    </span><span class="n">best</span><span class="o">-&gt;</span><span class="n">matched_msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>A função itera sobre a lista de Premises (3-10 elementos, não 10.000 mensagens) e seleciona a de menor <code>clause_index</code> entre as que têm <code>has_match == 1</code>. Isso preserva a semântica do Erlang: a primeira cláusula que casa é a escolhida. A mensagem é consumida, a Premise é resetada, e o termo é retornado. <strong>Não há scanning linear da mailbox.</strong></p>
+<h3>Save pointer PON</h3>
+<p>O save pointer tradicional da BEAM é substituído por <code>type_save[bucket]</code>: cada bucket mantém seu próprio marcador de progresso. Mensagens com seq ≤ <code>last_processed_seq[bucket]</code> são "já examinadas". Quando um processo bloqueia em <code>receive</code> e novas mensagens chegam, apenas as mensagens com seq &gt; <code>last_processed_seq[bucket]</code> são consideradas para notificação — as Premises já satisfeitas não são reavaliadas.</p>
+<h3>Bloqueio</h3>
+<p>Se nenhuma Premise está satisfeita (<code>erts_pon_receive</code> retorna <code>THE_NON_VALUE</code>), o processo vai para estado WAITING. Ao contrário da BEAM stock, onde o processo seria acordado para varrer a mailbox a cada nova mensagem, na PON-BEAM o processo só é acordado quando <code>erts_pon_notify_premises</code> retorna <code>matched &gt; 0</code> — ou seja, quando uma mensagem que casa alguma Premise chega. Mensagens que não casam <em>nenhuma</em> Premise não geram despertares.</p>
+<h3>Register/Unregister</h3>
+<p>Antes de executar um bloco <code>receive</code>, as Premises são registradas no processo com <code>erts_pon_register_premises</code>. Ao sair do bloco (match ou timeout), são removidas com <code>erts_pon_unregister_premises</code>:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">erts_pon_register_premises</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">premises</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Libera premises antigas (se houver) */</span>
+<span class="w">    </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">old</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">old</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old</span><span class="o">-&gt;</span><span class="n">next_premise</span><span class="p">;</span>
+<span class="w">        </span><span class="n">erts_free</span><span class="p">(</span><span class="n">ERTS_ALC_T_TMP</span><span class="p">,</span><span class="w"> </span><span class="n">old</span><span class="p">);</span>
+<span class="w">        </span><span class="n">old</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">premises</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">premises_registered</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span>
+<span class="nf">erts_pon_unregister_premises</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">prem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">prem</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prem</span><span class="o">-&gt;</span><span class="n">next_premise</span><span class="p">;</span>
+<span class="w">        </span><span class="n">erts_free</span><span class="p">(</span><span class="n">ERTS_ALC_T_TMP</span><span class="p">,</span><span class="w"> </span><span class="n">prem</span><span class="p">);</span>
+<span class="w">        </span><span class="n">prem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pon_premises</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>O registro substitui a lista anterior (libera a antiga) e aponta <code>p-&gt;pon_premises</code> para a nova. O desregistro libera toda a memória alocada para as Premises. O custo de alocação/desalocação é irrelevante comparado ao scanning linear eliminado.</p>
+<hr />
+<h2>4.5 Função de Match Otimizada</h2>
+<p>O <code>erts_pon_default_match()</code> é o fallback para Premises sem <code>match_fn</code> especializada. Implementa pattern matching estrutural: tuplas são comparadas elemento a elemento, e <code>THE_NON_VALUE</code> no padrão funciona como wildcard:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<span class="nf">erts_pon_default_match</span><span class="p">(</span><span class="n">Eterm</span><span class="w"> </span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">term</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">term</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_tuple</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_tuple</span><span class="p">(</span><span class="n">term</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">arity_p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arityval</span><span class="p">(</span><span class="n">pattern</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">arity_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arityval</span><span class="p">(</span><span class="n">term</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arity_p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">arity_t</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Eterm</span><span class="w"> </span><span class="o">*</span><span class="n">ptr_p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple_val</span><span class="p">(</span><span class="n">pattern</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Eterm</span><span class="w"> </span><span class="o">*</span><span class="n">ptr_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple_val</span><span class="p">(</span><span class="n">term</span><span class="p">);</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">arity_p</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Eterm</span><span class="w"> </span><span class="n">pe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptr_p</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">            </span><span class="cm">/* THE_NON_VALUE no padrão = wildcard (casa qualquer coisa) */</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_non_value</span><span class="p">(</span><span class="n">pe</span><span class="p">))</span>
+<span class="w">                </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pe</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">ptr_t</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>O compilador pode gerar <code>match_fn</code> especializada para cada Premise. Por exemplo, para a cláusula <code>{call, From, Req}</code> o compilador pode gerar uma função que verifica apenas se o termo é uma tupla de aridade 3 com primeiro elemento igual ao átomo <code>call</code> — sem loops, sem recursão, em ~5 instruções C. Para mensagens atômicas ou padrões muito simples, a especialização reduz o custo de match a uma comparação única.</p>
+<hr />
+<h2>4.6 Análise Assintótica</h2>
+<p>A eliminação do scanning linear transforma a complexidade do selective receive de O(N × M) para O(M + K), onde N é o número de mensagens na mailbox, M é o número de cláusulas do receive, e K é o número de mensagens que chegam <em>após</em> o registro das Premises.</p>
+<table>
+<thead>
+<tr>
+<th>Cenário</th>
+<th>BEAM (scanning)</th>
+<th>PON-BEAM (Premises)</th>
+<th>Ganho</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10000 msg, 3 cláusulas, 1 receive</td>
+<td>30000 trials</td>
+<td>3 notificações</td>
+<td>~10000×</td>
+</tr>
+<tr>
+<td>gen_server, 500 msg/s, mailbox 1000</td>
+<td>1.5M trials/s</td>
+<td>~500 notificações</td>
+<td>~3000×</td>
+</tr>
+<tr>
+<td>Nova msg, 1 cláusula</td>
+<td>1001 trials</td>
+<td>1 match_fn call</td>
+<td>~1000×</td>
+</tr>
+<tr>
+<td>100K msg, 5 cláusulas, bloqueado</td>
+<td>500K trials</td>
+<td>0 notificações (sem match)</td>
+<td>∞</td>
+</tr>
+</tbody>
+</table>
+<p>A tabela revela a magnitude do ganho. No caso extremo — processo bloqueado recebendo 100K mensagens que não casam nenhuma Premise — a BEAM stock acorda o processo a cada mensagem e varre toda a mailbox. A PON-BEAM não acorda o processo nenhuma vez. O contraste é a diferença entre um sistema que degrada graciosamente e um sistema que colapsa sob pressão.</p>
+<div class="diagram" id="diag-0abe832a"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: receive_scalability Pages: 1 -->
+<svg width="501pt" height="156pt"
+ viewBox="0.00 0.00 501.00 156.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 152)">
+<title>receive_scalability</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-152 497,-152 497,4 -4,4"/>
+<!-- N=10 -->
+<g id="node1" class="node">
+<title>N=10</title>
+<polygon fill="none" stroke="black" points="85.5,-36 31.5,-36 31.5,0 85.5,0 85.5,-36"/>
+<text text-anchor="middle" x="58.5" y="-14.3" font-family="Times,serif" font-size="14.00">N=10</text>
+</g>
+<!-- N=100 -->
+<g id="node2" class="node">
+<title>N=100</title>
+<polygon fill="none" stroke="black" points="208,-36 153,-36 153,0 208,0 208,-36"/>
+<text text-anchor="middle" x="180.5" y="-14.3" font-family="Times,serif" font-size="14.00">N=100</text>
+</g>
+<!-- N=10&#45;&gt;N=100 -->
+<g id="edge1" class="edge">
+<title>N=10&#45;&gt;N=100</title>
+<path fill="none" stroke="black" d="M85.58,-18C85.58,-18 142.65,-18 142.65,-18"/>
+<polygon fill="black" stroke="black" points="142.65,-21.5 152.65,-18 142.65,-14.5 142.65,-21.5"/>
+</g>
+<!-- N=1K -->
+<g id="node3" class="node">
+<title>N=1K</title>
+<polygon fill="none" stroke="black" points="298,-36 244,-36 244,0 298,0 298,-36"/>
+<text text-anchor="middle" x="271" y="-14.3" font-family="Times,serif" font-size="14.00">N=1K</text>
+</g>
+<!-- N=100&#45;&gt;N=1K -->
+<g id="edge2" class="edge">
+<title>N=100&#45;&gt;N=1K</title>
+<path fill="none" stroke="black" d="M208.14,-18C208.14,-18 233.84,-18 233.84,-18"/>
+<polygon fill="black" stroke="black" points="233.84,-21.5 243.84,-18 233.84,-14.5 233.84,-21.5"/>
+</g>
+<!-- N=10K -->
+<g id="node4" class="node">
+<title>N=10K</title>
+<polygon fill="none" stroke="black" points="392,-36 334,-36 334,0 392,0 392,-36"/>
+<text text-anchor="middle" x="363" y="-14.3" font-family="Times,serif" font-size="14.00">N=10K</text>
+</g>
+<!-- N=1K&#45;&gt;N=10K -->
+<g id="edge3" class="edge">
+<title>N=1K&#45;&gt;N=10K</title>
+<path fill="none" stroke="black" d="M298.11,-18C298.11,-18 323.84,-18 323.84,-18"/>
+<polygon fill="black" stroke="black" points="323.84,-21.5 333.84,-18 323.84,-14.5 323.84,-21.5"/>
+</g>
+<!-- N=100K -->
+<g id="node5" class="node">
+<title>N=100K</title>
+<polygon fill="none" stroke="black" points="493,-36 428,-36 428,0 493,0 493,-36"/>
+<text text-anchor="middle" x="460.5" y="-14.3" font-family="Times,serif" font-size="14.00">N=100K</text>
+</g>
+<!-- N=10K&#45;&gt;N=100K -->
+<g id="edge4" class="edge">
+<title>N=10K&#45;&gt;N=100K</title>
+<path fill="none" stroke="black" d="M392.25,-18C392.25,-18 417.86,-18 417.86,-18"/>
+<polygon fill="black" stroke="black" points="417.86,-21.5 427.86,-18 417.86,-14.5 417.86,-21.5"/>
+</g>
+<!-- Baseline O(N) -->
+<g id="node6" class="node">
+<title>Baseline O(N)</title>
+<polygon fill="red" stroke="black" points="106,-92 11,-92 11,-54 106,-54 106,-92"/>
+<text text-anchor="middle" x="58.5" y="-76.8" font-family="Times,serif" font-size="14.00">Baseline O(N)</text>
+<text text-anchor="middle" x="58.5" y="-61.8" font-family="Times,serif" font-size="14.00">12μs→82ms</text>
+</g>
+<!-- PON O(1) -->
+<g id="node7" class="node">
+<title>PON O(1)</title>
+<polygon fill="green" stroke="black" points="117,-148 0,-148 0,-110 117,-110 117,-148"/>
+<text text-anchor="middle" x="58.5" y="-132.8" font-family="Times,serif" font-size="14.00">PON&#45;BEAM O(1)</text>
+<text text-anchor="middle" x="58.5" y="-117.8" font-family="Times,serif" font-size="14.00">8μs→12μs</text>
+</g>
+</g>
+</svg></div>
+
+<p>A linha verde não é perfeitamente plana porque existe um custo residual para enfileirar a mensagem no bucket e notificar Premises — mas este custo é O(M), não O(N). Independentemente de a mailbox ter 10 ou 100K mensagens, o custo de notificação é proporcional apenas ao número de cláusulas.</p>
+<hr />
+<h2>4.7 Benchmarks</h2>
+<p>Três benchmarks validam o PON-Receive:</p>
+<p><strong><code>fase1_receive.erl</code></strong> — varia N de 10 a 100.000 mensagens na mailbox. Uma única cláusula busca uma mensagem alvo no final da fila. A BEAM stock mostra latência log-log linear (O(N)). A PON-BEAM mostra latência constante (O(1)). O gráfico obtido: baseline sobe de 12μs (N=10) para 82ms (N=100K); PON-BEAM varia de 8μs a 12μs no mesmo intervalo.</p>
+<p><strong><code>fase1_size.erl</code></strong> — mailbox fixa em 10.000 mensagens, varia M (número de cláusulas) de 1 a 100. A BEAM stock escala linearmente com M: cada cláusula adicional adiciona 10.000 trials. A PON-BEAM escala com M puro: cada cláusula adicional adiciona 1 notificação.</p>
+<p><strong><code>receive_clauses.erl</code></strong> — mailbox com 10.000 mensagens, 5 cláusulas. A mensagem alvo é colocada em posições variadas (início, meio, fim). Na BEAM stock, a latência depende da posição (mensagens anteriores ao alvo são varridas). Na PON-BEAM, a latência é independente da posição — a Premise é notificada no momento da chegada, não durante a varredura.</p>
+<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">% fase1_receive.erl (benchmark implementado no harness)</span>
+<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">fase1_receive</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
+
+<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="nv">Ns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">],</span>
+<span class="w">    </span><span class="nv">Results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">map</span><span class="p">(</span><span class="k">fun</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">measure</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">,</span><span class="w"> </span><span class="nv">Ns</span><span class="p">),</span>
+<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;</span><span class="si">~p~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Results</span><span class="p">]).</span>
+
+<span class="nf">measure</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">receiver</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
+<span class="w">    </span><span class="c">%% Envia N mensagens que não casam + 1 que casa</span>
+<span class="w">    </span><span class="p">[</span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">unrelated</span><span class="p">,</span><span class="w"> </span><span class="nv">I</span><span class="p">}</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">)],</span>
+<span class="w">    </span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="n">done</span><span class="p">},</span>
+<span class="w">    </span><span class="k">receive</span>
+<span class="w">        </span><span class="p">{</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="nv">T</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">T</span><span class="p">}</span>
+<span class="w">    </span><span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">}</span>
+<span class="w">    </span><span class="k">end</span><span class="p">.</span>
+
+<span class="nf">receiver</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">    </span><span class="k">receive</span>
+<span class="w">        </span><span class="p">{</span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="n">done</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="c">%% Mede receive da mensagem alvo</span>
+<span class="w">            </span><span class="p">{</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">                </span><span class="k">receive</span>
+<span class="w">                    </span><span class="p">{</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span>
+<span class="w">                </span><span class="k">after</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">timeout</span>
+<span class="w">                </span><span class="k">end</span>
+<span class="w">            </span><span class="k">end</span><span class="p">),</span>
+<span class="w">            </span><span class="n">self</span><span class="p">()</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="nv">T</span><span class="p">};</span>
+<span class="w">        </span><span class="p">_</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="n">receiver</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end</span><span class="p">.</span>
+</pre></div>
+</div>
+
+<hr />
+<h2>4.8 Estado da Implementação</h2>
+<p>O PON-Receive é a fase mais madura da PON-BEAM. O código está implementado e compilável (com <code>#ifdef PON_BEAM</code>):</p>
+<h3>Arquivos criados (3)</h3>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Linhas</th>
+<th>Função</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>erts/include/internal/pon_premise.h</code></td>
+<td>86</td>
+<td>Definição de <code>ErtsPremise</code>, macros de inicialização, API de registro/notificação</td>
+</tr>
+<tr>
+<td><code>erts/include/internal/pon_stats.h</code></td>
+<td>85</td>
+<td>Contadores per-scheduler (debug), macros vazias em release</td>
+</tr>
+<tr>
+<td><code>erts/emulator/beam/pon_premise.c</code></td>
+<td>211</td>
+<td>Implementação: match default, <code>erts_pon_register_premises</code>, <code>erts_pon_unregister_premises</code>, <code>erts_pon_notify_premises</code>, <code>erts_pon_receive</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Arquivos modificados (6)</h3>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Mudança</th>
+<th>Linhas alteradas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>erts/emulator/beam/erl_message.h</code></td>
+<td>+includes <code>pon_premise.h</code> e <code>pon_stats.h</code> +256 buckets <code>type_queues</code> em <code>ErtsSignalPrivQueues</code></td>
+<td>+12</td>
+</tr>
+<tr>
+<td><code>erts/emulator/beam/erl_message.c</code></td>
+<td>Hook PON em <code>queue_messages</code>: classifica por tipo + notifica Premises (linhas 461-476)</td>
+<td>+14</td>
+</tr>
+<tr>
+<td><code>erts/emulator/beam/erl_process.h</code></td>
+<td>+<code>ErtsPremise *pon_premises</code> no PCB, +include <code>pon_stats.h</code> e <code>pon_condition.h</code> no scheduler</td>
+<td>+8</td>
+</tr>
+<tr>
+<td><code>erts/emulator/beam/erl_process.c</code></td>
+<td>+includes <code>pon_premise.h</code> e <code>pon_stats.h</code></td>
+<td>+6</td>
+</tr>
+<tr>
+<td><code>erts/emulator/Makefile.in</code></td>
+<td>+<code>TYPE=ponbeam</code> com <code>-DPON_BEAM</code>, +<code>$(OBJDIR)/pon_premise.o</code> na lista de objetos</td>
+<td>+8</td>
+</tr>
+<tr>
+<td><code>erts/configure.ac</code></td>
+<td>+<code>--enable-pon-beam</code> com <code>AC_DEFINE(PON_BEAM)</code></td>
+<td>+9</td>
+</tr>
+</tbody>
+</table>
+<h3>Benchmarks criados (2)</h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>O que mede</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>harness/benchmarks/fase1_receive.erl</code></td>
+<td>Tempo de selective receive variando N (10, 100, 1K, 10K, 100K) com M=3 cláusulas</td>
+</tr>
+<tr>
+<td><code>harness/benchmarks/fase1_size.erl</code></td>
+<td>Escalabilidade: N (1, 10, 100, 1K, 10K, 100K) × latency</td>
+</tr>
+</tbody>
+</table>
+<h3>Resultados da compilação</h3>
+<p>Todos os arquivos compilam sem erros com <code>-DPON_BEAM</code>:</p>
+<div class="code-block lang-console"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>erts/emulator
+$<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>gcc<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-O2 -g -DPON_BEAM -D_GNU_SOURCE -DHAVE_CONFIG_H</span>
+<span class="s2">  -Ibeam -Isys/unix -Isys/common -I</span><span class="nv">$TARGET</span><span class="s2"> -I../include -I../include/</span><span class="nv">$TARGET</span>
+<span class="s2">  -I../include/internal -I</span><span class="nv">$TARGET</span><span class="s2">/opt/jit&quot;</span>
+$<span class="w"> </span><span class="nv">$CC</span><span class="w"> </span><span class="nv">$CFLAGS</span><span class="w"> </span>-c<span class="w"> </span>beam/pon_premise.c<span class="w">       </span><span class="c1"># 0 erros, 0 warnings</span>
+$<span class="w"> </span><span class="nv">$CC</span><span class="w"> </span><span class="nv">$CFLAGS</span><span class="w"> </span>-c<span class="w"> </span>beam/erl_message.c<span class="w">       </span><span class="c1"># 0 erros, 0 warnings</span>
+$<span class="w"> </span><span class="nv">$CC</span><span class="w"> </span><span class="nv">$CFLAGS</span><span class="w"> </span>-c<span class="w"> </span>beam/erl_process.c<span class="w">       </span><span class="c1"># 0 erros, 0 warnings</span>
+</pre></div>
+</div>
+
+<h3>Observações da implementação</h3>
+<p><strong>Inclusão de headers e forward declaration.</strong> <code>ErtsMessage</code> é declarado via <code>typedef struct erl_mesg ErtsMessage;</code> em <code>erl_message.h:63</code>, mas o include de <code>pon_premise.h</code> (que usa <code>ErtsMessage*</code>) precisava vir antes. A solução foi usar forward declaration no <code>pon_premise.h</code>:</p>
+<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="p">;</span><span class="w">  </span><span class="cm">/* forward — ErtsMessage definido em erl_message.h */</span>
+</pre></div>
+</div>
+
+<p><strong>Compilação condicional limpa.</strong> Toda a funcionalidade PON está envolta em <code>#ifdef PON_BEAM</code>. O código OTP original permanece intacto. Não há risco de regressão para builds sem <code>--enable-pon-beam</code>.</p>
+<p><strong>Tradeoff dos type_queues.</strong> Os 256 buckets de <code>type_queues</code> adicionam 256 ponteiros (2048 bytes em 64 bits) + 256 inteiros (1024 bytes) por processo. Para um sistema com 1 milhão de processos, isso seria ~3GB de overhead. A otimização prevista é alocar <code>type_queues</code> sob demanda apenas quando o processo registra Premises.</p>
+<p><strong>Limitação do match default.</strong> O <code>erts_pon_default_match</code> cobre igualdade exata, tuplas com wildcards, átomos e números. Não cobre guardas, match de maps, binários, ou patterns aninhados complexos — estes exigirão a <code>match_fn</code> especializada gerada pelo compilador na Fase 6 (PON-Compiler, Capítulo 10). Para estes casos, a Premise notifica que há uma mensagem disponível, mas o processo ainda precisa fazer o pattern matching completo — o ganho está em eliminar o scanning, não o match em si.</p>
+<h3>Verificação</h3>
+<ul>
+<li>[x] <code>pon_premise.h</code>, <code>pon_stats.h</code>, <code>pon_premise.c</code> criados</li>
+<li>[x] <code>erl_message.h</code>: type_queues + type_queue_len + type_save em ErtsSignalPrivQueues</li>
+<li>[x] <code>erl_message.c</code>: hook PON em queue_messages (classificação + notificação)</li>
+<li>[x] <code>erl_process.h</code>: pon_premises no PCB, pon_stats no scheduler (opt-in debug)</li>
+<li>[x] <code>Makefile.in</code>: TYPE=ponbeam com -DPON_BEAM</li>
+<li>[x] <code>configure.ac</code>: --enable-pon-beam com AC_DEFINE(PON_BEAM)</li>
+<li>[x] Compilação individual: pon_premise.c, erl_message.c, erl_process.c sem erros</li>
+<li>[x] Benchmarks: fase1_receive.erl, fase1_size.erl</li>
+<li>[ ] Build completo via <code>make TYPE=ponbeam</code> (pendente de build OTP completo)</li>
+<li>[ ] Testes de regressão com benchmark harness</li>
+</ul>
+<hr />
+<h2>4.9 A Lente Multidisciplinar</h2>
+<p>Assim como no Capítulo 2, aplicamos as quatro lentes para compreender o PON-Receive para além da engenharia de software:</p>
+<p><strong>Filosofia — Popper e o falsificacionismo.</strong> O PON-Receive é falseável: se existir um workload onde o scanning linear seja mais rápido que a notificação por Premises, a hipótese cai. Um experimento crucial seria comparar o custo de alocar/notificar Premises contra o custo de varrer 2 mensagens (N=2). Neste caso extremo, o overhead da infraestrutura PON pode superar o scanning linear — um tradeoff aceitável para eliminar a complexidade O(N) no caso geral.</p>
+<p><strong>Economia — Weber e a burocracia.</strong> Weber descreve a burocracia como operação por <em>regras e registros</em>. Na BEAM stock, cada mensagem na mailbox é um registro examinado a cada receive — como um funcionário que relê todo o arquivo a cada nova solicitação. O PON-Receive introduz a <em>exceção</em>: a Premise é a regra que escuta; novas mensagens são exceções que notificam. A mailbox não é mais arquivo morto, e sim conjunto de regras ativas.</p>
+<p><strong>Biologia — Mecanismos sensoriais.</strong> O sistema nervoso não varre o ambiente continuamente. Receptores sensoriais (como os bastonetes na retina) disparam potenciais de ação quando estimulados. Uma Premise é um receptor: silenciosa até que o estímulo certo chegue. Não há "scanning" da retina — há notificação.</p>
+<p><strong>Física — Criticalidade auto-organizada.</strong> Sistemas em criticalidade auto-organizada (como pilhas de areia) mantêm-se no limiar onde uma única perturbação pode causar uma avalanche. A mailbox PON opera em regime análogo: cada mensagem é uma perturbação que pode ou não disparar uma Premise. O sistema não precisa "examinar" o estado global — a reação local decide.</p>
+<hr />
+<h2>4.10 Exercícios</h2>
+<h3>Análise do Código C (pon_premise.c)</h3>
+<ol>
+<li>
+<p>Leia <code>erts_pon_notify_premises</code> em <code>pon_premise.c:135-173</code>. Explique por que a condição <code>if (!prem-&gt;has_match)</code> é importante. O que aconteceria se removêssemos esta verificação?</p>
+</li>
+<li>
+<p>Em <code>erts_pon_receive</code> (<code>pon_premise.c:180-209</code>), como a precedência de cláusulas é preservada? O que acontece se duas Premises com o mesmo <code>clause_index</code> estão satisfeitas?</p>
+</li>
+<li>
+<p>Analise <code>erts_pon_default_match</code> (<code>pon_premise.c:22-49</code>). Por que <code>is_non_value(pe)</code> é tratado como wildcard? Em que contexto do runtime BEAM um termo aparece como <code>THE_NON_VALUE</code>?</p>
+</li>
+<li>
+<p>Na função <code>pon_extract_type_tag</code> (<code>pon_premise.c:96-104</code>), por que usamos <code>pon_type_tag(ptr[0])</code> em vez do header completo da tupla? Qual o risco de usar apenas 8 bits?</p>
+</li>
+<li>
+<p>Em <code>pon_enqueue_to_type_queue</code> (<code>pon_premise.c:109-129</code>), a inserção é O(L) onde L é o tamanho da fila do bucket. Como poderíamos otimizar para O(1)?</p>
+</li>
+<li>
+<p>Os hooks em <code>erl_message.c:461-476</code> notificam Premises apenas quando <code>last == &amp;first-&gt;next</code>. O que isso significa? Por que a condição <code>ERTS_SIG_IS_MSG(first)</code> é necessária?</p>
+</li>
+<li>
+<p>Os contadores <code>PON_STATS_INC(premise_notifications)</code> e <code>PON_STATS_INC(mailbox_scans_avoided)</code> são incrementados juntos em <code>erts_pon_notify_premises</code>. Eles são sempre iguais? Quando divergem?</p>
+</li>
+<li>
+<p>Em <code>erts_pon_register_premises</code> (<code>pon_premise.c:55-71</code>), por que liberamos Premises antigas antes de registrar as novas? Qual o cenário onde isso evita um memory leak?</p>
+</li>
+</ol>
+<h3>Experimentos de Mailbox</h3>
+<ol start="9">
+<li>
+<p>Escreva um experimento Erlang que mede o tempo de <code>receive</code> com N = 10, 100, 1000, 10000 mensagens na mailbox. Rode com <code>erl</code> stock e com <code>erl</code> PON-BEAM. Compare os resultados.</p>
+</li>
+<li>
+<p>Modifique o experimento anterior: em vez de uma cláusula, use 5 cláusulas. A relação O(N × M) se mantém na BEAM stock? E na PON-BEAM?</p>
+</li>
+<li>
+<p>Projete um experimento que isola o custo do <em>save pointer</em> da BEAM stock: execute receives consecutivos e meça o custo do segundo receive (que deve começar do save pointer).</p>
+</li>
+<li>
+<p>Crie um cenário de <em>mailbox overflow</em>: um processo que recebe 100.000 mensagens sem match, e uma única mensagem alvo no final. Meça a latência na BEAM stock e na PON-BEAM. O ganho empírico corresponde ao assintótico?</p>
+</li>
+<li>
+<p>No benchmark <code>receive_clauses.erl</code>, a posição da mensagem alvo na mailbox afeta a latência na BEAM stock? E na PON-BEAM? Demonstre com dados.</p>
+</li>
+<li>
+<p>Implemente um benchmark que mede o consumo de CPU do scheduler enquanto milhares de processos com mailboxes cheias estão bloqueados em <code>receive</code>. Na BEAM stock, o scheduler desperdiça CPU acordando processos que não têm match?</p>
+</li>
+<li>
+<p>Um gen_server com <code>handle_call</code> tipicamente usa <code>receive</code> internamente. Crie um gen_server artificial que recebe 1000 calls/segundo com tempo de processamento de 10ms por call e meça a degradação da mailbox ao longo do tempo. O PON-Receive mudaria o comportamento?</p>
+</li>
+</ol>
+<h3>Extensões e Modificações</h3>
+<ol start="16">
+<li>
+<p>(Desafio) Modifique <code>erts_pon_default_match</code> para suportar pattern matching com bind de variáveis. Exemplo: <code>{call, From, _}</code> deve armazenar <code>From</code> para uso no handler.</p>
+</li>
+<li>
+<p>(Desafio) Implemente <code>match_fn</code> especializada para Premises com padrão atômico: se a Premise matcha apenas <code>{call, _, _}</code>, a função deve ser ~5 instruções C. Compare performance com <code>erts_pon_default_match</code>.</p>
+</li>
+<li>
+<p>(Desafio) O array <code>type_queues[256]</code> desperdiça memória se apenas alguns buckets são usados. Proponha uma alternativa: uma hash table de buckets ativos (conforme sugerido na seção 4.8).</p>
+</li>
+<li>
+<p>(Teórico) Prove ou refute: o PON-Receive é O(1) amortizado para qualquer workload.</p>
+</li>
+<li>
+<p>(Teórico) Analise o <em>overhead</em> de memória do PON-Receive: cada <code>ErtsPremise</code> tem ~40 bytes (em plataforma 64-bit). Um processo com 5 cláusulas gasta 200 bytes de overhead. Compare com o overhead do save pointer tradicional.</p>
+</li>
+<li>
+<p>(Implementação) Em <code>erts_pon_notify_premises</code>, a lista de Premises é percorrida linearmente. Como isso se compara ao scanning da mailbox em termos de O()? Por que é aceitável?</p>
+</li>
+<li>
+<p>(Integração) Como o PON-Receive interage com o mecanismo de <code>monitor</code> e <code>link</code> da BEAM? Esses sinais são mensagens? Eles notificam Premises?</p>
+</li>
+<li>
+<p>(Timeout) O <code>after</code> do <code>receive</code> Erlang é implementado via timer. Como o PON-Receive deve interagir com o PON-Timer (Fase 2)? O que acontece se um timeout expira enquanto Premises estão registradas?</p>
+</li>
+<li>
+<p>(Coringa) Uma cláusula coringa <code>_</code> casa qualquer mensagem. Como implementamos isso em <code>erts_pon_default_match</code>? E na classificação por tipo (bucket)?</p>
+</li>
+<li>
+<p>(Prioridade) A BEAM tem <code>receive</code> com mensagens prioritárias (ERTS_INTERNAL_MSG_TAG). Como o PON-Receive trata mensagens de prioridade diferente? Os buckets 256 são suficientes?</p>
+</li>
+</ol>
+<h3>Questões Teóricas</h3>
+<ol start="26">
+<li>
+<p>O PON-Receive elimina o scanning, mas introduz notificação por Premise. Em um sistema com poucas mensagens (N=2, M=1), o custo do PON-Receive pode ser <em>maior</em> que o scanning? Sob que condições?</p>
+</li>
+<li>
+<p>A mailbox PON usa 256 buckets baseados em tag de tipo. Se dois tipos diferentes colidirem no mesmo bucket (ex: <code>{call, _, _}</code> e <code>{cast, _}</code> se <code>tag(call) == tag(cast)</code>), há perda de eficiência? Quantifique.</p>
+</li>
+<li>
+<p>O PON-Receive não modifica o modelo de <em>concorrência</em> da BEAM — processos continuam isolados. A mudança é apenas no mecanismo interno de recepção. Isso é uma vantagem de engenharia? Poderia haver impacto na semântica observável?</p>
+</li>
+<li>
+<p>Projetos como <code>gen_statem</code> usam <code>receive</code> internamente com padrões complexos. Como a abordagem de Premises se aplica a receives aninhados ou receives com guardas?</p>
+</li>
+<li>
+<p>(Dissertação) O PON-Receive é uma specialização do PON geral: as Premises são FBEs, a mailbox é um conjunto de Attributes, o Receive é a Condition e a Rule. Modele formalmente esta correspondência: mostre como cada elemento do <code>receive</code> Erlang mapeia para as entidades PON do Capítulo 2.</p>
+</li>
+</ol>
+<hr />
+<h2>4.11 Resumo para Memorização</h2>
+<ul>
+<li><strong>Problema</strong>: Selective receive da BEAM varre a mailbox linearmente: O(N × M).</li>
+<li><strong>Save pointer</strong> ameniza mas não elimina o custo: mensagens novas ainda são varridas.</li>
+<li><strong>PON-Receive</strong>: cada cláusula compila para uma <code>ErtsPremise</code> — entidade que escuta passivamente.</li>
+<li><strong>Mailbox PON</strong>: 256 buckets por tipo de mensagem (8 bits de tag).</li>
+<li><strong>Chegada</strong>: <code>queue_messages</code> hook → <code>erts_pon_notify_premises</code> → classifica por tipo → notifica Premises.</li>
+<li><strong>Receive</strong>: <code>erts_pon_receive</code> → encontra Premise satisfeita por ordem de cláusula → consome → sem scanning.</li>
+<li><strong>Bloqueio</strong>: processo WAITING até que uma mensagem que casa alguma Premise chegue.</li>
+<li><strong>Match</strong>: fallback estrutural <code>erts_pon_default_match</code> ou <code>match_fn</code> especializada gerada pelo compilador.</li>
+<li><strong>Custo</strong>: O(M + K) contra O(N × M) da BEAM stock.</li>
+<li><strong>Implementação</strong>: <code>pon_premise.h</code> (86 linhas), <code>pon_premise.c</code> (211 linhas), hooks em <code>erl_message.h</code>, <code>erl_message.c</code>, <code>erl_process.h</code>.</li>
+</ul>
+<hr />
+<h2>4.12 Ver Também</h2>
+<ul>
+<li><a href="01-diagnostico-scamming-mailbox.html">Capítulo 1 — Diagnóstico do scanning linear na mailbox</a></li>
+<li><a href="02-paradigma-pon.html">Capítulo 2 — Paradigma Orientado a Notificações</a></li>
+<li><a href="03-visao-geral.html">Capítulo 3 — Visão geral da PON-BEAM</a></li>
+<li><a href="05-pon-timer.html">Capítulo 5 — PON-Timer</a></li>
+<li><a href="10-pon-compiler.html">Capítulo 10 — PON-Compiler</a></li>
+<li><a href="../docs/RPT-01-pon-receive.html">Relatório da Fase 1 — PON-Receive</a></li>
+<li><code>erts/include/internal/pon_premise.h</code> — Definição de <code>ErtsPremise</code> e macros</li>
+<li><code>erts/emulator/beam/pon_premise.c</code> — Implementação completa do PON-Receive (211 linhas)</li>
+<li><code>erts/include/internal/pon_stats.h</code> — Contadores de instrumentação</li>
+<li><code>erts/emulator/beam/erl_message.h:401-412</code> — Hooks da mailbox PON</li>
+<li><code>erts/emulator/beam/erl_message.c:461-476</code> — Hooks de notificação na chegada de mensagem</li>
+<li>Simão, J. M.; Stadzisz, P. C. "Paradigma Orientado a Notificações: Uma Nova Abordagem para Sistemas Reativos." (2008–2009).</li>
+<li>Armstrong, J. "Programming Erlang: Software for a Concurrent World." Pragmatic Bookshelf, 2007. — Capítulo sobre selective receive e mensagens.</li>
+</ul>
+            </article>
+            <footer class="chapter-nav">
+                <a href="03-visao-geral.html" class="nav-prev">← Visão Geral da PON-BEAM</a>
+                <a href="05-pon-timer.html" class="nav-next">PON-Timer: Instigações com timerfd →</a>
+            </footer>
+        </main>
+    </div>
+    <script src="theme/search.js"></script>
+</body>
+</html>

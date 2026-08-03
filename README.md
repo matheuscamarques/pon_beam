@@ -67,3 +67,8 @@ pon-beam/
 ## Licença
 
 Apache 2.0 (mesma do Erlang/OTP)
+
+```
+make build-stock           # ~30 min
+make build-pon            # ~30 min
+cd harness && ./run.sh    # ~2 min

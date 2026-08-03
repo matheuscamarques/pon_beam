@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PON-BEAM — Uma Máquina Virtual Orientada a Notificações</title>
+    <link rel="stylesheet" href="theme/style.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar-nav">
+<div class="nav-header">
+<h3><a href="index.html">PON-BEAM</a></h3>
+</div>
+<div class="nav-part">Parte I: Fundamentos</div>
+<ul>
+<li><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
+<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
+<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
+</ul>
+<div class="nav-part">Parte II: Subsistemas PON</div>
+<ul>
+<li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
+<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
+<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
+<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
+<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
+<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
+<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
+</ul>
+<div class="nav-part">Parte III: Engenharia e Validação</div>
+<ul>
+<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
+<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
+<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
+</ul>
+<div class="nav-part">Parte IV: Síntese</div>
+<ul>
+<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
+<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
+<li><a href="16-conclusao.html">Conclusão</a></li>
+</ul>
+</nav>
+
+        <main class="content">
+            <header class="book-header">
+                <h1>PON-BEAM</h1>
+                <p class="subtitle">Uma Máquina Virtual Orientada a Notificações</p>
+                <p class="author">Matheus de Camargo Marques</p>
+                <p class="version">v0.1.0</p>
+            </header>
+            
+            <section class="book-abstract">
+                <h2>Sobre este livro</h2>
+                <p>
+                    A <strong>PON-BEAM</strong> é uma re-arquitetura da máquina virtual BEAM (Bogdan/Björn's Erlang Abstract Machine)
+                    usando o <strong>Paradigma Orientado a Notificações (PON)</strong> de Jean Marcelo Simão.
+                    Cada subsistema interno da VM — scheduler, selective receive, timer wheel, ETS, garbage collector —
+                    é redesenhado como uma entidade PON reativa: sem polling, sem scanning linear, apenas notificações pontuais.
+                </p>
+                <p>
+                    Este livro documenta a arquitetura, o plano de engenharia e o progresso da implementação,
+                    combinando fundamentos teóricos, código C do ERTS, diagramas estruturais e benchmarks comparativos.
+                </p>
+            </section>
+            
+            <section class="book-search">
+                <h2>Busca</h2>
+                <input type="text" id="search-input" placeholder="Buscar no livro..." />
+                <div id="search-results"></div>
+            </section>
+            
+            <section class="book-toc">
+                <h2>Sumário</h2>
+                
+        <section class="index-part">
+            <h2>Parte I</h2>
+            <p class="part-desc">Diagnóstico dos custos de polling na BEAM, introdução ao Paradigma Orientado a Notificações e mapa arquitetural da PON-BEAM.</p>
+            <ol>
+        <li><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
+<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
+<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
+</ol></section>
+
+        <section class="index-part">
+            <h2>Parte II</h2>
+            <p class="part-desc">Cada subsistema da BEAM redesenhado como entidade PON: Premises, Instigações, Conditions, Watchers, marcação causal e compilação automática.</p>
+            <ol>
+        <li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
+<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
+<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
+<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
+<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
+<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
+<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
+</ol></section>
+
+        <section class="index-part">
+            <h2>Parte III</h2>
+            <p class="part-desc">Infraestrutura do fork, harness de benchmarking e análise de tradeoffs com roadmap priorizado.</p>
+            <ol>
+        <li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
+<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
+<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
+</ol></section>
+
+        <section class="index-part">
+            <h2>Parte IV</h2>
+            <p class="part-desc">Casos de estudo, posicionamento frente à literatura e síntese da proposta.</p>
+            <ol>
+        <li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
+<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
+<li><a href="16-conclusao.html">Conclusão</a></li>
+</ol></section>
+
+            </section>
+            
+            <footer class="book-footer">
+                <p>
+                    Repositório: <a href="https://github.com/matheuscamarques/pon-beam">https://github.com/matheuscamarques/pon-beam</a>
+                </p>
+                <p>
+                    Licença: Apache 2.0
+                </p>
+            </footer>
+        </main>
+    </div>
+    <script src="theme/search.js"></script>
+</body>
+</html>
