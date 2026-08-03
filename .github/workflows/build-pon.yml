@@ -1,0 +1,48 @@
+name: build-pon
+on:
+  push:
+    branches: [pon-beam]
+    paths:
+      - 'otp/erts/**'
+      - 'Makefile'
+  pull_request:
+    branches: [pon-beam]
+    paths:
+      - 'otp/erts/**'
+  workflow_dispatch:
+
+jobs:
+  lint-c:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check #ifdef PON_BEAM consistency
+        run: |
+          errors=0
+          for f in otp/erts/emulator/beam/pon_*.c otp/erts/include/internal/pon_*.h; do
+            if ! head -1 "$f" | grep -q '#ifdef PON_BEAM'; then
+              echo "MISSING #ifdef PON_BEAM guard: $f"
+              errors=$((errors + 1))
+            fi
+          done
+          [ "$errors" -eq 0 ] || exit 1
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint-c
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OTP build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential autoconf libncurses-dev \
+            libssl-dev libwxgtk3.0-gtk3-dev libsctp-dev
+      - name: Build with PON-BEAM
+        run: |
+          cd otp
+          export ERL_TOP=$PWD
+          ./otp_build configure --enable-pon-beam
+          make -j$(nproc)
+      - name: Verify beam binary
+        run: |
+          ls -la otp/bin/beam.smp || ls -la otp/erts-*/bin/beam.smp
