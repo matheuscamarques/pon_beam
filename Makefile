@@ -36,7 +36,7 @@ build-stock:
 
 build-pon:
 	@echo "=== Compilando OTP 30 com PON-BEAM em $(OTP_DIR) ==="
-	cd $(OTP_DIR) && make clean && ./otp_build autoconf && ./configure $(BUILD_OPTS) --prefix=$(PREFIX_PON) --enable-pon-beam && make $(MAKE_OPTS) && make install
+	cd $(OTP_DIR) && make clean && ./configure $(BUILD_OPTS) --prefix=$(PREFIX_PON) --enable-pon-beam CFLAGS="-DPON_BEAM" && make $(MAKE_OPTS) && make install
 
 build-pon-debug:
 	@echo "=== Compilando OTP 30 com PON-BEAM (debug) ==="

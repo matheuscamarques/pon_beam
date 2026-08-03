@@ -49,14 +49,15 @@ RUN tar xzf /tmp/pon-beam-erts.tar.gz -C /usr/src/otp \
     && rm /tmp/pon-beam-erts.tar.gz \
     && ls -la erts/emulator/beam/pon_*.c erts/include/internal/pon_*.h
 
-# Autoconf DEPOIS do patch: --enable-pon-beam so e reconhecido se o
-# configure.ac patchado for processado pelo autoconf
-RUN ./otp_build autoconf
-
+# PON_BEAM via CFLAGS: o configure commitado no repo nao conhece
+# --enable-pon-beam (patch do configure.ac exige autoconf 2.72 para
+# regenerar). #ifdef PON_BEAM funciona de qualquer fonte.
 RUN ./configure --prefix=/opt/erlang-pon \
                 --without-javac --without-odbc \
+                CFLAGS="-DPON_BEAM" \
     && (cd erts && ERL_TOP=/usr/src/otp ./configure \
-        --prefix=/opt/erlang-pon --enable-pon-beam) \
+        --prefix=/opt/erlang-pon --enable-pon-beam \
+        CFLAGS="-DPON_BEAM") \
     && make -j$(nproc) \
     && make install
 
