@@ -11,9 +11,7 @@ status: conclusao
 
 > "Coisas que eu gosto e não gosto... eu realmente não sinto vontade de falar sobre isso. Metas da minha vida? Também não tenho pensado nisso. Meus hobbies? Eu tenho muitos hobbies..." — Hatake Kakashi
 
-> "Ensinar um gênio é fácil, qualquer um faz. O verdadeiro desafio é pegar um idiota e transformá-lo num grande ninja." — Jiraiya (dublagem brasileira), *Naruto*
-
-> "Treinar um gênio não tem a menor graça. O verdadeiro teste de um mestre é pegar um cabeça-oca e transformá-lo em um ninja de verdade." — Jiraiya (mangá/legendas), *Naruto*
+> "Treinar um gênio não tem a menor graça. O verdadeiro teste de um mestre é pegar um cabeça-oca e transformá-lo em um ninja de verdade." — Jiraiya, *Naruto*
 
 **Matheus de Camargo Marques** — Eterno estudante, pesquisador e entusiasta do ecossistema BEAM.
 

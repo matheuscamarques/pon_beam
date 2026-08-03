@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/otp
-RUN git clone -b maint-30 --single-branch --depth 1 \
+RUN git clone --single-branch --depth 1 \
     https://github.com/erlang/otp.git . \
     && ./otp_build autoconf \
     && ./configure --prefix=/opt/erlang-baseline \
