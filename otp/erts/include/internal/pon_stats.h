@@ -46,6 +46,11 @@ typedef struct {
     Uint64 ets_watchers_registered;  /* Watchers registrados */
     Uint64 ets_watcher_hits;         /* Lookups evitados por notificao */
 
+    /* === PON-GC === */
+    Uint64 gc_notifications_sent;    /* Notificaes de marcao enviadas */
+    Uint64 gc_scans_avoided;         /* Varreduras de raiz evitadas */
+    Uint64 gc_incremental_steps;     /* Passos de GC incremental */
+
     /* === Temporais === */
     Uint64 pon_overhead_us;          /* Microssegundos gastos em infra PON */
 } PonStats;
