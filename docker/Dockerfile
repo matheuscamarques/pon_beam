@@ -54,10 +54,10 @@ RUN tar xzf /tmp/pon-beam-erts.tar.gz -C /usr/src/otp \
 # regenerar). #ifdef PON_BEAM funciona de qualquer fonte.
 RUN ./configure --prefix=/opt/erlang-pon \
                 --without-javac --without-odbc \
-                CFLAGS="-DPON_BEAM" \
+                CFLAGS="-O2 -g -DPON_BEAM" \
     && (cd erts && ERL_TOP=/usr/src/otp ./configure \
         --prefix=/opt/erlang-pon --enable-pon-beam \
-        CFLAGS="-DPON_BEAM") \
+        CFLAGS="-O2 -g -DPON_BEAM") \
     && make -j$(nproc) \
     && make install
 
