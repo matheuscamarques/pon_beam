@@ -48,7 +48,8 @@ RUN tar xzf /tmp/pon-beam-erts.tar.gz -C /usr/src/otp \
 
 RUN ./configure --prefix=/opt/erlang-pon \
                 --without-javac --without-odbc --without-wx \
-                --enable-pon-beam \
+    && (cd erts && ERL_TOP=/usr/src/otp ./configure \
+        --prefix=/opt/erlang-pon --enable-pon-beam) \
     && make -j$(nproc) \
     && make install
 
