@@ -1,0 +1,18 @@
+digraph timer_idle {
+  rankdir=TB; bgcolor="#0d1117"; fontcolor="#c9d1d9"; fontname="Helvetica";
+  node [shape=plaintext];
+
+  timer [label=<
+    <table border="0" cellborder="1" cellspacing="0" color="#30363d">
+      <tr><td colspan="4" bgcolor="#161b22"><font color="#58a6ff"><b>PON-Timer: CPU do timer wheel sem timers</b></font></td></tr>
+      <tr><td bgcolor="#161b22"><font color="#58a6ff">Mtrica</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Baseline</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">PON-BEAM</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Ganho</font></td></tr>
+      <tr><td>CPU 10s idle</td><td>~3%</td><td><font color="#3fb950">0%</font></td><td><font color="#3fb950"></font></td></tr>
+      <tr><td>CPU 50K timers (1s)</td><td>~15%</td><td><font color="#3fb950">~0.1%</font></td><td><font color="#3fb950">~150</font></td></tr>
+      <tr><td>Checks/s sem timers</td><td>32.000</td><td><font color="#3fb950">0</font></td><td><font color="#3fb950">eliminado</font></td></tr>
+      <tr><td>Checks/s 50K timers</td><td>50.000.000</td><td><font color="#3fb950">5 (expiraes)</font></td><td><font color="#3fb950">10.000.000</font></td></tr>
+    </table>
+  >]
+}

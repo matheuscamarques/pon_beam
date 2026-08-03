@@ -1,0 +1,20 @@
+digraph receive_scalability {
+  rankdir=TB; bgcolor="#0d1117"; fontcolor="#c9d1d9"; fontname="Helvetica";
+  node [shape=plaintext];
+
+  scalability [label=<
+    <table border="0" cellborder="1" cellspacing="0" color="#30363d">
+      <tr><td colspan="5" bgcolor="#161b22"><font color="#58a6ff"><b>PON-Receive: N mensagens × Latncia</b></font></td></tr>
+      <tr><td bgcolor="#161b22"><font color="#58a6ff">N (mailbox)</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Baseline (s)</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">PON-BEAM (s)</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Ganho</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Escala</font></td></tr>
+      <tr><td>10</td><td>12.3</td><td><font color="#3fb950">8.1</font></td><td><font color="#3fb950">1.5</font></td><td><font color="#8b949e">O(N)</font></td></tr>
+      <tr><td>100</td><td>45.2</td><td><font color="#3fb950">8.5</font></td><td><font color="#3fb950">5.3</font></td><td><font color="#8b949e">O(N)</font></td></tr>
+      <tr><td>1.000</td><td>320.1</td><td><font color="#3fb950">9.2</font></td><td><font color="#3fb950">34.8</font></td><td><font color="#3fb950">O(1)</font></td></tr>
+      <tr><td>10.000</td><td>4.500</td><td><font color="#3fb950">10.1</font></td><td><font color="#3fb950">445</font></td><td><font color="#3fb950">O(1)</font></td></tr>
+      <tr><td>100.000</td><td>82.000</td><td><font color="#3fb950">12.3</font></td><td><font color="#3fb950">6.665</font></td><td><font color="#3fb950">O(1)</font></td></tr>
+    </table>
+  >]
+}

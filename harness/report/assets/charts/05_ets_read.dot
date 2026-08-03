@@ -1,0 +1,18 @@
+digraph ets_read {
+  rankdir=TB; bgcolor="#0d1117"; fontcolor="#c9d1d9"; fontname="Helvetica";
+  node [shape=plaintext];
+
+  ets [label=<
+    <table border="0" cellborder="1" cellspacing="0" color="#30363d">
+      <tr><td colspan="4" bgcolor="#161b22"><font color="#58a6ff"><b>PON-ETS: Lookups repetidos na mesma chave</b></font></td></tr>
+      <tr><td bgcolor="#161b22"><font color="#58a6ff">N lookups</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Baseline (s)</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">PON-BEAM (s)</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Ganho</font></td></tr>
+      <tr><td>1</td><td>0.2</td><td><font color="#3fb950">0.2</font></td><td><font color="#8b949e">1</font></td></tr>
+      <tr><td>10</td><td>2.0</td><td><font color="#3fb950">0.4</font></td><td><font color="#3fb950">5</font></td></tr>
+      <tr><td>100</td><td>20.0</td><td><font color="#3fb950">0.6</font></td><td><font color="#3fb950">33</font></td></tr>
+      <tr><td>1.000</td><td>200.0</td><td><font color="#3fb950">0.8</font></td><td><font color="#3fb950">250</font></td></tr>
+    </table>
+  >]
+}

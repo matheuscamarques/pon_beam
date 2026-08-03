@@ -1,0 +1,18 @@
+digraph gc_scan {
+  rankdir=TB; bgcolor="#0d1117"; fontcolor="#c9d1d9"; fontname="Helvetica";
+  node [shape=plaintext];
+
+  gc [label=<
+    <table border="0" cellborder="1" cellspacing="0" color="#30363d">
+      <tr><td colspan="4" bgcolor="#161b22"><font color="#58a6ff"><b>PON-GC: Marcao por notificao vs varredura</b></font></td></tr>
+      <tr><td bgcolor="#161b22"><font color="#58a6ff">Heap % vivo</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Baseline (palavras)</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">PON-BEAM (palavras)</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Ganho</font></td></tr>
+      <tr><td>90% vivo</td><td>100% do heap</td><td><font color="#3fb950">90%</font></td><td><font color="#8b949e">1.1</font></td></tr>
+      <tr><td>50% vivo</td><td>100% do heap</td><td><font color="#3fb950">50%</font></td><td><font color="#3fb950">2</font></td></tr>
+      <tr><td>10% vivo</td><td>100% do heap</td><td><font color="#3fb950">10%</font></td><td><font color="#3fb950">10</font></td></tr>
+      <tr><td>GC incremental</td><td>no suportado</td><td><font color="#3fb950">steps de N notificaes</font></td><td><font color="#3fb950">pausa controlvel</font></td></tr>
+    </table>
+  >]
+}

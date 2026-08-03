@@ -1,0 +1,17 @@
+digraph scheduler_idle {
+  rankdir=TB; bgcolor="#0d1117"; fontcolor="#c9d1d9"; fontname="Helvetica";
+  node [shape=plaintext];
+
+  sched [label=<
+    <table border="0" cellborder="1" cellspacing="0" color="#30363d">
+      <tr><td colspan="4" bgcolor="#161b22"><font color="#58a6ff"><b>PON-Scheduler: CPU do scheduler ocioso</b></font></td></tr>
+      <tr><td bgcolor="#161b22"><font color="#58a6ff">Mtrica</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Baseline</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">PON-BEAM</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Ganho</font></td></tr>
+      <tr><td>CPU idle 10s</td><td>5-30%</td><td><font color="#3fb950">0%</font></td><td><font color="#3fb950"></font></td></tr>
+      <tr><td>Latncia reativao</td><td>10-100s</td><td><font color="#3fb950">~1s</font></td><td><font color="#3fb950">~50</font></td></tr>
+      <tr><td>Ativaes s/ trabalho</td><td>Sim</td><td><font color="#3fb950">No</font></td><td><font color="#3fb950">eliminado</font></td></tr>
+    </table>
+  >]
+}

@@ -1,0 +1,21 @@
+digraph consolidado {
+  rankdir=TB; bgcolor="#0d1117"; fontcolor="#c9d1d9"; fontname="Helvetica";
+  node [shape=plaintext];
+
+  consol [label=<
+    <table border="0" cellborder="1" cellspacing="0" color="#30363d">
+      <tr><td colspan="5" bgcolor="#161b22"><font color="#58a6ff"><b>PON-BEAM: Ganho consolidado por fase</b></font></td></tr>
+      <tr><td bgcolor="#161b22"><font color="#58a6ff">Fase</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Subsistema</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Baseline</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">PON-BEAM</font></td>
+          <td bgcolor="#161b22"><font color="#58a6ff">Ganho</font></td></tr>
+      <tr><td>1</td><td>Receive (10K msg)</td><td>4.500s</td><td><font color="#3fb950">10s</font></td><td><font color="#3fb950">445</font></td></tr>
+      <tr><td>2</td><td>Timer (CPU idle)</td><td>~3%</td><td><font color="#3fb950">0%</font></td><td><font color="#3fb950"></font></td></tr>
+      <tr><td>3</td><td>Spawn (latncia mdia)</td><td>~15s</td><td><font color="#3fb950">~8s</font></td><td><font color="#3fb950">~2</font></td></tr>
+      <tr><td>4</td><td>Scheduler (CPU idle)</td><td>5-30%</td><td><font color="#3fb950">0%</font></td><td><font color="#3fb950"></font></td></tr>
+      <tr><td>5</td><td>ETS (1000 lookups)</td><td>200s</td><td><font color="#3fb950">0.8s</font></td><td><font color="#3fb950">250</font></td></tr>
+      <tr><td>7</td><td>GC (10% vivo)</td><td>100% scan</td><td><font color="#3fb950">10% notificaes</font></td><td><font color="#3fb950">10</font></td></tr>
+    </table>
+  >]
+}
