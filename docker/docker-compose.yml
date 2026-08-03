@@ -1,10 +1,8 @@
 # PON-BEAM Benchmark — Docker Compose
 #
 # Uso:
-#   docker compose up --build   # Constrói imagens + executa benchmarks
-#   docker compose run --rm bench   # Só executa (se j construído)
-#
-# Resultados salvos em ./results/
+#   docker compose up --build   # Constrói + executa
+#   docker compose run --rm bench   # Só executa
 
 services:
   bench:
@@ -15,7 +13,6 @@ services:
     container_name: pon-beam-bench
     volumes:
       - ./results:/pon-beam/harness/results/latest
-      - ./report:/pon-beam/harness/report
     environment:
       - OTP_BASELINE_ROOT=/opt/erlang/30-stock
       - OTP_PONBEAM_ROOT=/opt/erlang/30-pon

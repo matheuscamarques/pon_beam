@@ -1,0 +1,17 @@
+# .dockerignore — exclui arquivos desnecessrios do contexto Docker
+.git
+.gitignore
+.vscode
+doc
+system/doc
+erl_crash.dump
+*.pdf
+*.png
+*.jpg
+*.tar.gz
+**/test/**
+**/test_data/**
+**/examples/**
+**/doc/**
+_build
+deps

@@ -15,7 +15,7 @@ ENV ERL_TOP=/otp
 # Dependncias de build do OTP
 RUN apt-get update && apt-get install -y \
     build-essential autoconf m4 \
-    libncurses-dev libncurses5-dev \
+    libncurses-dev \
     libssl-dev libxslt1-dev libxml2-utils \
     unixodbc-dev \
     perl \
@@ -28,9 +28,11 @@ RUN apt-get update && apt-get install -y \
 COPY otp /otp
 
 RUN cd /otp && \
-    ./configure --prefix=/opt/erlang/30-stock \
+    rm -rf erts/x86_64-pc-linux-gnu erts/emulator/x86_64-pc-linux-gnu \
+           config.* config.log config.status config.mk erts/config.log \
+           lib/*/x86_64-pc-linux-gnu lib/*/config.* lib/*/config.log \
+    && ./configure --prefix=/opt/erlang/30-stock \
     --without-javac --without-odbc --without-wx --without-ssl \
-    --disable-dynamic-ssl-lib \
     && make -j$(nproc) && make install
 
 # ============================================================
@@ -45,12 +47,14 @@ RUN cd /otp && \
     && make TYPE=ponbeam -j$(nproc) && make install
 
 # ============================================================
-# ESTGIO 3: Imagem final enxuta com ambos ERTS + harness
+# ESTGIO 3: Usamos o builder como imagem final
+# (contm todos os ERTS e ferramentas)
 # ============================================================
 FROM ubuntu:24.04
 
+# Runtime dependencies
 RUN apt-get update && apt-get install -y \
-    libncurses5 libtinfo5 libssl3 ca-certificates \
+    libncurses6 libtinfo6 libssl3t64 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia os ERTS instalados
