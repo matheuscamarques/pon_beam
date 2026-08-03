@@ -1,9 +1,11 @@
 # PON-BEAM — Makefile
 #
 # Comandos principais:
-#   make build-stock        Compila OTP 30 stock (baseline)
-#   make build-pon          Compila OTP com PON-BEAM
+#   make build-stock        Compila OTP 30 stock (baseline) — worktree otp-stock
+#   make build-pon          Compila OTP com PON-BEAM — otp/ (branch pon-beam)
 #   make build-all          Compila ambos
+#   make emulator-stock     Recompila só a VM stock (rápido, ~1-3 min)
+#   make emulator-pon       Recompila só a VM PON (rápido, ~1-3 min)
 #   make benchmark          Roda harness completo
 #   make benchmark-fase1    Roda só fase 1
 #   make benchmark-list     Lista benchmarks
@@ -13,6 +15,7 @@
 
 SHELL = /bin/bash
 OTP_DIR = otp
+OTP_STOCK_DIR = /home/sanonichan/projetos/otp-stock
 HARNESS_DIR = harness
 
 PREFIX_STOCK = /opt/erlang/30-stock
@@ -21,18 +24,18 @@ PREFIX_PON   = /opt/erlang/30-pon
 BUILD_OPTS = --without-javac --without-odbc --without-wx
 MAKE_OPTS  = -j$$(nproc)
 
-.PHONY: all build-stock build-pon build-all benchmark benchmark-list report status clean docker-build bench-docker bench-docker-run bench-docker-copy
+.PHONY: all build-stock build-pon build-all benchmark benchmark-list report status clean emulator-stock emulator-pon docker-build bench-docker bench-docker-run bench-docker-copy
 
 all: build-stock build-pon
 
-## === Build ===
+## === Build (primeira vez, ~30 min cada) ===
 
 build-stock:
-	@echo "=== Compilando OTP 30 stock (baseline) ==="
-	cd $(OTP_DIR) && ./configure $(BUILD_OPTS) --prefix=$(PREFIX_STOCK) && make $(MAKE_OPTS) && make install
+	@echo "=== Compilando OTP 30 stock (baseline) em $(OTP_STOCK_DIR) ==="
+	cd $(OTP_STOCK_DIR) && ./configure $(BUILD_OPTS) --prefix=$(PREFIX_STOCK) && make $(MAKE_OPTS) && make install
 
 build-pon:
-	@echo "=== Compilando OTP 30 com PON-BEAM ==="
+	@echo "=== Compilando OTP 30 com PON-BEAM em $(OTP_DIR) ==="
 	cd $(OTP_DIR) && make clean && ./configure $(BUILD_OPTS) --prefix=$(PREFIX_PON) --enable-pon-beam && make $(MAKE_OPTS) && make install
 
 build-pon-debug:
@@ -43,6 +46,18 @@ build-all: build-stock build-pon
 
 build:
 	@echo "Uso: make build-stock | make build-pon | make build-pon-debug | make build-all"
+
+## === Iteração rápida (só o emulador C, precisa de build completo antes) ===
+
+emulator-stock:
+	@echo "=== Recompilando só a VM stock em $(OTP_STOCK_DIR) ==="
+	cd $(OTP_STOCK_DIR)/erts/emulator && make $(MAKE_OPTS)
+	cd $(OTP_STOCK_DIR) && make install
+
+emulator-pon:
+	@echo "=== Recompilando só a VM PON em $(OTP_DIR) ==="
+	cd $(OTP_DIR)/erts/emulator && make $(MAKE_OPTS)
+	cd $(OTP_DIR) && make install
 
 ## === Benchmarks ===
 
