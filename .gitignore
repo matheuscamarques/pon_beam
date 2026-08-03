@@ -1,0 +1,29 @@
+# OTP build artifacts
+otp/bin/
+otp/lib/*/ebin/
+otp/erts/emulator/config.*
+otp/erts/etc/common/
+otp/erts/preloaded/ebin/
+otp/erts/preloaded/src/*.erl
+otp/make/*
+otp/bootstrap/
+*.o
+*.beam
+*.so
+erl_crash.dump
+
+# Build outputs
+harness/results/
+harness/report/*.html
+otp/config.*
+otp/configure
+otp/Makefile
+otp/erts/emulator/Makefile
+otp/erts/etc/unix/erl
+otp/erts/etc/unix/erlc
+otp/erts/etc/unix/escript
+otp/erts/etc/unix/werl
+
+# IDE
+.vscode/
+.idea/
