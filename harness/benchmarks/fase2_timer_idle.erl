@@ -11,26 +11,23 @@
 %% Medição: erlang:statistics(cpu_utilization) antes e depois de 10s idle
 
 run() ->
-    %% Mede CPU antes
-    {Before, _, _} = erlang:statistics(cpu_utilization),
+    %% Mede CPU antes (OTP 30+)
+    Before = cpu_util(),
 
     %% 10 segundos sem timers
     timer:sleep(10000),
 
     %% Mede CPU depois
-    {After, _, _} = erlang:statistics(cpu_utilization),
+    After = cpu_util(),
 
-    CpuDelta = After - Before,
-    PonStats = collect_pon_stats(),
+    CpuDelta = case {Before, After} of
+        {{B, _, _}, {A, _, _}} -> A - B;
+        _ -> undefined
+    end,
 
-    #{
-        cpu_idle_10s_delta => CpuDelta,
-        pon_stats => PonStats
-    }.
+    #{cpu_idle_10s_delta => CpuDelta}.
 
-collect_pon_stats() ->
-    try erlang:system_info(pon_stats) of
-        Stats -> Stats
-    catch
-        error:badarg -> undefined
+cpu_util() ->
+    try erlang:statistics(cpu_utilization)
+    catch error:badarg -> undefined
     end.

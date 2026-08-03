@@ -107,9 +107,13 @@ run_benchmarks() {
 generate_diff() {
     echo -e "\n${CYAN}=== Gerando diff report ===${NC}"
     local erl=$1
+    local erlc=$2
     local pa_opts="-pa $LIB_DIR -pa $BENCHMARKS_DIR"
 
     mkdir -p "$RESULTS_DIR/diff"
+
+    # Compila libs do diff
+    "$erlc" -o "$LIB_DIR" "$LIB_DIR/pon_diff.erl" 2>/dev/null
 
     # Gera HTML
     "$erl" -noshell $pa_opts \
@@ -158,7 +162,7 @@ main() {
     run_benchmarks "$PONBEAM_ERL" "$RESULTS_DIR/ponbeam" "PON-BEAM" "$PONBEAM_ERLC"
 
     # Diff
-    generate_diff "$BASELINE_ERL"
+    generate_diff "$BASELINE_ERL" "$BASELINE_ERLC"
 
     echo -e "${GREEN}========================================${NC}"
     echo -e "${GREEN}  Concluído!${NC}"

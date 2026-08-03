@@ -1,14 +1,17 @@
 -module(fase4_sched_idle).
 -export([run/0]).
 
-%% sched_idle_cpu.erl — CPU do scheduler ocioso
-%%
-%% Mede o consumo de CPU do scheduler quando no h processos executveis.
-%% Baseline (OTP stock): polling da run queue → 5-30% de um core.
-%% PON-BEAM: Condition bloqueia no eventfd → 0% de CPU.
-
 run() ->
-    {Before, _, _} = erlang:statistics(cpu_utilization),
+    Before = cpu_util(),
     timer:sleep(10000),
-    {After, _, _} = erlang:statistics(cpu_utilization),
-    #{cpu_idle_10s_delta => After - Before}.
+    After = cpu_util(),
+    CpuDelta = case {Before, After} of
+        {{B, _, _}, {A, _, _}} -> A - B;
+        _ -> undefined
+    end,
+    #{cpu_idle_10s_delta => CpuDelta}.
+
+cpu_util() ->
+    try erlang:statistics(cpu_utilization)
+    catch error:badarg -> undefined
+    end.

@@ -8,7 +8,7 @@ generate(ResultsDir, Title) ->
     BaselineDir = filename:join(ResultsDir, "baseline"),
     PonbeamDir  = filename:join(ResultsDir, "ponbeam"),
     DiffDir     = filename:join(ResultsDir, "diff"),
-    ok = file:make_dir(DiffDir),
+    _ = file:make_dir(DiffDir),
 
     Baseline = load_results(BaselineDir),
     PonBeam  = load_results(PonbeamDir),
@@ -107,8 +107,12 @@ render_rows(Diff) ->
         PDur = format_duration(maps:get(duration_us, P, undefined)),
         RatioStr = format_ratio(Ratio),
         Class = ratio_class(Ratio),
+        NameStr = if is_atom(Name) -> atom_to_list(Name);
+                     is_list(Name) -> Name;
+                     true -> io_lib:format("~p", [Name])
+                  end,
         [Acc,
-         "<tr><td>", atom_to_list(Name), "</td><td>", BDur, "</td><td>", PDur,
+         "<tr><td>", NameStr, "</td><td>", BDur, "</td><td>", PDur,
          "</td><td class=\"", Class, "\">", RatioStr, "</td></tr>\n"]
     end, [], Diff).
 
@@ -123,15 +127,19 @@ render_pon_stats(Diff) ->
         0 -> "<p>Contadores PON não disponíveis (ERTS sem PON_BEAM).</p>\n";
         _ ->
             maps:fold(fun(K, V, Acc) ->
-                [Acc, "<li><code>", atom_to_list(K), "</code>: ", io_lib:format("~p", [V]), "</li>\n"]
+                KStr = if is_atom(K) -> atom_to_list(K);
+                          is_list(K) -> K;
+                          true -> io_lib:format("~p", [K])
+                       end,
+                [Acc, "<li><code>", KStr, "</code>: ", io_lib:format("~p", [V]), "</li>\n"]
             end, "<ul>\n", PonBase) ++ "</ul>\n"
     end.
 
 format_duration(undefined) -> "-";
-format_duration(Us) when Us < 1 -> io_lib:format("~.2fns", [Us * 1000]);
-format_duration(Us) when Us < 1000 -> io_lib:format("~.2fμs", [Us]);
-format_duration(Us) when Us < 1000000 -> io_lib:format("~.2fms", [Us / 1000]);
-format_duration(Us) -> io_lib:format("~.2fs", [Us / 1000000]).
+format_duration(Us) when Us < 1 -> io_lib:format("~.2fns", [float(Us * 1000)]);
+format_duration(Us) when Us < 1000 -> io_lib:format("~.2fus", [float(Us)]);
+format_duration(Us) when Us < 1000000 -> io_lib:format("~.2fms", [float(Us / 1000)]);
+format_duration(Us) -> io_lib:format("~.2fs", [float(Us / 1000000)]).
 
 format_ratio(undefined) -> "-";
 format_ratio(R) when R >= 1.0 -> io_lib:format("~.2f×", [R]);
