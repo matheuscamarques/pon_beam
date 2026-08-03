@@ -1,55 +1,80 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PON-Scheduler: Condition e eventfd — PON-BEAM</title>
-    <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PON-Scheduler: Condition e eventfd — PON-BEAM</title>
+<script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="theme/style.css">
-    <link rel="stylesheet" href="theme/pygments.css">
+<link rel="stylesheet" href="theme/style.css">
+<link rel="stylesheet" href="theme/pygments.css">
 </head>
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
-
-<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#1a0f0f] border-r border-[#8B6914] overflow-y-auto z-50 transition-transform duration-200">
-<div class="p-4 border-b border-[#8B6914]">
+<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#1a0f0f] border-r border-[#8B6914] flex flex-col z-50 transition-transform duration-200">
+<div class="flex items-center justify-between px-4 py-3 border-b border-[#8B6914] shrink-0">
 <a href="index.html" class="text-[#FFD700] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
+<button onclick="closeSidebar()" class="text-[#b8a88a] hover:text-[#e6edf3] text-lg leading-none px-1 cursor-pointer bg-transparent border-0">&#10005;</button>
 </div>
-<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte I: Fundamentos</div>
-<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte II: Subsistemas PON</div>
-<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)]">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte III: Engenharia e Validação</div>
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte IV: Síntese</div>
-<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Conclusão</a>
-<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Contra-capa</a>
+<div class="px-3 py-2 shrink-0">
+<input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
+</div>
+<div class="flex-1 overflow-y-auto">
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
+<div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
+<span id="btn-I">[-]</span>
+<span class="ml-1">Parte I: Fundamentos</span>
+</div></div>
+<div id="ch-I" class="part-list ">
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Paradigma Orientado a Notificações</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+</div>
+<div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
+<div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
+<span id="btn-II">[+]</span>
+<span class="ml-1">Parte II: Subsistemas PON</span>
+</div></div>
+<div id="ch-II" class="part-list hidden">
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigações com timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Notificação Imediata</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-Scheduler: Condition e eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+</div>
+<div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
+<div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
+<span id="btn-III">[+]</span>
+<span class="ml-1">Parte III: Engenharia e Validação</span>
+</div></div>
+<div id="ch-III" class="part-list hidden">
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+</div>
+<div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
+<div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
+<span id="btn-IV">[+]</span>
+<span class="ml-1">Parte IV: Síntese</span>
+</div></div>
+<div id="ch-IV" class="part-list hidden">
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Casos de Estudo</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusão</a>
+</div>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+</div>
 </aside>
+<button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
-<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#2d1515] border border-[#8B6914] text-[#b8a88a] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#2d1515] transition-colors" onclick="toggleSidebar()">&#9776;</button>
-
-<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
-
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
 <main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
-
 <h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#8B6914]">PON-Scheduler: Condition e eventfd</h1>
-
 <article>
 <h1>PON-Scheduler: Condition e eventfd</h1>
 <blockquote>
@@ -60,7 +85,7 @@
 <h2>1. Diagnóstico: O Scheduler Polling</h2>
 <p>O scheduler da BEAM é uma thread nativa do sistema operacional que executa um loop infinito em <code>erl_process.c</code>. A cada iteração, ele verifica se há processos prontos na run queue, tenta roubar trabalho de outros schedulers caso a fila esteja vazia, e — se nada funcionar — dorme com timeout. O problema fundamental é que mesmo dormindo, ele acorda periodicamente para verificar se há trabalho, num ciclo de <em>falso positivo</em> que consome CPU e energia.</p>
 <p>O esqueleto do loop principal, em sua essência, é:</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// essência do scheduler_wait + try_steal_task</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// essência do scheduler_wait + try_steal_task</span>
 <span class="c1">// erl_process.c:3457-3620 (simplificado)</span>
 <span class="k">static</span><span class="w"> </span><span class="kt">void</span>
 <span class="nf">scheduler_wait</span><span class="p">(</span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span><span class="n">rq</span><span class="p">)</span>
@@ -91,7 +116,7 @@
 
 <p>O scheduler dorme com um timeout tipicamente de ~50ms. Ele acorda, verifica se há trabalho (timers, I/O, processos), descobre que não há, e volta a dormir. Cada transição sono→vigília→sono custa de 10 a 100μs em chamadas de sistema (futex no Linux) — e acontece dezenas de vezes por segundo mesmo em idle total.</p>
 <p>Quando não está dormindo, o scheduler executa <em>work stealing</em>: percorre as run queues de outros núcleos tentando encontrar processos prontos. <code>try_steal_task()</code> (<code>erl_process.c:4640</code>) varre as filas de outros schedulers:</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.c:4640-4715</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.c:4640-4715</span>
 <span class="k">static</span><span class="w"> </span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span>
 <span class="nf">try_steal_task</span><span class="p">(</span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span><span class="n">rq</span><span class="p">)</span>
 <span class="p">{</span>
@@ -368,7 +393,7 @@
 <hr />
 <h2>3. Estruturas de Dados</h2>
 <p>A implementação real da Condition PON para o scheduler, concluída na Fase 4, utiliza duas estruturas principais. Os dois arquivos criados foram <code>pon_condition.h</code> (100 linhas) e <code>pon_condition.c</code> (256 linhas).</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_condition.h — Definição real (Fase 4 implementada)</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_condition.h — Definição real (Fase 4 implementada)</span>
 <span class="cp">#ifdef PON_BEAM</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
@@ -401,7 +426,7 @@
 <p>O <code>epoll_fd</code> é usado para multiplexar o <code>eventfd</code> com outros descritores — notadamente os <code>timerfd</code> de preempção. O scheduler usa <code>epoll_wait()</code> com timeout <code>-1</code> (infinito) para esperar por qualquer um deles: se o <code>eventfd</code> é escrito, há um processo pronto; se um <code>timerfd</code> expira, é hora de preemptar o processo atual.</p>
 <p><code>ready_list</code> é uma lista encadeada lock-free de processos prontos associados a esta Condition. Diferentemente do que foi proposto inicialmente (que usava um lock <code>erts_mtx_t</code>), a implementação real utiliza <strong>CAS (Compare-And-Swap)</strong> atômico para operações lock-free na <code>ready_list</code>. Isto permite que múltiplos schedulers notifiquem a mesma Condition sem contenção de locks.</p>
 <p>A integração com <code>ErtsSchedulerData</code> foi feita adicionando um campo <code>ErtsCondition</code> em cada scheduler:</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.h — extensão PON real em ErtsSchedulerData</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.h — extensão PON real em ErtsSchedulerData</span>
 <span class="cp">#ifdef PON_BEAM</span>
 <span class="w">    </span><span class="n">ErtsCondition</span><span class="w"> </span><span class="n">pon_condition</span><span class="p">;</span><span class="w">  </span><span class="c1">// Condition deste scheduler</span>
 <span class="w">    </span><span class="c1">// (wake_fd, epoll_fd, ready_list embutidos na struct)</span>
@@ -414,7 +439,7 @@
 <h2>4. Mecanismo Implementado</h2>
 <h3>4.1 pon_condition_create()</h3>
 <p>A inicialização da Condition cria um <code>eventfd</code> em modo non-block e um <code>epoll</code>, registrando o eventfd no epoll:</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_condition_create</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_condition_create</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
 
@@ -450,7 +475,7 @@
 
 <h3>4.2 pon_condition_notify()</h3>
 <p>Esta função é chamada quando um processo fica pronto — uma mensagem chega na mailbox e uma Premise matcha, um timer expira, ou um spawn cria o processo. <strong>A implementação real usa CAS lock-free para adicionar o processo à ready_list:</strong></p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_condition_notify</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">process</span><span class="p">)</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_condition_notify</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">process</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">process</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
 
@@ -491,7 +516,7 @@
 <p>O <code>atomic_compare_exchange_weak</code> é o coração da operação lock-free: ele atomicamente troca o ponteiro <code>ready_list</code> para apontar para o novo processo, desde que ela ainda aponte para o <code>old_head</code> que lemos. Se outro scheduler modificou a <code>ready_list</code> entre nossa leitura e o CAS, o CAS falha e repetimos. Isto elimina a necessidade de locks de mutex na hot path de notificação.</p>
 <h3>4.3 pon_condition_wait()</h3>
 <p>Esta função é chamada pelo scheduler quando ele não tem um processo atual para executar. Ela substitui o <code>scheduler_wait()</code> original com sua lógica de timeout e spin:</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_wait</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_wait</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
 
@@ -539,7 +564,7 @@
 <p>O <em>fast path</em> (primeira tentativa de CAS na <code>ready_list</code>) é crítico: se outro núcleo já adicionou um processo à <code>ready_list</code> antes do scheduler chamar <code>condition_wait()</code>, não há necessidade de bloquear. O scheduler pega o processo imediatamente e retorna. Esta otimização cobre o caso em que a notificação chega entre o scheduler decidir esperar e efetivamente chamar <code>epoll_wait</code> — uma janela de corrida clássica que é fechada pelo CAS lock-free.</p>
 <h3>4.4 pon_condition_try_dequeue()</h3>
 <p>Para operações não bloqueantes (útil em work-stealing entre schedulers):</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_try_dequeue</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_try_dequeue</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
 
@@ -879,7 +904,7 @@
 <p>O harness de benchmarking da PON-BEAM inclui o benchmark <code>fase4_sched_idle.erl</code> para validar o scheduler:</p>
 <h3>7.1 fase4_sched_idle.erl — CPU Ociosa</h3>
 <p>Mede o consumo de CPU dos schedulers quando o sistema não tem trabalho. É o benchmark mais importante para validar a eliminação do polling.</p>
-<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% fase4_sched_idle.erl</span>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% fase4_sched_idle.erl</span>
 <span class="c">%% Mede o consumo de CPU dos schedulers em idle.</span>
 <span class="c">%% Uso: erl +S &lt;N&gt; -noshell -eval &#39;fase4_sched_idle:run(10), halt().&#39;</span>
 <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">fase4_sched_idle</span><span class="p">).</span>
@@ -1121,47 +1146,60 @@ Na BEAM, a run queue é um gargalo escalar: ela está presente em todos os ciclo
 <li><a href="../../otp/erts/emulator/beam/pon_condition.c">Código: pon_condition.c</a></li>
 </ul>
 </article>
-
 <footer class="flex justify-between mt-12 pt-6 border-t border-[#8B6914]">
-    <a href="06-pon-spawn.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">← PON-Spawn: Notificação Imediata</a>
-    <a href="08-pon-ets.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">PON-ETS: Base de Fatos Notificante →</a>
+<a href="06-pon-spawn.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">← PON-Spawn: Notificação Imediata</a>
+<a href="08-pon-ets.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">PON-ETS: Base de Fatos Notificante →</a>
 </footer>
-
 </main>
-
 <script>
-function toggleSidebar() {
-    var s = document.getElementById('sidebar');
-    var m = document.getElementById('main');
-    var o = document.getElementById('overlay');
-    var b = document.getElementById('menuBtn');
-    var open = s.style.transform !== 'translateX(0%)' && s.style.transform !== '';
-    if (!open) {
-        s.style.transform = 'translateX(0%)';
-        m.style.marginLeft = '18rem';
-        o.classList.add('hidden');
-        b.innerHTML = '&#9776;';
-        localStorage.setItem('sidebar', 'open');
-    } else {
-        s.style.transform = 'translateX(-100%)';
-        m.style.marginLeft = '0';
-        if (window.innerWidth < 768) o.classList.remove('hidden');
-        b.innerHTML = '&#10005;';
-        localStorage.setItem('sidebar', 'closed');
-    }
+function closeSidebar() {
+    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
+    s.style.transform="translateX(-100%)"; if(m)m.style.marginLeft="0";
+    if(f)f.style.display="flex"; localStorage.setItem("sidebar","closed");
 }
-(function() {
-    var pref = localStorage.getItem('sidebar');
-    var s = document.getElementById('sidebar');
-    var m = document.getElementById('main');
-    var b = document.getElementById('menuBtn');
-    if (pref === 'closed') {
-        s.style.transform = 'translateX(-100%)';
-        m.style.marginLeft = '0';
-        b.innerHTML = '&#10005;';
+function openSidebar() {
+    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
+    s.style.transform="translateX(0%)"; if(m)m.style.marginLeft="18rem";
+    if(f)f.style.display="none"; localStorage.setItem("sidebar","open");
+}
+function togglePart(id) {
+    var l=document.getElementById("ch-"+id),b=document.getElementById("btn-"+id);
+    if(!l||!b)return;
+    var h=l.classList.toggle("hidden");
+    b.textContent=h?"[+]":"[-]";
+    localStorage.setItem("part-"+id,h?"closed":"open");
+}
+function filterChapters(q) {
+    q=q.toLowerCase().trim();
+    document.querySelectorAll(".sidebar-item").forEach(function(el){
+        el.style.display=!q||el.textContent.toLowerCase().includes(q)?"":"none";
+    });
+    document.querySelectorAll(".part-list").forEach(function(list){
+        var ph=list.previousElementSibling;
+        if(!ph)return;
+        if(!q){ph.style.display="";return;}
+        var has=Array.from(list.querySelectorAll(".sidebar-item")).some(function(el){return el.style.display!="none";});
+        ph.style.display=has?"":"none";
+    });
+}
+(function(){
+    if(localStorage.getItem("sidebar")==="closed"){
+        var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
+        if(s)s.style.transform="translateX(-100%)";
+        if(m)m.style.marginLeft="0";
+        if(f)f.style.display="flex";
     }
+    ["I","II","III","IV"].forEach(function(p){
+        var pref=localStorage.getItem("part-"+p);
+        if(pref){
+            var l=document.getElementById("ch-"+p),b=document.getElementById("btn-"+p);
+            if(l&&b){
+                if(pref==="closed"){l.classList.add("hidden");b.textContent="[+]";}
+                else{l.classList.remove("hidden");b.textContent="[-]";}
+            }
+        }
+    });
 })();
 </script>
-
 </body>
 </html>
