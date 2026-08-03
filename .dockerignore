@@ -1,17 +1,7 @@
-# .dockerignore — exclui arquivos desnecessrios do contexto Docker
-.git
-.gitignore
-.vscode
-doc
-system/doc
-erl_crash.dump
-*.pdf
-*.png
-*.jpg
-*.tar.gz
-**/test/**
-**/test_data/**
-**/examples/**
-**/doc/**
-_build
-deps
+# Exclui tudo que no preciso no Docker
+*
+# Exceto o patch PON-BEAM e o harness
+!pon-beam-erts.tar.gz
+!docker/
+!harness/
+!.dockerignore
