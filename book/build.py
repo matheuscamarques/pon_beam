@@ -314,7 +314,7 @@ def build():
     
     # Copy theme files
     import shutil
-    for f in ["style.css", "pygments.css", "search.js"]:
+    for f in ["style.css", "pygments.css", "search.js", "author.jpg"]:
         src = THEME / f
         if src.exists():
             shutil.copy(src, OUTPUT / "theme" / f)
