@@ -73,7 +73,7 @@
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
-<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
+<main id="main" class="ml-72 max-md:ml-0 p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
 
 <article style="text-align:center">
 <p><strong>Marques, Matheus de Camargo</strong></p>
@@ -92,20 +92,24 @@
 <p>Repositório: <a href="https://github.com/matheuscamarques/pon-beam">github.com/matheuscamarques/pon-beam</a><br />
 Licença: Apache 2.0</p>
 </article>
-<footer class="flex justify-between mt-12 pt-6 border-t border-[#8B6914]">
-<a href="16-conclusao.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">← Conclusão</a>
+<footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
+<a href="16-conclusao.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← Conclusão</span><span class="md:hidden">← Anterior</span></a>
 <span></span>
 </footer>
 </main>
 <script>
 function closeSidebar() {
-    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
-    s.style.transform="translateX(-100%)"; if(m)m.style.marginLeft="0";
+    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    s.style.transform="translateX(-100%)";
+    if(window.innerWidth>=768&&m)m.style.marginLeft="0";
+    if(o)o.classList.add("hidden");
     if(f)f.style.display="flex"; localStorage.setItem("sidebar","closed");
 }
 function openSidebar() {
-    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
-    s.style.transform="translateX(0%)"; if(m)m.style.marginLeft="18rem";
+    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    s.style.transform="translateX(0%)";
+    if(window.innerWidth>=768&&m)m.style.marginLeft="18rem";
+    if(window.innerWidth<768&&o)o.classList.remove("hidden");
     if(f)f.style.display="none"; localStorage.setItem("sidebar","open");
 }
 function togglePart(id) {
@@ -132,8 +136,11 @@ function filterChapters(q) {
     if(localStorage.getItem("sidebar")==="closed"){
         var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
         if(s)s.style.transform="translateX(-100%)";
-        if(m)m.style.marginLeft="0";
+        if(window.innerWidth>=768&&m)m.style.marginLeft="0";
         if(f)f.style.display="flex";
+    }else if(window.innerWidth<768){
+        document.getElementById("sidebar").style.transform="translateX(-100%)";
+        var fb=document.getElementById("floatBtn");if(fb)fb.style.display="flex";
     }
     ["I","II","III","IV"].forEach(function(p){
         var pref=localStorage.getItem("part-"+p);

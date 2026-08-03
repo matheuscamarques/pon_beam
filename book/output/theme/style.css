@@ -59,6 +59,13 @@ article h3 {
     margin: 1.5rem 0 0.6rem;
 }
 
+article table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
 article hr {
     border: none;
     border-top: 1px solid #8B6914;
@@ -70,6 +77,29 @@ article img[src*="author.jpg"] {
     width: 140px;
     border: 2px solid #8B6914;
     margin: 0 0 1rem 1.5rem;
+}
+
+@media (max-width: 640px) {
+    article img[src*="author.jpg"] {
+        float: none;
+        display: block;
+        margin: 0 auto 1rem;
+        width: 100px;
+    }
+    article h2 {
+        font-size: 1.25rem;
+        margin: 1.5rem 0 0.6rem;
+    }
+    article h3 {
+        font-size: 1.05rem;
+    }
+    article ul, article ol {
+        padding-left: 1.2rem;
+    }
+    blockquote {
+        padding: 0.6rem 1rem;
+        margin: 1rem 0;
+    }
 }
 
 article img[src*="capa.svg"] {

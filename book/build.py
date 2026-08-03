@@ -127,13 +127,17 @@ def make_sidebar(chapters, current_id=None):
 def make_shared_js():
     return '''<script>
 function closeSidebar() {
-    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
-    s.style.transform="translateX(-100%)"; if(m)m.style.marginLeft="0";
+    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    s.style.transform="translateX(-100%)";
+    if(window.innerWidth>=768&&m)m.style.marginLeft="0";
+    if(o)o.classList.add("hidden");
     if(f)f.style.display="flex"; localStorage.setItem("sidebar","closed");
 }
 function openSidebar() {
-    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
-    s.style.transform="translateX(0%)"; if(m)m.style.marginLeft="18rem";
+    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    s.style.transform="translateX(0%)";
+    if(window.innerWidth>=768&&m)m.style.marginLeft="18rem";
+    if(window.innerWidth<768&&o)o.classList.remove("hidden");
     if(f)f.style.display="none"; localStorage.setItem("sidebar","open");
 }
 function togglePart(id) {
@@ -160,8 +164,11 @@ function filterChapters(q) {
     if(localStorage.getItem("sidebar")==="closed"){
         var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
         if(s)s.style.transform="translateX(-100%)";
-        if(m)m.style.marginLeft="0";
+        if(window.innerWidth>=768&&m)m.style.marginLeft="0";
         if(f)f.style.display="flex";
+    }else if(window.innerWidth<768){
+        document.getElementById("sidebar").style.transform="translateX(-100%)";
+        var fb=document.getElementById("floatBtn");if(fb)fb.style.display="flex";
     }
     ["I","II","III","IV"].forEach(function(p){
         var pref=localStorage.getItem("part-"+p);
@@ -181,7 +188,7 @@ def render_page(ch, body_html, config):
     chapters = config["chapters"]
     sidebar = make_sidebar(chapters, ch["id"])
     hide_hdr = ch["id"] in ("capa","folha-de-rosto","contra-capa")
-    ch_hdr = f'<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#8B6914]">{ch["title"]}</h1>' if not hide_hdr else ''
+    ch_hdr = f'<h1 class="text-2xl max-md:text-xl font-bold mb-6 pb-4 border-b border-[#8B6914]">{ch["title"]}</h1>' if not hide_hdr else ''
 
     prev_ch = next_ch = None
     for i,c in enumerate(chapters):
@@ -189,8 +196,8 @@ def render_page(ch, body_html, config):
             if i>0: prev_ch=chapters[i-1]
             if i<len(chapters)-1: next_ch=chapters[i+1]
             break
-    prev_s = f'<a href="{prev_ch["id"]}.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">\u2190 {prev_ch["title"]}</a>' if prev_ch else '<span></span>'
-    next_s = f'<a href="{next_ch["id"]}.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">{next_ch["title"]} \u2192</a>' if next_ch else '<span></span>'
+    prev_s = f'<a href="{prev_ch["id"]}.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">\u2190 {prev_ch["title"]}</span><span class="md:hidden">\u2190 Anterior</span></a>' if prev_ch else '<span></span>'
+    next_s = f'<a href="{next_ch["id"]}.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">{next_ch["title"]} \u2192</span><span class="md:hidden">Pr\u00f3ximo \u2192</span></a>' if next_ch else '<span></span>'
 
     capa_style = ''
     if ch["id"]=="capa": capa_style=' style="text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center"'
@@ -210,12 +217,12 @@ def render_page(ch, body_html, config):
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
-<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
+<main id="main" class="ml-72 max-md:ml-0 p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
 {ch_hdr}
 <article{capa_style}>
 {body_html}
 </article>
-<footer class="flex justify-between mt-12 pt-6 border-t border-[#8B6914]">
+<footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
 {prev_s}
 {next_s}
 </footer>
@@ -251,13 +258,13 @@ def render_index(config):
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
-<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200">
-<header class="text-center py-12 border-b border-[#8B6914] mb-8">
-<h1 class="text-4xl font-extrabold text-[#FFD700] mb-2">PON-BEAM</h1>
-<p class="text-xl text-[#b8a88a] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>
+<main id="main" class="ml-72 max-md:ml-0 p-8 max-md:p-4 max-w-4xl transition-all duration-200">
+<header class="text-center py-8 md:py-12 border-b border-[#8B6914] mb-6 md:mb-8">
+<h1 class="text-3xl md:text-4xl font-extrabold text-[#FFD700] mb-2">PON-BEAM</h1>
+<p class="text-lg md:text-xl text-[#b8a88a] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>
 <p class="text-sm text-[#b8a88a]">{config["author"]}</p>
 </header>
-<section class="mb-8 p-6 bg-[#1a0f0f] border border-[#8B6914]">
+<section class="mb-8 p-4 md:p-6 bg-[#1a0f0f] border border-[#8B6914]">
 <h2 class="text-lg font-bold mb-2">Sobre este livro</h2>
 <p class="text-[#b8a88a] leading-relaxed">A <strong class="text-[#e6edf3]">PON-BEAM</strong> \u00e9 uma re-arquitetura da m\u00e1quina virtual BEAM usando o <strong class="text-[#e6edf3]">Paradigma Orientado a Notifica\u00e7\u00f5es (PON)</strong> de Jean Marcelo Sim\u00e3o.</p>
 </section>
