@@ -36,14 +36,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/otp
-RUN git clone -b maint-30 --single-branch --depth 1 \
+RUN git clone --single-branch --depth 1 \
     https://github.com/erlang/otp.git . \
     && ./otp_build autoconf
 
 # Aplica o patch PON-BEAM
 COPY pon-beam-erts.tar.gz /tmp/
 RUN tar xzf /tmp/pon-beam-erts.tar.gz -C /usr/src/otp \
-    && rm /tmp/pon-beam-erts.tar.gz
+    && rm /tmp/pon-beam-erts.tar.gz \
+    && ls -la erts/emulator/beam/pon_*.c erts/include/internal/pon_*.h
 
 RUN ./configure --prefix=/opt/erlang-pon \
                 --without-javac --without-odbc --without-wx \

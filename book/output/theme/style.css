@@ -451,3 +451,112 @@ h3:has(+ ol) {
 blockquote:has(strong) {
     border-left-color: var(--accent-orange);
 }
+
+/* ===== ABNT Book Structure Pages ===== */
+body.capa .sidebar-nav,
+body.capa .chapter-nav,
+body.capa .chapter-header,
+body.folha-de-rosto .sidebar-nav,
+body.folha-de-rosto .chapter-nav,
+body.folha-de-rosto .chapter-header,
+body.contra-capa .sidebar-nav,
+body.contra-capa .chapter-nav,
+body.contra-capa .chapter-header {
+    display: none;
+}
+
+body.capa .layout,
+body.folha-de-rosto .layout,
+body.contra-capa .layout {
+    display: block;
+}
+
+body.capa .content,
+body.folha-de-rosto .content,
+body.contra-capa .content {
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+body.capa .content article {
+    text-align: center;
+}
+
+body.capa .content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin: 1rem 0;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+body.capa .content strong {
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 2rem;
+}
+
+body.capa .content p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-top: auto;
+}
+
+body.folha-de-rosto .content article p {
+    text-align: center;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+body.folha-de-rosto .content h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent);
+    text-transform: uppercase;
+}
+
+body.folha-de-rosto .content strong {
+    display: block;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+body.contra-capa .content article {
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+body.contra-capa .content hr {
+    margin: 2rem 0;
+}
+
+.nav-frontmatter {
+    padding: 0.35rem 1.2rem 0.35rem 1.2rem;
+    font-size: 0.8rem;
+}
+
+.nav-frontmatter a {
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.nav-frontmatter a:hover {
+    color: var(--text-primary);
+}
+
+body.capa .nav-frontmatter a.active,
+body.folha-de-rosto .nav-frontmatter a.active,
+body.contra-capa .nav-frontmatter a.active {
+    color: var(--accent);
+}

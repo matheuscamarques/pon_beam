@@ -129,17 +129,28 @@ def process_code_blocks(body):
 def make_toc(chapters, current_id=None):
     """Generate sidebar navigation HTML."""
     parts = {
+        "frontmatter": "",
         "I": "Fundamentos",
         "II": "Subsistemas PON",
         "III": "Engenharia e Validação",
         "IV": "Síntese",
+        "backmatter": "",
     }
     html = '<nav class="sidebar-nav">\n'
     html += '<div class="nav-header">\n'
     html += '<h3><a href="index.html">PON-BEAM</a></h3>\n'
     html += '</div>\n'
     
+    # Frontmatter (capa, folha de rosto) — without "Parte" label
+    for ch in chapters:
+        if ch.get("part") == "frontmatter":
+            active = ' class="active"' if ch["id"] == current_id else ''
+            label = ch["title"]
+            html += f'<div class="nav-frontmatter"><a href="{ch["id"]}.html">{label}</a></div>\n'
+    
     for part_num, part_name in parts.items():
+        if part_num in ("frontmatter", "backmatter"):
+            continue
         html += f'<div class="nav-part">Parte {part_num}: {part_name}</div>\n'
         html += '<ul>\n'
         for ch in chapters:
@@ -147,6 +158,13 @@ def make_toc(chapters, current_id=None):
                 active = ' class="active"' if ch["id"] == current_id else ''
                 html += f'<li{active}><a href="{ch["id"]}.html">{ch["title"]}</a></li>\n'
         html += '</ul>\n'
+    
+    # Backmatter (contra-capa)
+    for ch in chapters:
+        if ch.get("part") == "backmatter":
+            active = ' class="active"' if ch["id"] == current_id else ''
+            label = ch["title"]
+            html += f'<div class="nav-frontmatter"><a href="{ch["id"]}.html">{label}</a></div>\n'
     
     html += '</nav>\n'
     return html
@@ -183,8 +201,14 @@ def render_chapter(ch, body_html, config):
     
     toc = make_toc(chapters, ch["id"])
     
+    # ABNT special pages
+    body_class = ch["id"] if ch["id"] in ("capa", "folha-de-rosto", "contra-capa") else ""
+
     prev_html = f'<a href="{prev_ch["id"]}.html" class="nav-prev">← {prev_ch["title"]}</a>' if prev_ch else ''
     next_html = f'<a href="{next_ch["id"]}.html" class="nav-next">{next_ch["title"]} →</a>' if next_ch else ''
+
+    hide_header = ch["id"] in ("capa", "folha-de-rosto", "contra-capa")
+    header_html = f'<header class="chapter-header"><h1>{ch["title"]}</h1></header>' if not hide_header else ''
     
     return f'''<!DOCTYPE html>
 <html lang="pt-BR">
@@ -195,13 +219,11 @@ def render_chapter(ch, body_html, config):
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body>
+<body class="{body_class}">
     <div class="layout">
         {toc}
         <main class="content">
-            <header class="chapter-header">
-                <h1>{ch["title"]}</h1>
-            </header>
+            {header_html}
             <article>
                 {body_html}
             </article>

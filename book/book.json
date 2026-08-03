@@ -6,6 +6,8 @@
   "version": "0.1.0",
   "repo": "https://github.com/matheuscamarques/pon-beam",
   "chapters": [
+    {"id": "capa",                      "title": "Capa", "part": "frontmatter"},
+    {"id": "folha-de-rosto",            "title": "Folha de Rosto", "part": "frontmatter"},
     {"id": "01-problema-polling",        "title": "O Problema: Custos Ocultos do Polling na BEAM", "part": "I"},
     {"id": "02-paradigma-pon",           "title": "O Paradigma Orientado a Notificações", "part": "I"},
     {"id": "03-visao-geral",             "title": "Visão Geral da PON-BEAM", "part": "I"},
@@ -22,6 +24,7 @@
     {"id": "14-casos-estudo",            "title": "Casos de Estudo", "part": "IV"},
     {"id": "15-trabalhos-relacionados",  "title": "Trabalhos Relacionados e Posicionamento", "part": "IV"},
     {"id": "16-conclusao",               "title": "Conclusão", "part": "IV"},
-    {"id": "sobre-autor",               "title": "Sobre o Autor", "part": "IV"}
+    {"id": "sobre-autor",               "title": "Sobre o Autor", "part": "IV"},
+    {"id": "contra-capa",               "title": "Contra-capa", "part": "backmatter"}
   ]
 }
