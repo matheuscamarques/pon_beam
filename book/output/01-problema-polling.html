@@ -4,55 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>O Problema: Custos Ocultos do Polling na BEAM — PON-BEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="">
-    <button class="menu-toggle" aria-label="Abrir menu" onclick="var b=document.body;b.classList.toggle('sidebar-hidden');this.innerHTML=b.classList.contains('sidebar-hidden')?'&#9776;':'&#10005;'">&#9776;</button>
-    <div class="layout">
-        <nav class="sidebar-nav">
-<div class="nav-header">
-<h3><a href="index.html">PON-BEAM</a></h3>
-</div>
-<div class="nav-frontmatter"><a href="capa.html">Capa</a></div>
-<div class="nav-frontmatter"><a href="folha-de-rosto.html">Folha de Rosto</a></div>
-<div class="nav-frontmatter"><a href="agradecimentos.html">Agradecimentos</a></div>
-<div class="nav-frontmatter"><a href="sobre-autor.html">Sobre o Autor</a></div>
-<div class="nav-part">Parte I: Fundamentos</div>
-<ul>
-<li class="active"><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
-<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
-<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
-</ul>
-<div class="nav-part">Parte II: Subsistemas PON</div>
-<ul>
-<li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
-<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
-<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
-<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
-<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
-<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
-<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
-</ul>
-<div class="nav-part">Parte III: Engenharia e Validação</div>
-<ul>
-<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
-<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
-<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
-</ul>
-<div class="nav-part">Parte IV: Síntese</div>
-<ul>
-<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
-<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
-<li><a href="16-conclusao.html">Conclusão</a></li>
-</ul>
-<div class="nav-frontmatter"><a href="contra-capa.html">Contra-capa</a></div>
-</nav>
+<body class="bg-[#0d1117] text-[#e6edf3]">
 
-        <main class="content">
-            <header class="chapter-header"><h1>O Problema: Custos Ocultos do Polling na BEAM</h1></header>
-            <article>
-                <h1>O Problema: Custos Ocultos do Polling na BEAM</h1>
+<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">
+<div class="p-4 border-b border-[#30363d]">
+<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
+</div>
+<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Capa</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
+<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
+<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte I: Fundamentos</div>
+<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]">O Problema: Custos Ocultos do Polling na BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
+<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte II: Subsistemas PON</div>
+<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Receive: Selective Receive por Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
+<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte III: Engenharia e Validação</div>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Harness de Benchmarking</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte IV: Síntese</div>
+<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Casos de Estudo</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
+<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Conclusão</a>
+<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Contra-capa</a>
+</aside>
+
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+
+<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
+
+<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">O Problema: Custos Ocultos do Polling na BEAM</h1>
+
+<article>
+<h1>O Problema: Custos Ocultos do Polling na BEAM</h1>
 <blockquote>
 <p>"O polling é o pecado original dos sistemas reativos."
 — Joe Armstrong (atribuído)</p>
@@ -72,7 +70,7 @@
 <p><strong>Timer wheel.</strong> Em <code>time.c:784</code>, <code>erts_bump_timers()</code> é chamado a cada tick do scheduler (~1ms). A função percorre os slots da timer wheel verificando se há timers expirados. Se não há timers ativos — o que é comum — a verificação inteira é redundante. Com 32 schedulers, são 32.000 verificações por segundo sem nenhum timer.</p>
 <p><strong>ETS.</strong> Operações de lookup em ETS adquirem locks de leitura e percorrem a CA tree (uma árvore balanceada) para encontrar a entrada. Em tabelas que raramente mudam, o lock e a busca são redundantes: os dados são os mesmos da última consulta.</p>
 <p><strong>Garbage collector.</strong> Em <code>erl_gc.c:759</code>, a função <code>garbage_collect()</code> varre todas as raízes do processo — pilha, registros, mensagens — e percorre todo o heap jovem a cada coleta minor. Em uma coleta major, varre o heap inteiro. Se o grafo de objetos mudou pouco, a varredura é quase toda redundante.</p>
-<div class="diagram" id="diag-4916fa68"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -177,7 +175,7 @@
 
 <p>O diagrama acima mostra o ciclo da redundância temporal: o polling verifica, o recurso não mudou, a ação é pulada — e o ciclo recomeça. A pergunta que o PON faz é: por que verificar? Se o recurso notificasse os dependentes quando muda, todo o ciclo de verificação desapareceria.</p>
 <p>O custo acumulado dessa redundância é difícil de medir em sistemas simples, mas torna-se dominante em sistemas com muitos processos, muitas mensagens, muitos timers, muitas tabelas ETS e heaps grandes. A BEAM foi projetada para escalar em <em>throughput</em>, não em <em>eficiência energética</em> ou <em>latência de ociosidade</em>. Em 1986, quando a Ericsson começou a desenvolver Erlang, CPU era cara, mas o custo de uma interrupção de serviço era muito mais caro. O polling era aceitável — desde que o sistema nunca parasse. Em 2025, o contexto é outro.</p>
-<div class="diagram" id="diag-3c78dfe0"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -323,7 +321,7 @@
 <li>Repete.</li>
 </ol>
 <p>Quando a run queue está vazia, o scheduler entra em <code>scheduler_wait()</code> (<code>erl_process.c:3457</code>). Esta função merece atenção especial.</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_process.c:3457</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_process.c:3457</span>
 <span class="n">scheduler_wait</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fcalls</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span><span class="n">rq</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
@@ -375,7 +373,7 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O que este código revela:</p>
 <ol>
@@ -386,18 +384,18 @@
 <p>O custo é significativo. Com 32 schedulers em um sistema multicore, 5-30% de um core pode ser consumido apenas por este ciclo de acordar-verificar-dormir. Em clouds onde cada mili-core é faturado, este custo é direto e mensurável.</p>
 <h3>3.2 Selective Receive</h3>
 <p>O selective receive é o mecanismo mais icônico e controverso da BEAM. Quando um processo Erlang executa:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="k">receive</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">receive</span>
 <span class="w">    </span><span class="p">{</span><span class="n">ping</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">From</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">pong</span><span class="p">;</span>
 <span class="w">    </span><span class="p">{</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="nv">Payload</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="nv">Payload</span><span class="p">);</span>
 <span class="w">    </span><span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">timeout</span>
 <span class="k">end</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>A VM precisa encontrar na mailbox a primeira mensagem que corresponde a alguma cláusula. Se nenhuma mensagem corresponde, o processo bloqueia até que uma mensagem compatível chegue (ou o timeout expire).</p>
 <p>O algoritmo é ingênuo por design: um loop aninhado, mensagens × cláusulas. Para cada mensagem na mailbox (da mais antiga para a mais nova), a BEAM testa cada cláusula em ordem. Se a mensagem corresponde, ela é removida da mailbox e o corpo é executado. Se não corresponde, a mensagem é mantida — e reexaminada no próximo <code>receive</code>.</p>
 <p>O código de matching em si está espalhado pelo <em>emulator</em> (instruções específicas da BEAM), mas a estrutura lógica é capturada pelo sistema de <em>receive markers</em> em <code>erl_message.h:305-331</code>:</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_message.h:305</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_message.h:305</span>
 <span class="cp">#define ERTS_RECV_MARKER_TYPE_RECV              0</span>
 <span class="cp">#define ERTS_RECV_MARKER_TYPE_YIELD             1</span>
 <span class="cp">#define ERTS_RECV_MARKER_TYPE_PRIO_Q_END        2</span>
@@ -410,9 +408,9 @@
 <span class="w">    </span><span class="n">ErtsRecvMarker</span><span class="w"> </span><span class="n">marker</span><span class="p">[</span><span class="n">ERTS_RECV_MARKER_BLOCK_SIZE</span><span class="p">];</span>
 <span class="p">}</span><span class="w"> </span><span class="n">ErtsRecvMarkerBlock</span><span class="p">;</span>
 </pre></div>
-</div>
+</pre></div>
 
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_message.h:385-399 (struct ErtsSignalPrivQueues)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_message.h:385-399 (struct ErtsSignalPrivQueues)</span>
 <span class="w">    </span><span class="cm">/* inner queue (message queue) */</span>
 <span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">*</span><span class="n">first</span><span class="p">;</span>
 <span class="w">    </span><span class="n">ErtsMessage</span><span class="w"> </span><span class="o">**</span><span class="n">last</span><span class="p">;</span><span class="w">  </span><span class="cm">/* point to the last next pointer */</span>
@@ -429,11 +427,11 @@
 <span class="w">    </span><span class="n">ErtsRecvMarkerBlock</span><span class="w"> </span><span class="o">*</span><span class="n">recv_mrk_blk</span><span class="p">;</span>
 <span class="w">    </span><span class="n">Uint32</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O campo <code>save</code> é o ponteiro que marca até onde já scanneamos. A cada <code>receive</code>, a BEAM começa de <code>save</code> e percorre até o fim. Mensagens antes de <code>save</code> já foram examinadas em receives anteriores e não corresponderam. Elas serão reexaminadas no próximo receive porque uma nova cláusula pode corresponder — mas este é o ponto: se as cláusulas são as mesmas, reexaminar é redundância temporal.</p>
 <p>O custo assintótico é O(N×M) onde N = número de mensagens na mailbox e M = número de cláusulas. Em condições normais, N é pequeno (tipicamente &lt; 10). Mas em sistemas de alta concorrência — um servidor web recebendo 100.000 requisições por segundo — um processo pode acumular milhares de mensagens na mailbox. Cada <code>receive</code> percorre a lista linearmente. O custo deixa de ser desprezível.</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">% Experimento: custo do scanning linear</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">% Experimento: custo do scanning linear</span>
 <span class="c">% Crie um processo com N mensagens na mailbox e meça o tempo de receive</span>
 <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">scan_cost</span><span class="p">).</span>
 <span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">test</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
@@ -447,12 +445,12 @@
 <span class="w">    </span><span class="k">end</span><span class="p">),</span>
 <span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;N=</span><span class="si">~p</span><span class="s"> time=</span><span class="si">~p~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">Time</span><span class="p">]).</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O scanning linear não é apenas caro — ele é imprevisível. O custo de um <code>receive</code> depende do número de mensagens na mailbox, que depende da carga do sistema. Esta imprevisibilidade contraria a filosofia de <em>soft real-time</em> que a BEAM supostamente defende.</p>
 <h3>3.3 Timer Wheel</h3>
 <p>A BEAM gerencia timers através de uma timer wheel — uma estrutura de dados clássica para gerenciar expirações futuras. A cada tick (~1ms), o scheduler chama <code>erts_bump_timers()</code> para avançar a roda e disparar timers expirados.</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/time.c:784</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/time.c:784</span>
 <span class="kt">void</span>
 <span class="nf">erts_bump_timers</span><span class="p">(</span><span class="n">ErtsTimerWheel</span><span class="w"> </span><span class="o">*</span><span class="n">tiw</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsMonotonicTime</span><span class="w"> </span><span class="n">curr_time</span><span class="p">)</span>
 <span class="p">{</span>
@@ -493,7 +491,7 @@
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(...);</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O problema: <code>erts_bump_timers</code> é chamado mesmo quando <code>tiw-&gt;nto == 0</code> — isto é, quando não há timers ativos. A função percorre a estrutura, verifica slots vazios, e retorna sem fazer nada. O custo individual é pequeno (~200ns), mas o custo agregado é significativo:</p>
 <ul>
@@ -506,17 +504,17 @@
 <p>Em sistemas embarcados ou IoT, este overhead é inaceitável. Em servidores cloud com centenas de VMs, o custo se multiplica.</p>
 <h3>3.4 ETS (Erlang Term Storage)</h3>
 <p>ETS é o banco de dados na memória embutido na BEAM. Tabelas ETS são implementadas como árvores balanceadas (CA trees — uma variação de B-tree adaptada para Erlang terms). Operações de lookup adquirem locks de leitura e percorrem a árvore.</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_db.c:1393</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_db.c:1393</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tb</span><span class="o">-&gt;</span><span class="n">common</span><span class="p">.</span><span class="n">meth</span><span class="o">-&gt;</span><span class="n">db_lookup_dbterm</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">default_obj</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">handle</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">is_non_value</span><span class="p">(</span><span class="n">default_obj</span><span class="p">));</span>
 <span class="w">    </span><span class="n">cret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DB_ERROR_BADKEY</span><span class="p">;</span>
 <span class="w">    </span><span class="k">goto</span><span class="w"> </span><span class="n">bail_out</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>Aqui, <code>db_lookup_dbterm</code> é um ponteiro de função — a implementação concreta depende do tipo de tabela (set, ordered_set, bag, duplicate_bag). Para <code>ordered_set</code>, por exemplo, a implementação percorre a CA tree comparando chaves:</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// Lógica simplificada de db_lookup_dbterm (CA tree traversal)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// Lógica simplificada de db_lookup_dbterm (CA tree traversal)</span>
 <span class="k">static</span><span class="w"> </span><span class="kt">int</span>
 <span class="nf">db_lookup_dbterm</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">DbTable</span><span class="w"> </span><span class="o">*</span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">key</span><span class="p">,</span>
 <span class="w">                 </span><span class="n">Eterm</span><span class="w"> </span><span class="n">default_obj</span><span class="p">,</span><span class="w"> </span><span class="n">DbTermHandle</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">)</span>
@@ -535,7 +533,7 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">res</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>Cada lookup envolve:
 1. Aquisição de lock (barreira de memória + possível contenção)
@@ -544,7 +542,7 @@
 <p>Em tabelas altamente concorridas, o lock é o gargalo. Mas mesmo em tabelas sem contenção, cada lookup é um custo fixo: a árvore é percorrida mesmo que os dados não tenham mudado desde a última consulta. Se um processo consulta a mesma chave repetidamente, cada consulta após a primeira é redundante.</p>
 <h3>3.5 Garbage Collector</h3>
 <p>O garbage collector da BEAM é generacional e por processo. Cada processo tem seu próprio heap. A coleta minor varre o heap jovem (a geração mais recente); a coleta major varre todo o heap.</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_gc.c:759</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// otp/erts/emulator/beam/erl_gc.c:759</span>
 <span class="k">static</span><span class="w"> </span><span class="kt">int</span>
 <span class="nf">garbage_collect</span><span class="p">(</span><span class="n">Process</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">ErlHeapFragment</span><span class="w"> </span><span class="o">*</span><span class="n">live_hf_end</span><span class="p">,</span>
 <span class="w">                </span><span class="n">Uint</span><span class="w"> </span><span class="n">need</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="o">*</span><span class="w"> </span><span class="n">objv</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nobj</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fcalls</span><span class="p">,</span>
@@ -573,7 +571,7 @@
 <span class="w">    </span><span class="c1">// ...</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O custo é proporcional ao tamanho do heap. Para um processo com heap de 10MB, uma coleta major percorre 10MB de memória — mesmo que apenas 1% dos objetos esteja morto. A varredura de raízes (pilha, registros, mailbox) é feita integralmente a cada coleta.</p>
 <p>O problema fundamental é que o GC é acionado por falta de espaço, não por notificação de morte de objetos. Em termos PON, a coleta deveria ser notificada quando objetos se tornam inalcançáveis, não acordar periodicamente para verificar. Esta é a <em>redundância temporal</em> do GC: o heap é varrido para descobrir o que já poderia ser conhecido se a VM mantivesse um grafo causal de dependências.</p>
@@ -631,7 +629,7 @@
 <p>A coluna "custo (idle)" é a mais reveladora. O scheduler e a timer wheel consomem CPU mesmo quando o sistema não tem trabalho. Em uma VM com 32 cores em idle, 5-30% significa que 1,6 a 9,6 cores estão consumindo energia para dizer "não tem nada para fazer".</p>
 <p>Para quantificar: em uma cloud AWS c5.xlarge (4 vCPUs, ~$0,17/hora), 10% de idle CPU desperdiçado equivale a ~$0,017/hora por VM. Com 1000 VMs, são ~$17/hora, ~$12.240/mês — para não fazer nada. O polling tem um custo financeiro direto.</p>
 <p>Experimento simples para verificar o custo idle:</p>
-<div class="code-block lang-console"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="c1"># Inicie uma VM Erlang sem aplicação e meça o CPU</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="c1"># Inicie uma VM Erlang sem aplicação e meça o CPU</span>
 $<span class="w"> </span>erl<span class="w"> </span>-noshell<span class="w"> </span>-eval<span class="w"> </span><span class="s1">&#39;timer:sleep(60000), halt().&#39;</span><span class="w"> </span><span class="p">&amp;</span>
 $<span class="w"> </span><span class="nv">pid</span><span class="o">=</span><span class="nv">$!</span>
 $<span class="w"> </span>ps<span class="w"> </span>-p<span class="w"> </span><span class="nv">$pid</span><span class="w"> </span>-o<span class="w"> </span>%cpu,%mem
@@ -641,10 +639,10 @@ $<span class="w"> </span><span class="nb">kill</span><span class="w"> </span><sp
 $<span class="w"> </span><span class="c1"># Compare com uma VM &quot;adormecida&quot; usando um truque:</span>
 $<span class="w"> </span><span class="c1"># Se pudéssemos desligar o scheduler polling, o CPU idle cairia para ~0%</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O custo do selective receive sob carga é igualmente significativo. Um benchmark simples:</p>
-<div class="code-block lang-console"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="c1"># Benchmark de throughput de receive com mailbox cheia</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="c1"># Benchmark de throughput de receive com mailbox cheia</span>
 $<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>bench_recv.erl<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
 <span class="s">-module(bench_recv).</span>
 <span class="s">-export([run/0]).</span>
@@ -667,7 +665,7 @@ $<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>
 $<span class="w"> </span>erlc<span class="w"> </span>bench_recv.erl<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>erl<span class="w"> </span>-noshell<span class="w"> </span>-eval<span class="w"> </span><span class="s1">&#39;bench_recv:run(), halt().&#39;</span>
 <span class="c1"># O tempo cresce linearmente com o número de mensagens na mailbox</span>
 </pre></div>
-</div>
+</pre></div>
 
 <hr />
 <h2>5. O Paradoxo da BEAM</h2>
@@ -694,7 +692,7 @@ $<span class="w"> </span>erlc<span class="w"> </span>bench_recv.erl<span class="
 </ul>
 <p>Cada uma destas transformações elimina a redundância temporal do subsistema correspondente. O resultado é uma BEAM onde CPU idle significa <em>zero instruções executadas</em>, onde o custo de um <code>receive</code> não depende do tamanho da mailbox, onde timers não custam nada quando não há timers ativos.</p>
 <p>O Capítulo 2 apresenta formalmente o Paradigma Orientado a Notificações. Os Capítulos 4 a 10 detalham cada transformação. Este capítulo estabeleceu o <em>por quê</em>; os próximos estabelecem o <em>como</em>.</p>
-<div class="diagram" id="diag-f4ff2c14"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -969,13 +967,48 @@ Juridicamente, o polling em sistemas críticos levanta questões de due diligenc
 <li><a href="EX-37-pon-beam-arquitetura-orientada-a-notificacoes.html">docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md</a> — tese PON-BEAM</li>
 <li><a href="EX-38-pon-beam-plano-de-engenharia.html">docs/extras/EX-38-pon-beam-plano-de-engenharia.md</a> — plano de engenharia</li>
 </ul>
-            </article>
-            <footer class="chapter-nav">
-                <a href="sobre-autor.html" class="nav-prev">← Sobre o Autor</a>
-                <a href="02-paradigma-pon.html" class="nav-next">O Paradigma Orientado a Notificações →</a>
-            </footer>
-        </main>
-    </div>
-    <script src="theme/search.js"></script>
+</article>
+
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
+    <a href="sobre-autor.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">← Sobre o Autor</a>
+    <a href="02-paradigma-pon.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">O Paradigma Orientado a Notificações →</a>
+</footer>
+
+</main>
+
+<script>
+function toggleSidebar() {
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var o = document.getElementById('overlay');
+    var b = document.getElementById('menuBtn');
+    var open = s.style.transform !== 'translateX(0%)' && s.style.transform !== '';
+    if (!open) {
+        s.style.transform = 'translateX(0%)';
+        m.style.marginLeft = '18rem';
+        o.classList.add('hidden');
+        b.innerHTML = '&#9776;';
+        localStorage.setItem('sidebar', 'open');
+    } else {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        if (window.innerWidth < 768) o.classList.remove('hidden');
+        b.innerHTML = '&#10005;';
+        localStorage.setItem('sidebar', 'closed');
+    }
+}
+(function() {
+    var pref = localStorage.getItem('sidebar');
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var b = document.getElementById('menuBtn');
+    if (pref === 'closed') {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        b.innerHTML = '&#10005;';
+    }
+})();
+</script>
+
 </body>
 </html>

@@ -1,300 +1,10 @@
-/* ===== PON-BEAM Book Theme ===== */
-:root {
-    --bg-primary: #0d1117;
-    --bg-secondary: #161b22;
-    --bg-tertiary: #21262d;
-    --text-primary: #e6edf3;
-    --text-secondary: #8b949e;
-    --accent: #58a6ff;
-    --accent-green: #3fb950;
-    --accent-orange: #d29922;
-    --accent-red: #f85149;
-    --border: #30363d;
-    --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-    --sidebar-width: 300px;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-    font-family: var(--font-sans);
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.7;
-    font-size: 16px;
-}
-
-/* ===== Layout ===== */
-.layout {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* ===== Menu Toggle Button ===== */
-.menu-toggle {
-    position: fixed;
-    top: 0.75rem;
-    left: 0.75rem;
-    z-index: 100;
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    padding: 0.35rem 0.5rem 0.2rem 0.5rem;
-    font-size: 1.1rem;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.15s, background 0.15s;
-}
-
-.menu-toggle:hover {
-    color: var(--text-primary);
-    background: var(--border);
-}
-
-/* ===== Sidebar toggle ===== */
-.sidebar-nav {
-    transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.sidebar-hidden .sidebar-nav {
-    transform: translateX(-100%);
-    opacity: 0;
-    pointer-events: none;
-    position: fixed;
-}
-
-.sidebar-hidden .content {
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-body:not(.sidebar-hidden) .sidebar-nav {
-    transform: translateX(0);
-    opacity: 1;
-}
-
-/* ===== Sidebar Navigation ===== */
-    width: var(--sidebar-width);
-    min-width: var(--sidebar-width);
-    background: var(--bg-secondary);
-    border-right: 1px solid var(--border);
-    padding: 1.5rem 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-}
-
-.sidebar-nav::-webkit-scrollbar {
-    width: 4px;
-}
-.sidebar-nav::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 0;
-}
-
-.nav-header {
-    padding: 0 1.2rem 1rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0.5rem;
-}
-
-.nav-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.nav-header h3 a {
-    color: var(--accent);
-    text-decoration: none;
-}
-
-.nav-header h3 a:hover {
-    text-decoration: underline;
-}
-
-.nav-part {
-    padding: 0.6rem 1.2rem 0.3rem;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-.sidebar-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.sidebar-nav li a {
-    display: block;
-    padding: 0.35rem 1.2rem 0.35rem 1.8rem;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.85rem;
-    border-left: 2px solid transparent;
-    transition: all 0.15s;
-}
-
-.sidebar-nav li a:hover {
-    color: var(--text-primary);
-    background: var(--bg-tertiary);
-}
-
-.sidebar-nav li.active a {
-    color: var(--accent);
-    border-left-color: var(--accent);
-    background: rgba(88, 166, 255, 0.08);
-}
-
-/* ===== Main Content ===== */
-.content {
-    flex: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2.5rem 3rem;
-}
-
-/* ===== Book Header ===== */
-.book-header {
-    text-align: center;
-    padding: 3rem 0 2rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 2rem;
-}
-
-.book-header h1 {
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin-bottom: 0.5rem;
-}
-
-.subtitle {
-    font-size: 1.3rem;
-    color: var(--text-secondary);
-    font-weight: 300;
-    margin-bottom: 0.5rem;
-}
-
-.author {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.3rem;
-}
-
-.version {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    font-family: var(--font-mono);
-}
-
-/* ===== Chapter Header ===== */
-.chapter-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
-}
-
-.chapter-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-}
-
-/* ===== Typography ===== */
-h1 { font-size: 2rem; margin: 1.5rem 0 1rem; }
-h2 { font-size: 1.5rem; margin: 2rem 0 0.8rem; color: var(--accent); }
-h3 { font-size: 1.2rem; margin: 1.5rem 0 0.6rem; color: var(--text-primary); }
-h4 { font-size: 1.05rem; margin: 1.2rem 0 0.5rem; }
-
-p { margin: 0.8rem 0; }
-
-strong { color: var(--text-primary); font-weight: 600; }
-em { color: var(--text-secondary); }
-
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-blockquote {
-    border-left: 3px solid var(--accent);
-    padding: 0.8rem 1.2rem;
-    margin: 1.2rem 0;
-    background: rgba(88, 166, 255, 0.05);
-    border-radius: 0;
-    font-style: italic;
-    color: var(--text-secondary);
-}
-
-blockquote p { margin: 0; }
-
-/* ===== Code Blocks ===== */
-.code-block {
-    margin: 1rem 0;
-    border-radius: 0;
-    overflow: hidden;
-    border: 1px solid var(--border);
-}
-
-.code-block pre {
-    padding: 1rem !important;
-    background: #1e1e1e !important;
-    overflow-x: auto;
-}
-
-.code-block code {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1.5;
-}
-
+/* PON-BEAM Book — Minimal overrides for Tailwind theme */
 :not(pre) > code {
-    background: var(--bg-tertiary);
+    background: #21262d;
     padding: 0.15em 0.4em;
-    border-radius: 0;
     font-size: 0.85em;
-    color: var(--accent-orange);
-}
-
-/* ===== Tables ===== */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.2rem 0;
-    font-size: 0.9rem;
-}
-
-th, td {
-    padding: 0.6rem 0.8rem;
-    border: 1px solid var(--border);
-    text-align: left;
-}
-
-th {
-    background: var(--bg-tertiary);
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-tr:nth-child(even) {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-tr:hover {
-    background: rgba(88, 166, 255, 0.05);
-}
-
-/* ===== Diagrams ===== */
-.diagram {
-    margin: 1.5rem auto;
-    text-align: center;
-    background: var(--bg-secondary);
-    border-radius: 0;
-    padding: 1rem;
-    border: 1px solid var(--border);
-    overflow-x: auto;
+    color: #d29922;
+    font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
 }
 
 .diagram svg {
@@ -302,304 +12,68 @@ tr:hover {
     height: auto;
 }
 
+.diagram svg polygon[fill="white"],
+.diagram svg polygon[fill="#ffffff"],
+.diagram svg polygon[fill="#FFFFFF"] {
+    fill: #161b22;
+}
+
 .diagram svg text {
-    font-family: var(--font-sans) !important;
-    fill: var(--text-primary) !important;
+    fill: #e6edf3 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Noto Sans, Helvetica, Arial, sans-serif !important;
 }
 
-.diagram svg polygon[fill="white"] {
-    fill: var(--bg-secondary);
-}
-
-.diagram svg polygon[fill="none"] {
-    fill: var(--bg-secondary);
-}
-
-.diagram-error {
-    color: var(--accent-red);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    padding: 0.5rem;
-}
-
-.diagram-caption {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-top: 0.3rem;
+blockquote {
+    border-left: 3px solid #58a6ff;
+    padding: 0.8rem 1.2rem;
+    margin: 1.2rem 0;
+    background: rgba(88, 166, 255, 0.05);
     font-style: italic;
+    color: #8b949e;
 }
 
-.code-caption {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.3rem;
-    font-family: var(--font-mono);
+blockquote p {
+    margin: 0;
 }
 
-/* ===== Lists ===== */
-ul, ol {
+article ul,
+article ol {
     margin: 0.8rem 0;
     padding-left: 1.8rem;
 }
 
-li {
+article li {
     margin: 0.3rem 0;
 }
 
-/* ===== Chapter Navigation ===== */
-.chapter-nav {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
+article h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 2rem 0 0.8rem;
+    color: #58a6ff;
 }
 
-.nav-prev, .nav-next {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 0;
-    font-size: 0.9rem;
-    transition: all 0.15s;
-}
-
-.nav-prev:hover, .nav-next:hover {
-    background: var(--bg-tertiary);
-    text-decoration: none;
-}
-
-/* ===== Index Page ===== */
-.index-part {
-    margin: 2rem 0;
-}
-
-.index-part h2 {
-    margin-bottom: 0.3rem;
-}
-
-.part-desc {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 0.8rem;
-}
-
-.index-part ol {
-    list-style: none;
-    counter-reset: item;
-    padding: 0;
-}
-
-.index-part ol li {
-    counter-increment: item;
-    margin: 0.4rem 0;
-}
-
-.index-part ol li::before {
-    content: counter(item) ".";
-    color: var(--accent);
-    font-weight: 600;
-    font-family: var(--font-mono);
-    margin-right: 0.5rem;
-}
-
-.index-part ol li a {
-    font-size: 1rem;
-}
-
-.book-abstract {
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background: var(--bg-secondary);
-    border-radius: 0;
-    border: 1px solid var(--border);
-}
-
-/* ===== Search ===== */
-.book-search {
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background: var(--bg-secondary);
-    border-radius: 0;
-    border: 1px solid var(--border);
-}
-
-#search-input {
-    width: 100%;
-    padding: 0.7rem 1rem;
-    margin: 0.5rem 0;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: 0;
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-family: var(--font-sans);
-}
-
-#search-input:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-#search-results {
-    margin-top: 0.5rem;
-}
-
-.search-result-item {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--border);
-}
-
-.search-result-item a {
-    font-weight: 600;
-}
-
-.search-result-item .snippet {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    margin-top: 0.2rem;
-}
-
-.book-footer {
-    margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 768px) {
-    .sidebar-nav {
-        display: none;
-    }
-    .content {
-        padding: 1.5rem;
-    }
-    .book-header h1 {
-        font-size: 2rem;
-    }
-}
-
-/* ===== Exercise Sections ===== */
-h3:has(+ ol) {
-    margin-top: 1.8rem;
-    padding-top: 0.8rem;
-    border-top: 1px solid var(--border);
-}
-
-/* ===== Multidisciplinary Lens ===== */
-blockquote:has(strong) {
-    border-left-color: var(--accent-orange);
-}
-
-/* ===== ABNT Book Structure Pages ===== */
-body.capa .chapter-nav,
-body.capa .chapter-header,
-body.folha-de-rosto .chapter-nav,
-body.folha-de-rosto .chapter-header,
-body.contra-capa .chapter-nav,
-body.contra-capa .chapter-header {
-    display: none;
-}
-
-body.capa .layout,
-body.folha-de-rosto .layout,
-body.contra-capa .layout {
-    display: block;
-}
-
-body.capa .menu-toggle {
-    display: block;
-}
-
-body.capa .content,
-body.folha-de-rosto .content,
-body.contra-capa .content {
-    max-width: 650px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-body.capa .content article {
-    text-align: center;
-}
-
-body.capa .content h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin: 1rem 0;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-}
-
-body.capa .content strong {
-    font-size: 1.3rem;
-    font-weight: 400;
-    color: var(--text-secondary);
-    display: block;
-    margin-bottom: 2rem;
-}
-
-body.capa .content p {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    margin-top: auto;
-}
-
-body.folha-de-rosto .content article p {
-    text-align: center;
-    font-style: italic;
-    color: var(--text-secondary);
-}
-
-body.folha-de-rosto .content h1 {
-    text-align: center;
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--accent);
-    text-transform: uppercase;
-}
-
-body.folha-de-rosto .content strong {
-    display: block;
-    text-align: center;
+article h3 {
     font-size: 1.2rem;
-    font-weight: 400;
-    color: var(--text-secondary);
+    font-weight: 600;
+    margin: 1.5rem 0 0.6rem;
 }
 
-body.contra-capa .content article {
-    text-align: center;
-    font-size: 0.95rem;
-}
-
-body.contra-capa .content hr {
+article hr {
+    border: none;
+    border-top: 1px solid #30363d;
     margin: 2rem 0;
 }
 
-.nav-frontmatter {
-    padding: 0.35rem 1.2rem 0.35rem 1.2rem;
-    font-size: 0.8rem;
+article img[src*="author.jpg"] {
+    float: right;
+    width: 140px;
+    border: 2px solid #30363d;
+    margin: 0 0 1rem 1.5rem;
 }
 
-.nav-frontmatter a {
-    color: var(--text-secondary);
-    text-decoration: none;
-}
-
-.nav-frontmatter a:hover {
-    color: var(--text-primary);
-}
-
-body.capa .nav-frontmatter a.active,
-body.folha-de-rosto .nav-frontmatter a.active,
-body.contra-capa .nav-frontmatter a.active {
-    color: var(--accent);
+article img[src*="capa.svg"] {
+    max-width: 320px;
+    margin: 1.5rem auto;
+    display: block;
 }

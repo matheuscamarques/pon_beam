@@ -4,55 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visão Geral da PON-BEAM — PON-BEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="">
-    <button class="menu-toggle" aria-label="Abrir menu" onclick="var b=document.body;b.classList.toggle('sidebar-hidden');this.innerHTML=b.classList.contains('sidebar-hidden')?'&#9776;':'&#10005;'">&#9776;</button>
-    <div class="layout">
-        <nav class="sidebar-nav">
-<div class="nav-header">
-<h3><a href="index.html">PON-BEAM</a></h3>
-</div>
-<div class="nav-frontmatter"><a href="capa.html">Capa</a></div>
-<div class="nav-frontmatter"><a href="folha-de-rosto.html">Folha de Rosto</a></div>
-<div class="nav-frontmatter"><a href="agradecimentos.html">Agradecimentos</a></div>
-<div class="nav-frontmatter"><a href="sobre-autor.html">Sobre o Autor</a></div>
-<div class="nav-part">Parte I: Fundamentos</div>
-<ul>
-<li><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
-<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
-<li class="active"><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
-</ul>
-<div class="nav-part">Parte II: Subsistemas PON</div>
-<ul>
-<li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
-<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
-<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
-<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
-<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
-<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
-<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
-</ul>
-<div class="nav-part">Parte III: Engenharia e Validação</div>
-<ul>
-<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
-<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
-<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
-</ul>
-<div class="nav-part">Parte IV: Síntese</div>
-<ul>
-<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
-<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
-<li><a href="16-conclusao.html">Conclusão</a></li>
-</ul>
-<div class="nav-frontmatter"><a href="contra-capa.html">Contra-capa</a></div>
-</nav>
+<body class="bg-[#0d1117] text-[#e6edf3]">
 
-        <main class="content">
-            <header class="chapter-header"><h1>Visão Geral da PON-BEAM</h1></header>
-            <article>
-                <h1>Visão Geral da PON-BEAM</h1>
+<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">
+<div class="p-4 border-b border-[#30363d]">
+<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
+</div>
+<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Capa</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
+<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
+<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte I: Fundamentos</div>
+<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
+<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]">Visão Geral da PON-BEAM</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte II: Subsistemas PON</div>
+<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Receive: Selective Receive por Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
+<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte III: Engenharia e Validação</div>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Harness de Benchmarking</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte IV: Síntese</div>
+<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Casos de Estudo</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
+<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Conclusão</a>
+<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Contra-capa</a>
+</aside>
+
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+
+<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
+
+<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">Visão Geral da PON-BEAM</h1>
+
+<article>
+<h1>Visão Geral da PON-BEAM</h1>
 <blockquote>
 <p><em>"E se a VM for PON por dentro?"</em><br />
 — Matheus de Camargo Marques, 2025</p>
@@ -64,7 +62,7 @@
 <hr />
 <h2>2. O Mapa Arquitetural</h2>
 <p>A figura abaixo contrasta a arquitetura atual da BEAM (híbrida polling + notificação) com a arquitetura PON-BEAM (notificação pura). Cada subsistema à esquerda — Scheduler, Selective Receive, GC, ETS, Timer — tem seu correspondente PON à direita. As setas tracejadas indicam a transformação: de <em>busca ativa</em> para <em>notificação reativa</em>.</p>
-<div class="diagram" id="diag-2359eb47"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -255,7 +253,7 @@
 <hr />
 <h2>4. Arquitetura em Camadas</h2>
 <p>A PON-BEAM não é um sistema monolítico. Ela é organizada em quatro camadas com responsabilidades bem definidas, separando a semântica PON da infraestrutura de notificação do sistema operacional:</p>
-<pre><code>+------------------------------+
+<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#30363d] overflow-x-auto text-sm"><code>+------------------------------+
 |  Camada de Aplicação        |
 |  (processos Erlang/Elixir)   |
 +------------------------------+
@@ -272,6 +270,7 @@
 |  kqueue | IOCP              |
 +------------------------------+
 </code></pre>
+
 <p><strong>Camada de Sistema.</strong> A camada mais baixa abstrai os mecanismos de notificação do sistema operacional: eventfd (notificação binária, usada para acordar o scheduler), timerfd (notificação temporal, para timers e timeouts), epoll (Linux), kqueue (macOS/FreeBSD), e IOCP (Windows). Esta camada é a única que faz chamadas de sistema. Ela expõe uma API uniforme para as camadas superiores: <code>pon_notify()</code>, <code>pon_await()</code>, <code>pon_timer_create()</code>. O Capítulo 11 detalha a implementação desta camada e as diferenças entre plataformas.</p>
 <p><strong>Camada ERTS.</strong> A camada do Erlang Runtime System contém o código original da BEAM (modificado com <code>#ifdef PON_BEAM</code>). Scheduler, Mailbox, GC, ETS, Timer, e o sistema de distribuição continuam existindo, mas são <em>envolvidos</em> pelas entidades PON da camada superior. Por exemplo, o Scheduler ainda existe, mas em vez de fazer polling da run queue, ele espera em <code>epoll_wait</code> por notificações. A mailbox ainda armazena mensagens, mas a classificação por tipo é feita no momento da inserção, não no momento do receive.</p>
 <p><strong>Camada PON.</strong> Esta é a camada nova, o coração da PON-BEAM. Ela contém as implementações das sete entidades PON mapeadas na seção anterior: Premises (matching reativo), Conditions (prontidão), Instigações (timer), Watchers (observadores de ETS), Attributes (valores notificantes), Rules (opcodes), e Actions (BIFs). A camada PON é implementada em C com a mesma disciplina de performance do ERTS original — sem alocações desnecessárias, sem abstrações custosas. Cada entidade é uma struct C com ponteiros de função, e o ciclo de notificação é uma chamada de função direta (sem syscall) quando a notificação é intra-processo.</p>
@@ -281,7 +280,7 @@
 <hr />
 <h2>5. Fluxo de Notificação Transversal</h2>
 <p>Para concretizar o mapa arquitetural, acompanhemos uma mensagem atravessando a PON-BEAM do início ao fim. Considere dois processos Erlang, A e B, onde A envia uma mensagem para B, e B está executando um <code>receive</code> com <code>after</code>.</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">% Processo A</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">% Processo A</span>
 <span class="nv">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">(),</span>
 <span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">A</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">dados</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">}</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
 
@@ -293,7 +292,7 @@
 <span class="w">    </span><span class="n">timeout</span><span class="p">()</span>
 <span class="k">end</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>Atualmente, o fluxo na PON-BEAM implementada segue:</p>
 <ol>
@@ -329,7 +328,7 @@
 </li>
 </ol>
 <p>Este fluxo demonstra como a notificação transversal elimina polling em cada etapa. Em nenhum momento a VM pergunta "tem mensagem?", "tem processo pronto?", "timer expirou?". A resposta chega antes da pergunta.</p>
-<div class="diagram" id="diag-014d4923"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -704,13 +703,13 @@
 <ol start="11">
 <li>Dado o código Erlang a seguir, descreva o fluxo de notificação transversal, passo a passo:</li>
 </ol>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">ping</span><span class="p">,</span><span class="w"> </span><span class="nv">P</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">P</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">pong</span><span class="w"> </span><span class="k">end</span>
 <span class="k">end</span><span class="p">),</span>
 <span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">ping</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">()},</span>
 <span class="k">receive</span><span class="w"> </span><span class="n">pong</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <ol start="12">
 <li>
@@ -803,13 +802,48 @@
 <li><strong>Gamma et al. (1994)</strong> — <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>: Observer e Reactor patterns que fundamentam Premises e Conditions.</li>
 <li><strong>Schmidt (1995)</strong> — <em>Reactor: An Object Behavioral Pattern for Event Demultiplexing</em>: base do scheduler baseado em eventfd.</li>
 </ul>
-            </article>
-            <footer class="chapter-nav">
-                <a href="02-paradigma-pon.html" class="nav-prev">← O Paradigma Orientado a Notificações</a>
-                <a href="04-pon-receive.html" class="nav-next">PON-Receive: Selective Receive por Premises →</a>
-            </footer>
-        </main>
-    </div>
-    <script src="theme/search.js"></script>
+</article>
+
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
+    <a href="02-paradigma-pon.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">← O Paradigma Orientado a Notificações</a>
+    <a href="04-pon-receive.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">PON-Receive: Selective Receive por Premises →</a>
+</footer>
+
+</main>
+
+<script>
+function toggleSidebar() {
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var o = document.getElementById('overlay');
+    var b = document.getElementById('menuBtn');
+    var open = s.style.transform !== 'translateX(0%)' && s.style.transform !== '';
+    if (!open) {
+        s.style.transform = 'translateX(0%)';
+        m.style.marginLeft = '18rem';
+        o.classList.add('hidden');
+        b.innerHTML = '&#9776;';
+        localStorage.setItem('sidebar', 'open');
+    } else {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        if (window.innerWidth < 768) o.classList.remove('hidden');
+        b.innerHTML = '&#10005;';
+        localStorage.setItem('sidebar', 'closed');
+    }
+}
+(function() {
+    var pref = localStorage.getItem('sidebar');
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var b = document.getElementById('menuBtn');
+    if (pref === 'closed') {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        b.innerHTML = '&#10005;';
+    }
+})();
+</script>
+
 </body>
 </html>

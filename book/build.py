@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 """
-PON-BEAM Book Builder — Gera site HTML interativo a partir dos capítulos Markdown.
- 
-Uso: python3 build.py [--watch]
+PON-BEAM Book Builder — Gera site HTML com Tailwind CSS via CDN.
+
+Uso: python3 build.py
 """
 
-import os
-import re
-import json
-import subprocess
-import hashlib
+import os, re, json, subprocess, hashlib, shutil
 from pathlib import Path
 from markdown import markdown
 from pygments import highlight
@@ -21,8 +17,16 @@ SRC = ROOT / "src"
 CHAPTERS = SRC / "chapters"
 OUTPUT = ROOT / "output"
 THEME = ROOT / "theme"
-
 BOOK_JSON = ROOT / "book.json"
+
+TAILWIND_CDN = '<script src="https://cdn.tailwindcss.com"></script>'
+
+PARTS = {
+    "I": "Fundamentos",
+    "II": "Subsistemas PON",
+    "III": "Engenharia e Valida\u00e7\u00e3o",
+    "IV": "S\u00edntese",
+}
 
 
 def load_config():
@@ -31,299 +35,252 @@ def load_config():
 
 
 def render_diagram(dot_code, diagram_id):
-    """Render a Graphviz DOT block to SVG inline."""
     try:
-        result = subprocess.run(
+        r = subprocess.run(
             ["dot", "-Tsvg"],
-            input=dot_code,
-            capture_output=True,
-            text=True,
-            timeout=10,
+            input=dot_code, capture_output=True, text=True, timeout=10,
         )
-        if result.returncode == 0:
-            svg = result.stdout
-            # Remove XML declaration and DOCTYPE for inline embedding
-            svg = re.sub(r'<\?xml.*?\?>', '', svg)
-            svg = re.sub(r'<!DOCTYPE.*?>', '', svg)
-            svg = svg.strip()
-            return f'<div class="diagram" id="diag-{diagram_id}">{svg}</div>'
-        else:
-            return f'<pre class="diagram-error">Erro DOT: {result.stderr}</pre>'
+        if r.returncode == 0:
+            svg = re.sub(r'<\?xml.*?\?>|<!DOCTYPE.*?>', '', r.stdout).strip()
+            return f'<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto">{svg}</div>'
+        return f'<pre class="text-red-500 text-sm">{r.stderr}</pre>'
     except FileNotFoundError:
-        return '<pre class="diagram-error">Graphviz (dot) não encontrado. Instale: apt install graphviz</pre>'
+        return '<pre class="text-red-500">Graphviz (dot) n\u00e3o encontrado. Instale: apt install graphviz</pre>'
 
 
 def extract_frontmatter(text):
-    """Extract YAML-like frontmatter from markdown."""
     m = re.match(r'^---\s*\n(.*?)\n---\s*\n', text, re.DOTALL)
     if m:
         meta = {}
         for line in m.group(1).strip().split('\n'):
             if ':' in line:
-                key, val = line.split(':', 1)
-                meta[key.strip()] = val.strip().strip('"\'')
-        body = text[m.end():]
-        return meta, body
+                k, v = line.split(':', 1)
+                meta[k.strip()] = v.strip().strip('"\'')
+        return meta, text[m.end():]
     return {}, text
 
 
-def process_code_blocks(body):
-    """Process fenced code blocks with language-specific highlighting."""
-    def replace_code(m):
-        lang = m.group(1) or 'text'
-        code = m.group(2)
-        lexer_map = {
-            'c': CLexer,
-            'erlang': ErlangLexer,
-            'elixir': ErlangLexer,
-            'console': BashLexer,
-            'bash': BashLexer,
-            'json': JsonLexer,
-            'dot': None,  # handled separately
-        }
-        lexer_cls = lexer_map.get(lang)
-        if lexer_cls:
-            try:
-                highlighted = highlight(code, lexer_cls(), HtmlFormatter(style='monokai'))
-                return f'<div class="code-block lang-{lang}">{highlighted}</div>'
-            except Exception:
-                pass
-        return f'<pre><code class="lang-{lang}">{code}</code></pre>'
-    
-    # First, handle DOT blocks for diagrams
-    def replace_dot(m):
-        lang = m.group(1) or 'text'
-        title = m.group(2).strip() if m.group(2) else ''
+def process_body(body):
+    def replace_block(m):
+        lang = (m.group(1) or '').strip()
+        title = (m.group(2) or '').strip()
         code = m.group(3)
         if lang == 'dot':
-            diagram_id = hashlib.md5(code.encode()).hexdigest()[:8]
-            caption = f'<div class="diagram-caption">{title}</div>' if title else ''
-            return render_diagram(code, diagram_id) + caption
-        # Fallback to regular code
-        lexer_map = {
-            'c': CLexer,
-            'erlang': ErlangLexer,
-            'elixir': ErlangLexer,
-            'console': BashLexer,
-            'bash': BashLexer,
-            'json': JsonLexer,
-        }
-        lexer_cls = lexer_map.get(lang)
-        if lexer_cls:
+            did = hashlib.md5(code.encode()).hexdigest()[:8]
+            out = render_diagram(code, did)
+            if title:
+                out += f'<p class="text-center text-sm text-[#8b949e] italic mt-1">{title}</p>'
+            return out
+        lexer = {'c': CLexer, 'erlang': ErlangLexer, 'elixir': ErlangLexer,
+                 'console': BashLexer, 'bash': BashLexer, 'json': JsonLexer}.get(lang)
+        if lexer:
             try:
-                highlighted = highlight(code, lexer_cls(), HtmlFormatter(style='monokai'))
-                return f'<div class="code-block lang-{lang}">{highlighted}</div>'
+                h = highlight(code, lexer(), HtmlFormatter(style='monokai'))
+                return f'<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed">{h}</pre></div>'
             except Exception:
                 pass
-        title_html = f'<div class="code-caption">{title}</div>' if title else ''
-        return f'{title_html}<pre><code class="lang-{lang}">{code}</code></pre>'
-    
-    # Process dot diagrams first, then regular code
-    # Handles: ```dot [optional title]
-    #           digraph code...
-    #           ```
-    body = re.sub(r'```(\w+)([^\n]*)\n(.*?)```', replace_dot, body, flags=re.DOTALL)
+        cap = f'<p class="text-xs text-[#8b949e] mb-1 font-mono">{title}</p>' if title else ''
+        return f'{cap}<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#30363d] overflow-x-auto text-sm"><code>{code}</code></pre>'
+
+    body = re.sub(r'```(\w*)([^\n]*)\n(.*?)```', replace_block, body, flags=re.DOTALL)
     return body
 
 
-def make_toc(chapters, current_id=None):
-    """Generate sidebar navigation HTML."""
-    parts = {
-        "frontmatter": "",
-        "I": "Fundamentos",
-        "II": "Subsistemas PON",
-        "III": "Engenharia e Validação",
-        "IV": "Síntese",
-        "backmatter": "",
-    }
-    html = '<nav class="sidebar-nav">\n'
-    html += '<div class="nav-header">\n'
-    html += '<h3><a href="index.html">PON-BEAM</a></h3>\n'
-    html += '</div>\n'
-    
-    # Frontmatter (capa, folha de rosto) — without "Parte" label
+def make_sidebar(chapters, current_id=None):
+    lines = []
+    lines.append('<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">')
+    lines.append('<div class="p-4 border-b border-[#30363d]">')
+    lines.append('<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>')
+    lines.append('</div>')
+
     for ch in chapters:
-        if ch.get("part") == "frontmatter":
-            active = ' class="active"' if ch["id"] == current_id else ''
-            label = ch["title"]
-            html += f'<div class="nav-frontmatter"><a href="{ch["id"]}.html">{label}</a></div>\n'
-    
-    for part_num, part_name in parts.items():
-        if part_num in ("frontmatter", "backmatter"):
-            continue
-        html += f'<div class="nav-part">Parte {part_num}: {part_name}</div>\n'
-        html += '<ul>\n'
+        if ch["part"] == "frontmatter":
+            active = 'text-[#58a6ff]' if ch["id"] == current_id else 'text-[#8b949e]'
+            lines.append(f'<a href="{ch["id"]}.html" class="block px-4 py-1.5 text-sm {active} hover:text-[#e6edf3] no-underline">{ch["title"]}</a>')
+
+    for pn, pname in PARTS.items():
+        lines.append(f'<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte {pn}: {pname}</div>')
         for ch in chapters:
-            if ch.get("part") == part_num:
-                active = ' class="active"' if ch["id"] == current_id else ''
-                html += f'<li{active}><a href="{ch["id"]}.html">{ch["title"]}</a></li>\n'
-        html += '</ul>\n'
-    
-    # Backmatter (contra-capa)
+            if ch["part"] == pn:
+                active = 'text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]' if ch["id"] == current_id else 'text-[#8b949e] hover:text-[#e6edf3]'
+                lines.append(f'<a href="{ch["id"]}.html" class="block px-4 py-1.5 pl-8 text-sm no-underline {active}">{ch["title"]}</a>')
+
     for ch in chapters:
-        if ch.get("part") == "backmatter":
-            active = ' class="active"' if ch["id"] == current_id else ''
-            label = ch["title"]
-            html += f'<div class="nav-frontmatter"><a href="{ch["id"]}.html">{label}</a></div>\n'
-    
-    html += '</nav>\n'
-    return html
+        if ch["part"] == "backmatter":
+            active = 'text-[#58a6ff]' if ch["id"] == current_id else 'text-[#8b949e]'
+            lines.append(f'<a href="{ch["id"]}.html" class="block px-4 py-1.5 text-sm {active} hover:text-[#e6edf3] no-underline">{ch["title"]}</a>')
+
+    lines.append('</aside>')
+    return '\n'.join(lines)
 
 
-def make_search_index(chapters, chapter_bodies):
-    """Build a search index JSON."""
-    index = []
-    for ch, body in zip(chapters, chapter_bodies):
-        # Extract text content, remove markdown formatting
-        text = re.sub(r'[#*`>\[\]]', '', body)
-        text = re.sub(r'\n+', ' ', text)
-        index.append({
-            "id": ch["id"],
-            "title": ch["title"],
-            "part": ch["part"],
-            "text": text[:500],  # Store first 500 chars for snippet
-        })
-    return index
-
-
-def render_chapter(ch, body_html, config):
-    """Render a complete HTML page for a chapter."""
+def render_page(ch, body_html, config):
     chapters = config["chapters"]
+    title = ch["title"]
+    sidebar = make_sidebar(chapters, ch["id"])
+    hide_ch_header = ch["id"] in ("capa", "folha-de-rosto", "contra-capa")
+    ch_header = f'<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">{title}</h1>' if not hide_ch_header else ''
+
     prev_ch = None
     next_ch = None
     for i, c in enumerate(chapters):
         if c["id"] == ch["id"]:
-            if i > 0:
-                prev_ch = chapters[i-1]
-            if i < len(chapters) - 1:
-                next_ch = chapters[i+1]
+            if i > 0: prev_ch = chapters[i - 1]
+            if i < len(chapters) - 1: next_ch = chapters[i + 1]
             break
-    
-    toc = make_toc(chapters, ch["id"])
-    
-    # ABNT special pages — hidden sidebar by default
-    is_special = ch["id"] in ("capa", "folha-de-rosto", "contra-capa")
-    body_class = f'{ch["id"]} sidebar-hidden' if is_special else ''
 
-    prev_html = f'<a href="{prev_ch["id"]}.html" class="nav-prev">← {prev_ch["title"]}</a>' if prev_ch else ''
-    next_html = f'<a href="{next_ch["id"]}.html" class="nav-next">{next_ch["title"]} →</a>' if next_ch else ''
+    prev_html = f'<a href="{prev_ch["id"]}.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">\u2190 {prev_ch["title"]}</a>' if prev_ch else '<span></span>'
+    next_html = f'<a href="{next_ch["id"]}.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">{next_ch["title"]} \u2192</a>' if next_ch else '<span></span>'
 
-    hide_header = is_special
-    header_html = f'<header class="chapter-header"><h1>{ch["title"]}</h1></header>' if not hide_header else ''
-    
+    capa_style = ''
+    if ch["id"] == "capa":
+        capa_style = ' style="text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center"'
+    elif ch["id"] == "folha-de-rosto":
+        capa_style = ' style="text-align:center"'
+    elif ch["id"] == "contra-capa":
+        capa_style = ' style="text-align:center"'
+
+    nav_link = 'index.html' if ch["id"] == "capa" else f'{ch["id"]}.html'
+
     return f'''<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{ch["title"]} — PON-BEAM</title>
+    <title>{title} — PON-BEAM</title>
+    {TAILWIND_CDN}
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="{body_class}">
-    <button class="menu-toggle" aria-label="Abrir menu" onclick="var b=document.body;b.classList.toggle('sidebar-hidden');this.innerHTML=b.classList.contains('sidebar-hidden')?'&#9776;':'&#10005;'">&#9776;</button>
-    <div class="layout">
-        {toc}
-        <main class="content">
-            {header_html}
-            <article>
-                {body_html}
-            </article>
-            <footer class="chapter-nav">
-                {prev_html}
-                {next_html}
-            </footer>
-        </main>
-    </div>
-    <script src="theme/search.js"></script>
+<body class="bg-[#0d1117] text-[#e6edf3]">
+
+{sidebar}
+
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+
+<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
+
+{ch_header}
+
+<article{capa_style}>
+{body_html}
+</article>
+
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
+    {prev_html}
+    {next_html}
+</footer>
+
+</main>
+
+<script>
+function toggleSidebar() {{
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var o = document.getElementById('overlay');
+    var b = document.getElementById('menuBtn');
+    var open = s.style.transform !== 'translateX(0%)' && s.style.transform !== '';
+    if (!open) {{
+        s.style.transform = 'translateX(0%)';
+        m.style.marginLeft = '18rem';
+        o.classList.add('hidden');
+        b.innerHTML = '&#9776;';
+        localStorage.setItem('sidebar', 'open');
+    }} else {{
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        if (window.innerWidth < 768) o.classList.remove('hidden');
+        b.innerHTML = '&#10005;';
+        localStorage.setItem('sidebar', 'closed');
+    }}
+}}
+(function() {{
+    var pref = localStorage.getItem('sidebar');
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var b = document.getElementById('menuBtn');
+    if (pref === 'closed') {{
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        b.innerHTML = '&#10005;';
+    }}
+}})();
+</script>
+
 </body>
 </html>'''
 
 
 def render_index(config):
-    """Render the book index page."""
     chapters = config["chapters"]
-    toc = make_toc(chapters)
-    
-    part_descriptions = {
-        "I": "Diagnóstico dos custos de polling na BEAM, introdução ao Paradigma Orientado a Notificações e mapa arquitetural da PON-BEAM.",
-        "II": "Cada subsistema da BEAM redesenhado como entidade PON: Premises, Instigações, Conditions, Watchers, marcação causal e compilação automática.",
-        "III": "Infraestrutura do fork, harness de benchmarking e análise de tradeoffs com roadmap priorizado.",
-        "IV": "Casos de estudo, posicionamento frente à literatura e síntese da proposta.",
-    }
-    
-    chapters_by_part = {}
+    sidebar = make_sidebar(chapters)
+    chs_by_part = {}
     for ch in chapters:
-        chapters_by_part.setdefault(ch["part"], []).append(ch)
-    
-    parts_html = ""
-    for part_num in ["I", "II", "III", "IV"]:
-        chs = chapters_by_part.get(part_num, [])
-        parts_html += f'''
-        <section class="index-part">
-            <h2>Parte {part_num}</h2>
-            <p class="part-desc">{part_descriptions[part_num]}</p>
-            <ol>
-        '''
-        for ch in chs:
-            parts_html += f'<li><a href="{ch["id"]}.html">{ch["title"]}</a></li>\n'
-        parts_html += '</ol></section>\n'
-    
+        chs_by_part.setdefault(ch["part"], []).append(ch)
+
+    parts_html = ''
+    for pn, pname in PARTS.items():
+        parts_html += f'<section class="mb-8"><h2 class="text-xl font-bold text-[#58a6ff] mb-2">Parte {pn}: {pname}</h2><ol class="list-none p-0">'
+        for ch in chs_by_part.get(pn, []):
+            parts_html += f'<li class="my-1"><a href="{ch["id"]}.html" class="text-[#58a6ff] no-underline hover:underline">{ch["title"]}</a></li>'
+        parts_html += '</ol></section>'
+
     return f'''<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PON-BEAM — Uma Máquina Virtual Orientada a Notificações</title>
+    <title>PON-BEAM — Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</title>
+    {TAILWIND_CDN}
     <link rel="stylesheet" href="theme/style.css">
 </head>
-<body>
-    <div class="layout">
-        {toc}
-        <main class="content">
-            <header class="book-header">
-                <h1>PON-BEAM</h1>
-                <p class="subtitle">Uma Máquina Virtual Orientada a Notificações</p>
-                <p class="author">{config["author"]}</p>
-                <p class="version">v{config["version"]}</p>
-            </header>
-            
-            <section class="book-abstract">
-                <h2>Sobre este livro</h2>
-                <p>
-                    A <strong>PON-BEAM</strong> é uma re-arquitetura da máquina virtual BEAM (Bogdan/Björn's Erlang Abstract Machine)
-                    usando o <strong>Paradigma Orientado a Notificações (PON)</strong> de Jean Marcelo Simão.
-                    Cada subsistema interno da VM — scheduler, selective receive, timer wheel, ETS, garbage collector —
-                    é redesenhado como uma entidade PON reativa: sem polling, sem scanning linear, apenas notificações pontuais.
-                </p>
-                <p>
-                    Este livro documenta a arquitetura, o plano de engenharia e o progresso da implementação,
-                    combinando fundamentos teóricos, código C do ERTS, diagramas estruturais e benchmarks comparativos.
-                </p>
-            </section>
-            
-            <section class="book-search">
-                <h2>Busca</h2>
-                <input type="text" id="search-input" placeholder="Buscar no livro..." />
-                <div id="search-results"></div>
-            </section>
-            
-            <section class="book-toc">
-                <h2>Sumário</h2>
-                {parts_html}
-            </section>
-            
-            <footer class="book-footer">
-                <p>
-                    Repositório: <a href="{config["repo"]}">{config["repo"]}</a>
-                </p>
-                <p>
-                    Licença: Apache 2.0
-                </p>
-            </footer>
-        </main>
-    </div>
-    <script src="theme/search.js"></script>
+<body class="bg-[#0d1117] text-[#e6edf3]">
+{sidebar}
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200">
+<header class="text-center py-12 border-b border-[#30363d] mb-8">
+    <h1 class="text-4xl font-extrabold text-[#58a6ff] mb-2">PON-BEAM</h1>
+    <p class="text-xl text-[#8b949e] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>
+    <p class="text-sm text-[#8b949e]">{config["author"]}</p>
+</header>
+<section class="mb-8 p-6 bg-[#161b22] border border-[#30363d]">
+    <h2 class="text-lg font-bold mb-2">Sobre este livro</h2>
+    <p class="text-[#8b949e] leading-relaxed">A <strong class="text-[#e6edf3]">PON-BEAM</strong> \u00e9 uma re-arquitetura da m\u00e1quina virtual BEAM usando o <strong class="text-[#e6edf3]">Paradigma Orientado a Notifica\u00e7\u00f5es (PON)</strong> de Jean Marcelo Sim\u00e3o. Cada subsistema interno da VM — scheduler, selective receive, timer wheel, ETS, garbage collector — \u00e9 redesenhado como uma entidade PON reativa.</p>
+</section>
+{parts_html}
+<footer class="text-center text-sm text-[#8b949e] mt-8 pt-4 border-t border-[#30363d]">
+    <p>Reposit\u00f3rio: <a href="{config["repo"]}" class="text-[#58a6ff]">{config["repo"]}</a></p>
+</footer>
+</main>
+<script src="theme/search.js"></script>
+<script>
+function toggleSidebar() {{
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var o = document.getElementById('overlay');
+    var b = document.getElementById('menuBtn');
+    var open = s.style.transform !== 'translateX(0%)' && s.style.transform !== '';
+    if (!open) {{
+        s.style.transform = 'translateX(0%)'; m.style.marginLeft = '18rem';
+        o.classList.add('hidden'); b.innerHTML = '&#9776;';
+        localStorage.setItem('sidebar', 'open');
+    }} else {{
+        s.style.transform = 'translateX(-100%)'; m.style.marginLeft = '0';
+        if (window.innerWidth < 768) o.classList.remove('hidden');
+        b.innerHTML = '&#10005;'; localStorage.setItem('sidebar', 'closed');
+    }}
+}}
+(function() {{
+    if (localStorage.getItem('sidebar') === 'closed') {{
+        document.getElementById('sidebar').style.transform = 'translateX(-100%)';
+        document.getElementById('main').style.marginLeft = '0';
+        document.getElementById('menuBtn').innerHTML = '&#10005;';
+    }}
+}})();
+</script>
 </body>
 </html>'''
 
@@ -331,75 +288,63 @@ def render_index(config):
 def build():
     config = load_config()
     chapters = config["chapters"]
-    
-    # Ensure output dirs exist
     (OUTPUT / "theme").mkdir(parents=True, exist_ok=True)
-    (OUTPUT / "chapters").mkdir(exist_ok=True)
-    
-    # Copy theme files
-    import shutil
+
+    # copy theme assets
     for f in ["style.css", "pygments.css", "search.js", "author.jpg", "capa.svg"]:
         src = THEME / f
         if src.exists():
             shutil.copy(src, OUTPUT / "theme" / f)
-    
-    # Generate pygments CSS if needed
+
     if not (OUTPUT / "theme" / "pygments.css").exists():
-        from pygments.styles import get_style_by_name
         css = HtmlFormatter(style='monokai').get_style_defs('.code-block')
         with open(OUTPUT / "theme" / "pygments.css", 'w') as f:
             f.write(css)
-    
+
     chapter_data = []
-    chapter_bodies = []
-    
+    raw_bodies = []
+
     for ch in chapters:
         src_file = CHAPTERS / f"{ch['id']}.md"
         if not src_file.exists():
             print(f"AVISO: {src_file} não encontrado, pulando.")
             continue
-        
         with open(src_file) as f:
             raw = f.read()
-        
-        meta, body = extract_frontmatter(raw)
-        
-        # Process code blocks and diagrams
-        body_html = process_code_blocks(body)
-        
-        # Convert markdown to HTML
+        _, body = extract_frontmatter(raw)
+        body_html = process_body(body)
         body_html = markdown(body_html, extensions=['fenced_code', 'tables', 'sane_lists'])
-        
-        # Fix .md links to .html in the rendered HTML body
         body_html = re.sub(r'href="([^"]+)\.md"', r'href="\1.html"', body_html)
-        # Remove links to non-existent template pages (FL, PL, KG)
         body_html = re.sub(r'<li><a href="(?:FL|PL|KG)-\d+\.html">.*?</a></li>\s*', '', body_html)
-        
+        # Fix image paths in capa/author
+        body_html = body_html.replace('src="theme/', 'src="theme/')
         chapter_data.append((ch, body_html))
-        chapter_bodies.append(body)
-    
-    # Render index
-    index_html = render_index(config)
+        raw_bodies.append(body)
+
+    # index
     with open(OUTPUT / "index.html", 'w') as f:
-        f.write(index_html)
+        f.write(render_index(config))
     print("✓ index.html")
-    
-    # Render chapters
+
+    # chapters
     for ch, body_html in chapter_data:
-        html = render_chapter(ch, body_html, config)
-        out_file = OUTPUT / f"{ch['id']}.html"
-        with open(out_file, 'w') as f:
+        html = render_page(ch, body_html, config)
+        with open(OUTPUT / f"{ch['id']}.html", 'w') as f:
             f.write(html)
         print(f"✓ {ch['id']}.html")
-    
-    # Generate search index
-    index = make_search_index(chapters, chapter_bodies)
+
+    # search index
+    idx = []
+    for ch, raw in zip(chapters, raw_bodies):
+        text = re.sub(r'[#*`>\[\]]', '', raw)
+        text = re.sub(r'\n+', ' ', text)
+        idx.append({"id": ch["id"], "title": ch["title"], "part": ch["part"], "text": text[:500]})
     with open(OUTPUT / "search-index.json", 'w') as f:
-        json.dump(index, f, ensure_ascii=False)
+        json.dump(idx, f, ensure_ascii=False)
     print("✓ search-index.json")
-    
-    total_chars = sum(len(b) for b in chapter_bodies)
-    print(f"\nLivro gerado: {len(chapter_data)} capítulos, ~{total_chars} caracteres")
+
+    total = sum(len(b) for b in raw_bodies)
+    print(f"\nLivro gerado: {len(chapter_data)} capítulos, ~{total} caracteres")
     print(f"Saída: {OUTPUT}")
 
 

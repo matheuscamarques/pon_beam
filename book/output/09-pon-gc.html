@@ -4,55 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PON-GC: Coleta por Cadeia Causal — PON-BEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="">
-    <button class="menu-toggle" aria-label="Abrir menu" onclick="var b=document.body;b.classList.toggle('sidebar-hidden');this.innerHTML=b.classList.contains('sidebar-hidden')?'&#9776;':'&#10005;'">&#9776;</button>
-    <div class="layout">
-        <nav class="sidebar-nav">
-<div class="nav-header">
-<h3><a href="index.html">PON-BEAM</a></h3>
-</div>
-<div class="nav-frontmatter"><a href="capa.html">Capa</a></div>
-<div class="nav-frontmatter"><a href="folha-de-rosto.html">Folha de Rosto</a></div>
-<div class="nav-frontmatter"><a href="agradecimentos.html">Agradecimentos</a></div>
-<div class="nav-frontmatter"><a href="sobre-autor.html">Sobre o Autor</a></div>
-<div class="nav-part">Parte I: Fundamentos</div>
-<ul>
-<li><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
-<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
-<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
-</ul>
-<div class="nav-part">Parte II: Subsistemas PON</div>
-<ul>
-<li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
-<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
-<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
-<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
-<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
-<li class="active"><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
-<li><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
-</ul>
-<div class="nav-part">Parte III: Engenharia e Validação</div>
-<ul>
-<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
-<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
-<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
-</ul>
-<div class="nav-part">Parte IV: Síntese</div>
-<ul>
-<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
-<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
-<li><a href="16-conclusao.html">Conclusão</a></li>
-</ul>
-<div class="nav-frontmatter"><a href="contra-capa.html">Contra-capa</a></div>
-</nav>
+<body class="bg-[#0d1117] text-[#e6edf3]">
 
-        <main class="content">
-            <header class="chapter-header"><h1>PON-GC: Coleta por Cadeia Causal</h1></header>
-            <article>
-                <h1>PON-GC: Coleta por Propagação de Notificações</h1>
+<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">
+<div class="p-4 border-b border-[#30363d]">
+<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
+</div>
+<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Capa</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
+<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
+<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte I: Fundamentos</div>
+<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
+<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte II: Subsistemas PON</div>
+<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Receive: Selective Receive por Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
+<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]">PON-GC: Coleta por Cadeia Causal</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte III: Engenharia e Validação</div>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Harness de Benchmarking</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte IV: Síntese</div>
+<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Casos de Estudo</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
+<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Conclusão</a>
+<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Contra-capa</a>
+</aside>
+
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+
+<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
+
+<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">PON-GC: Coleta por Cadeia Causal</h1>
+
+<article>
+<h1>PON-GC: Coleta por Propagação de Notificações</h1>
 <blockquote>
 <p>"A marcação não deveria percorrer o que não mudou."
 — Matheus de Camargo Marques, 2025</p>
@@ -61,7 +59,7 @@
 <h2>1. Diagnóstico: GC Generacional e a Varredura de Raízes</h2>
 <p>O garbage collector da BEAM é generacional semi-space, privado por processo, e implementado em <code>erl_gc.c</code>. Cada processo tem seu próprio heap dividido em Young Generation (heap principal) e Old Generation (<code>old_heap</code>). Quando o espaço acaba (<code>htop &gt;= stop</code>), o GC é acionado: ele aloca um bloco <code>tospace</code> e copia os dados vivos do <code>fromspace</code>, descartando o bloco antigo em O(1). O algoritmo é o clássico <em>Cheney's copying collector</em> (Cheney, 1970).</p>
 <p>O custo está na <strong>varredura de raízes</strong> (<code>erl_gc.c:320</code>). Antes de copiar, o GC precisa identificar todos os objetos alcançáveis. Ele começa inspecionando o <em>root set</em>: registradores da BEAM, pilha de execução, mailbox, fragments, dicionário do processo. Para cada ponteiro no root set que aponta para o Young Heap, o GC segue o grafo de referências recursivamente, copiando objetos e instalando <em>forwarding pointers</em> para evitar duplicação. O problema é que esta varredura do grafo é proporcional ao <strong>heap total</strong>, não ao volume de objetos recentemente alocados ou modificados.</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// erl_gc.c:759-862 — estrutura simplificada da coleta</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_gc.c:759-862 — estrutura simplificada da coleta</span>
 <span class="k">static</span><span class="w"> </span><span class="kt">int</span>
 <span class="nf">garbage_collect</span><span class="p">(</span><span class="n">Process</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">ErlHeapFragment</span><span class="w"> </span><span class="o">*</span><span class="n">live_hf_end</span><span class="p">,</span>
 <span class="w">                </span><span class="n">Uint</span><span class="w"> </span><span class="n">need</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="o">*</span><span class="w"> </span><span class="n">objv</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nobj</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fcalls</span><span class="p">,</span>
@@ -81,7 +79,7 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>A linha <code>GEN_GCS(p)</code> (<code>erl_gc.c:380</code>) conta quantas minor collections aconteceram desde a última major. Quando atinge <code>MAX_GEN_GCS(p)</code> (configurável via <code>+h</code> e <code>+fullsweep_after</code>), a major collection percorre o heap inteiro — young e old — copiando tudo que está vivo. Num processo com heap de 100MB onde 90% dos objetos estão vivos, a major collection copia 100MB. O custo não é de marcação, mas de <em>cópia</em> e <em>varredura do grafo de referências</em>.</p>
 <p>Este custo se manifesta como pausa no processo. Um GC major em heap de 10MB pode pausar o processo por 1–5ms; em 100MB, a pausa chega a 50–100ms. Em sistemas soft real-time, uma pausa de 100ms é inaceitável. O problema fundamental é que o GC varre o heap inteiro para descobrir o que mudou desde a última coleta — uma forma clássica de <strong>redundância temporal</strong>.</p>
@@ -89,7 +87,7 @@
 <h2>2. Proposta: Tri-Color Marking por Propagação</h2>
 <p>A transformação PON do GC substitui a varredura de raízes por <strong>propagação de notificações</strong> — o algoritmo tri-color marking de Dijkstra et al. (1978). Em vez de varrer o heap inteiro, o GC inicia com as raízes como GRAY e propaga a "onda de notificação" através do grafo de referências. Objetos que nunca recebem a notificação (WHITE) estão mortos.</p>
 <p>O diagrama abaixo contrasta a varredura da BEAM com a notificação propagada da PON-BEAM:</p>
-<div class="diagram" id="diag-f825de64"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -227,11 +225,11 @@
 </g>
 </g>
 </svg></div>
-<div class="diagram-caption">PON-GC: varredura vs notificação</div>
+<p class="text-center text-sm text-[#8b949e] italic mt-1">PON-GC: varredura vs notificação</p>
 
 <p>No modelo BEAM (vermelho), o GC varre o grafo a partir das raízes — percorre todos os objetos para determinar quais estão vivos. No modelo PON (verde), a marcação se propaga como uma onda: raízes são GRAY, que notificam seus filhos (que se tornam GRAY), e assim por diante. Objetos nunca atingidos (WHITE) são lixo.</p>
 <p>Diferentemente do plano original (que propunha um "header estendido" <code>ErtsObjPON</code> embutido em cada objeto do heap), a implementação real utiliza um <strong>grafo de nós separado</strong> (<code>PonGcNode</code>) que referencia os objetos reais. Este grafo é um overlay sobre o heap: cada <code>PonGcNode</code> contém um ponteiro <code>data</code> para o objeto real e um vetor de referências para outros nós.</p>
-<div class="diagram" id="diag-af399507"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -281,7 +279,7 @@
 </g>
 </g>
 </svg></div>
-<div class="diagram-caption">PON-GC: grafo de nós separado vs header estendido</div>
+<p class="text-center text-sm text-[#8b949e] italic mt-1">PON-GC: grafo de nós separado vs header estendido</p>
 
 <p>A escolha pelo grafo separado foi motivada por:
 1. <strong>Não modificar o layout de objetos do runtime</strong>: objetos BEAM continuam sendo sequências contíguas de Eterms com header word. Nenhuma modificação em <code>erl_gc.c</code>, <code>erl_process.h</code> ou BIFs.
@@ -290,7 +288,7 @@
 <hr />
 <h2>3. Estruturas de Dados</h2>
 <p>A implementação real do PON-GC, concluída na Fase 7, utiliza duas estruturas principais em dois arquivos: <code>pon_gc.h</code> (120 linhas) e <code>pon_gc.c</code> (277 linhas).</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="c1">// pon_gc.h — Definição real (Fase 7 implementada)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_gc.h — Definição real (Fase 7 implementada)</span>
 <span class="cp">#ifdef PON_BEAM</span>
 
 <span class="cm">/*</span>
@@ -343,7 +341,7 @@
 
 <span class="cp">#endif </span><span class="cm">/* PON_BEAM */</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>Cada <code>PonGcNode</code> contém:
 - <code>color</code>: WHITE (não visitado), GRAY (na fila de propagação), BLACK (propagado).
@@ -355,7 +353,7 @@
 <hr />
 <h2>4. Mecanismo Implementado</h2>
 <h3>4.1 pon_gc_init() e pon_gc_node_create()</h3>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_gc_init</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_gc_init</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">gc</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
 <span class="w">    </span><span class="n">gc</span><span class="o">-&gt;</span><span class="n">roots</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
@@ -385,10 +383,10 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">node</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <h3>4.2 Gerenciamento de Referências</h3>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_gc_add_ref</span><span class="p">(</span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">from</span><span class="p">,</span><span class="w"> </span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">to</span><span class="p">)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_gc_add_ref</span><span class="p">(</span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">from</span><span class="p">,</span><span class="w"> </span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">to</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">from</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">to</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
 
@@ -416,10 +414,10 @@
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <h3>4.3 Fila GRAY (enqueue/dequeue)</h3>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">enqueue_gray</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">enqueue_gray</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">node</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">node</span><span class="o">-&gt;</span><span class="n">color</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">PON_GC_BLACK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
 
@@ -450,11 +448,11 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">node</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <h3>4.4 Propagação (núcleo do algoritmo)</h3>
 <p>A função <code>propagate</code> processa um nó GRAY: para cada referência, se o filho é WHITE, enfileira-o como GRAY. O nó processado torna-se BLACK.</p>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">propagate</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">propagate</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="n">PonGcNode</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
@@ -471,10 +469,10 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sent</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <h3>4.5 GC Completo (mark-sweep)</h3>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_gc_mark_sweep</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_gc_mark_sweep</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">gc</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
@@ -499,11 +497,11 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="cm">/* collected */</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O algoritmo percorre exatamente os nós vivos (GRAY → BLACK). Nós WHITE são ignorados — o custo é proporcional ao número de objetos vivos, não ao heap total.</p>
 <h3>4.6 GC Incremental</h3>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_gc_step</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">max_notifications</span><span class="p">)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_gc_step</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">max_notifications</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">gc</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">gc</span><span class="o">-&gt;</span><span class="n">gray_head</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="cm">/* completo */</span>
 
@@ -525,11 +523,11 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="cm">/* ainda há trabalho */</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O parâmetro <code>max_notifications</code> controla quantas notificações processar por passo. O valor default é <code>PON_GC_STEP_NOTIFICATIONS</code> (1000). Isto permite execução incremental: o mutator executa alguns steps de GC entre suas operações, distribuindo a pausa no tempo.</p>
 <h3>4.7 Sweep e Reset</h3>
-<div class="code-block lang-c"><div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="nf">pon_gc_sweep</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">)</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="nf">pon_gc_sweep</span><span class="p">(</span><span class="n">PonGcState</span><span class="w"> </span><span class="o">*</span><span class="n">gc</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">gc</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">freed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -549,7 +547,7 @@
 <span class="w">    </span><span class="n">gc</span><span class="o">-&gt;</span><span class="n">scan_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-</div>
+</pre></div>
 
 <hr />
 <h2>5. Overhead e Tradeoffs</h2>
@@ -689,7 +687,7 @@
 <hr />
 <h2>7. Benchmarks</h2>
 <p>O harness de benchmarking inclui o benchmark <code>fase7_gc_scan.erl</code>:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% fase7_gc_scan.erl</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% fase7_gc_scan.erl</span>
 <span class="c">%% Mede o tempo de GC em um heap com N objetos,</span>
 <span class="c">%% onde P% estão mortos.</span>
 <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">fase7_gc_scan</span><span class="p">).</span>
@@ -706,7 +704,7 @@
 <span class="w">    </span><span class="k">end</span><span class="p">),</span>
 <span class="w">    </span><span class="nn">timer</span><span class="p">:</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>Resultado esperado: BEAM mostra tempo de GC ~O(N) independente de PctAlive; PON-GC mostra tempo ~O(AliveCount).</p>
 <hr />
@@ -906,13 +904,48 @@ A cadeia causal do PON-GC é uma forma de <em>due process</em> para objetos: cad
 <li><a href="../../otp/erts/include/internal/pon_gc.h">Código: pon_gc.h</a></li>
 <li><a href="../../otp/erts/emulator/beam/pon_gc.c">Código: pon_gc.c</a></li>
 </ul>
-            </article>
-            <footer class="chapter-nav">
-                <a href="08-pon-ets.html" class="nav-prev">← PON-ETS: Base de Fatos Notificante</a>
-                <a href="10-pon-compiler.html" class="nav-next">PON-Compiler: Geração Automática de Premises →</a>
-            </footer>
-        </main>
-    </div>
-    <script src="theme/search.js"></script>
+</article>
+
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
+    <a href="08-pon-ets.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">← PON-ETS: Base de Fatos Notificante</a>
+    <a href="10-pon-compiler.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">PON-Compiler: Geração Automática de Premises →</a>
+</footer>
+
+</main>
+
+<script>
+function toggleSidebar() {
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var o = document.getElementById('overlay');
+    var b = document.getElementById('menuBtn');
+    var open = s.style.transform !== 'translateX(0%)' && s.style.transform !== '';
+    if (!open) {
+        s.style.transform = 'translateX(0%)';
+        m.style.marginLeft = '18rem';
+        o.classList.add('hidden');
+        b.innerHTML = '&#9776;';
+        localStorage.setItem('sidebar', 'open');
+    } else {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        if (window.innerWidth < 768) o.classList.remove('hidden');
+        b.innerHTML = '&#10005;';
+        localStorage.setItem('sidebar', 'closed');
+    }
+}
+(function() {
+    var pref = localStorage.getItem('sidebar');
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var b = document.getElementById('menuBtn');
+    if (pref === 'closed') {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        b.innerHTML = '&#10005;';
+    }
+})();
+</script>
+
 </body>
 </html>

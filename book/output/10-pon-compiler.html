@@ -4,55 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PON-Compiler: Geração Automática de Premises — PON-BEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="">
-    <button class="menu-toggle" aria-label="Abrir menu" onclick="var b=document.body;b.classList.toggle('sidebar-hidden');this.innerHTML=b.classList.contains('sidebar-hidden')?'&#9776;':'&#10005;'">&#9776;</button>
-    <div class="layout">
-        <nav class="sidebar-nav">
-<div class="nav-header">
-<h3><a href="index.html">PON-BEAM</a></h3>
-</div>
-<div class="nav-frontmatter"><a href="capa.html">Capa</a></div>
-<div class="nav-frontmatter"><a href="folha-de-rosto.html">Folha de Rosto</a></div>
-<div class="nav-frontmatter"><a href="agradecimentos.html">Agradecimentos</a></div>
-<div class="nav-frontmatter"><a href="sobre-autor.html">Sobre o Autor</a></div>
-<div class="nav-part">Parte I: Fundamentos</div>
-<ul>
-<li><a href="01-problema-polling.html">O Problema: Custos Ocultos do Polling na BEAM</a></li>
-<li><a href="02-paradigma-pon.html">O Paradigma Orientado a Notificações</a></li>
-<li><a href="03-visao-geral.html">Visão Geral da PON-BEAM</a></li>
-</ul>
-<div class="nav-part">Parte II: Subsistemas PON</div>
-<ul>
-<li><a href="04-pon-receive.html">PON-Receive: Selective Receive por Premises</a></li>
-<li><a href="05-pon-timer.html">PON-Timer: Instigações com timerfd</a></li>
-<li><a href="06-pon-spawn.html">PON-Spawn: Notificação Imediata</a></li>
-<li><a href="07-pon-scheduler.html">PON-Scheduler: Condition e eventfd</a></li>
-<li><a href="08-pon-ets.html">PON-ETS: Base de Fatos Notificante</a></li>
-<li><a href="09-pon-gc.html">PON-GC: Coleta por Cadeia Causal</a></li>
-<li class="active"><a href="10-pon-compiler.html">PON-Compiler: Geração Automática de Premises</a></li>
-</ul>
-<div class="nav-part">Parte III: Engenharia e Validação</div>
-<ul>
-<li><a href="11-infraestrutura-fork.html">A Infraestrutura do Fork</a></li>
-<li><a href="12-harness-benchmarking.html">O Harness de Benchmarking</a></li>
-<li><a href="13-roadmap-tradeoffs.html">Roadmap e Tradeoffs</a></li>
-</ul>
-<div class="nav-part">Parte IV: Síntese</div>
-<ul>
-<li><a href="14-casos-estudo.html">Casos de Estudo</a></li>
-<li><a href="15-trabalhos-relacionados.html">Trabalhos Relacionados e Posicionamento</a></li>
-<li><a href="16-conclusao.html">Conclusão</a></li>
-</ul>
-<div class="nav-frontmatter"><a href="contra-capa.html">Contra-capa</a></div>
-</nav>
+<body class="bg-[#0d1117] text-[#e6edf3]">
 
-        <main class="content">
-            <header class="chapter-header"><h1>PON-Compiler: Geração Automática de Premises</h1></header>
-            <article>
-                <h1>PON-Compiler: Parse Transform para Receives com Premises</h1>
+<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">
+<div class="p-4 border-b border-[#30363d]">
+<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
+</div>
+<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Capa</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
+<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
+<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte I: Fundamentos</div>
+<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
+<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte II: Subsistemas PON</div>
+<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Receive: Selective Receive por Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
+<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]">PON-Compiler: Geração Automática de Premises</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte III: Engenharia e Validação</div>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Harness de Benchmarking</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte IV: Síntese</div>
+<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Casos de Estudo</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
+<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Conclusão</a>
+<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Contra-capa</a>
+</aside>
+
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+
+<main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
+
+<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">PON-Compiler: Geração Automática de Premises</h1>
+
+<article>
+<h1>PON-Compiler: Parse Transform para Receives com Premises</h1>
 <blockquote>
 <p>"O compilador não deveria gerar código que busca. Ele deveria gerar código que notifica."
 — Matheus de Camargo Marques, 2025</p>
@@ -60,7 +58,7 @@
 <hr />
 <h2>1. Diagnóstico: Compilação Atual de <code>receive</code></h2>
 <p>O compilador Erlang (<code>beam_ssa.erl</code> e <code>beam_ssa_recv.erl</code>) traduz blocos <code>receive</code> para uma sequência de instruções que implementam scanning linear da mailbox. O pipeline começa em <code>v3_core.erl</code>, que converte o <code>receive</code> em um caso de <code>primop</code> com <code>recv_mark</code>, <code>recv_set</code>, <code>loop_rec</code>, <code>remove_message</code> e <code>timeout</code>. O código gerado segue o padrão:</p>
-<pre><code>recv_mark L1               ; marca início da varredura
+<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#30363d] overflow-x-auto text-sm"><code>recv_mark L1               ; marca início da varredura
 loop_rec  Lfail {x,0}      ; pega próxima mensagem
 test      ...              ; testa contra cláusula 1
 ...
@@ -69,23 +67,24 @@ remove_message             ; remove mensagem casada da mailbox
 loop_rec_end L1            ; volta para loop_rec
 recv_set L1                ; finaliza receive
 </code></pre>
+
 <p>Cada <code>loop_rec</code> avança um ponteiro pela lista ligada de mensagens (<code>ErtsSignalPrivQueues</code>), extrai o termo e o coloca em <code>{x,0}</code>. O código de teste compara o termo contra os padrões de cada cláusula. Se nenhum casa, o <code>loop_rec_end</code> salta de volta para <code>loop_rec</code>, que avança para a próxima mensagem. O custo é O(N × M): N mensagens × M cláusulas, com cada iteração percorrendo nós da lista ligada e executando pattern matching estrutural em C.</p>
 <p>Considere o código Erlang mais simples possível:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="k">receive</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">receive</span>
 <span class="w">    </span><span class="p">{</span><span class="n">call</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">,</span><span class="w"> </span><span class="nv">Req</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">handle</span><span class="p">(</span><span class="nv">From</span><span class="p">,</span><span class="w"> </span><span class="nv">Req</span><span class="p">);</span>
 <span class="w">    </span><span class="p">{</span><span class="n">cast</span><span class="p">,</span><span class="w"> </span><span class="nv">Msg</span><span class="p">}</span><span class="w">       </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">handle_cast</span><span class="p">(</span><span class="nv">Msg</span><span class="p">)</span>
 <span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="n">timeout</span><span class="p">()</span>
 <span class="k">end</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>Cada execução de <code>loop_rec</code> custa: (1) desreferenciar ponteiro da lista, (2) extrair termo, (3) testar tipo, (4) comparar elementos. Com 10.000 mensagens na mailbox, são 10.000 loop_rec × (1 + número médio de cláusulas testadas). O save pointer (<code>recv_marker</code>) evita reexaminar mensagens antigas, mas mensagens novas — mesmo que inúmeras — são varridas integralmente a cada <code>receive</code>.</p>
 <hr />
 <h2>2. Proposta: Parse Transform em Erlang</h2>
 <p>A PON-BEAM substitui o scanning por notificação. Cada cláusula do <code>receive</code> é transformada em uma Premise registrada via <code>pon_runtime</code>. O recebimento propriamente dito vira uma chamada a <code>pon_runtime:receive_msg()</code>, que retorna a primeira mensagem que casa alguma Premise — sem scanning linear da mailbox.</p>
 <p>Diferentemente do plano original, a implementação real não modifica o compilador OTP (<code>beam_ssa.erl</code>, <code>beam_ssa_codegen.erl</code>, <code>ops.tab</code>). Em vez disso, implementamos um <strong>parse transform</strong> em Erlang puro — um módulo que transforma a árvore sintática abstrata (AST) antes da compilação. Isto funciona em qualquer versão do Erlang sem modificar o compilador.</p>
-<div class="diagram" id="diag-3192d309"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -169,7 +168,7 @@ recv_set L1                ; finaliza receive
 </g>
 </g>
 </svg></div>
-<div class="diagram-caption">Fluxo do PON-Compiler</div>
+<p class="text-center text-sm text-[#8b949e] italic mt-1">Fluxo do PON-Compiler</p>
 
 <p>A escolha por parse transform (em vez de modificar <code>beam_ssa_recv.erl</code>) foi pragmática:</p>
 <ul>
@@ -181,7 +180,7 @@ recv_set L1                ; finaliza receive
 <h2>3. Código Implementado</h2>
 <h3>3.1 pon_compiler.erl (131 linhas)</h3>
 <p>O parse transform detecta blocos <code>receive</code> na AST e os substitui por chamadas a <code>pon_runtime</code>:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% pon_compiler.erl — Parse transform PON-BEAM</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% pon_compiler.erl — Parse transform PON-BEAM</span>
 <span class="c">%% Transforma blocos `receive` para usar Premises PON.</span>
 <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">pon_compiler</span><span class="p">).</span>
 <span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">parse_transform</span><span class="o">/</span><span class="mi">2</span><span class="p">]).</span>
@@ -206,11 +205,11 @@ recv_set L1                ; finaliza receive
 <span class="w">    </span><span class="p">[</span><span class="nv">Other</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="n">do_transform</span><span class="p">(</span><span class="nv">Rest</span><span class="p">)];</span>
 <span class="nf">do_transform</span><span class="p">([])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">[].</span>
 </pre></div>
-</div>
+</pre></div>
 
 <h3>3.2 Geração do Código PON para <code>receive</code></h3>
 <p>O coração do parse transform está em <code>build_pon_receive</code>:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% build_pon_receive — gera código PON para um receive</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% build_pon_receive — gera código PON para um receive</span>
 <span class="nf">build_pon_receive</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="nv">Clauses</span><span class="p">,</span><span class="w"> </span><span class="nv">After</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">MsgVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="n">&#39;_pon_msg&#39;</span><span class="p">},</span>
 <span class="w">    </span><span class="c">%% Registra Premises</span>
@@ -235,7 +234,7 @@ recv_set L1                ; finaliza receive
 <span class="w">                               </span><span class="p">{</span><span class="n">atom</span><span class="p">,</span><span class="w"> </span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="n">unregister_premises</span><span class="p">}},</span><span class="w"> </span><span class="p">[]},</span>
 <span class="w">    </span><span class="p">[</span><span class="nv">Register</span><span class="p">,</span><span class="w"> </span><span class="nv">Recv</span><span class="p">,</span><span class="w"> </span><span class="nv">Dispatch</span><span class="p">,</span><span class="w"> </span><span class="nv">Unreg</span><span class="p">].</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>A transformação gera quatro passos:
 1. <strong>register_premises(Patterns)</strong> — registra todas as Premises (padrões das cláusulas).
@@ -244,7 +243,7 @@ recv_set L1                ; finaliza receive
 4. <strong>unregister_premises()</strong> — limpa as Premises registradas.</p>
 <h3>3.3 Conversão de Padrões</h3>
 <p>A função <code>build_premise_list</code> converte cada cláusula em uma tupla <code>{Pattern, Guard, Idx}</code>:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">build_premise_list</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="nv">Clauses</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">build_premise_list</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="nv">Clauses</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">Patterns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">map</span><span class="p">(</span>
 <span class="w">        </span><span class="k">fun</span><span class="p">({</span><span class="n">clause</span><span class="p">,</span><span class="w"> </span><span class="nv">CL</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Pat</span><span class="p">],</span><span class="w"> </span><span class="p">_</span><span class="nv">Gs</span><span class="p">,</span><span class="w"> </span><span class="p">_</span><span class="nv">Bd</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">            </span><span class="p">{</span><span class="n">tuple</span><span class="p">,</span><span class="w"> </span><span class="nv">CL</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">pat_to_term</span><span class="p">(</span><span class="nv">CL</span><span class="p">,</span><span class="w"> </span><span class="nv">Pat</span><span class="p">),</span>
@@ -253,10 +252,10 @@ recv_set L1                ; finaliza receive
 <span class="w">        </span><span class="k">end</span><span class="p">,</span><span class="w"> </span><span class="nv">Clauses</span><span class="p">),</span>
 <span class="w">    </span><span class="n">list_to_ast</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="nv">Patterns</span><span class="p">).</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>A função <code>pat_to_term</code> converte padrões Erlang para termos representáveis na AST, substituindo variáveis por <code>'_'</code> (wildcard):</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">pat_to_term</span><span class="p">(_</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">atom</span><span class="p">,</span><span class="w"> </span><span class="p">_,</span><span class="w"> </span><span class="nv">A</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">atom</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nv">A</span><span class="p">};</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">pat_to_term</span><span class="p">(_</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">atom</span><span class="p">,</span><span class="w"> </span><span class="p">_,</span><span class="w"> </span><span class="nv">A</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">atom</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nv">A</span><span class="p">};</span>
 <span class="nf">pat_to_term</span><span class="p">(_</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">integer</span><span class="p">,</span><span class="w"> </span><span class="p">_,</span><span class="w"> </span><span class="nv">I</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">integer</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nv">I</span><span class="p">};</span>
 <span class="nf">pat_to_term</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">tuple</span><span class="p">,</span><span class="w"> </span><span class="p">_,</span><span class="w"> </span><span class="nv">Es</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="p">{</span><span class="n">tuple</span><span class="p">,</span><span class="w"> </span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">pat_to_term</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="nv">E</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">E</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Es</span><span class="p">]};</span>
@@ -264,11 +263,11 @@ recv_set L1                ; finaliza receive
 <span class="nf">pat_to_term</span><span class="p">(_</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="p">_,</span><span class="w"> </span><span class="p">_</span><span class="nv">Name</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="n">&#39;_&#39;</span><span class="p">};</span>
 <span class="nf">pat_to_term</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">match</span><span class="p">,</span><span class="w"> </span><span class="p">_,</span><span class="w"> </span><span class="nv">P</span><span class="p">,</span><span class="w"> </span><span class="p">_})</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">pat_to_term</span><span class="p">(</span><span class="nv">L</span><span class="p">,</span><span class="w"> </span><span class="nv">P</span><span class="p">);</span>
 </pre></div>
-</div>
+</pre></div>
 
 <h3>3.4 pon_runtime.erl (101 linhas)</h3>
 <p>O runtime fornece as funções de suporte para o código transformado:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% pon_runtime.erl — Runtime PON-BEAM</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% pon_runtime.erl — Runtime PON-BEAM</span>
 <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">pon_runtime</span><span class="p">).</span>
 <span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">register_premises</span><span class="o">/</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">receive_msg</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span>
 <span class="w">         </span><span class="n">receive_msg_timeout</span><span class="o">/</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">unregister_premises</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
@@ -288,10 +287,10 @@ recv_set L1                ; finaliza receive
 <span class="w">    </span><span class="nb">put</span><span class="p">({</span><span class="n">pon_premises</span><span class="p">,</span><span class="w"> </span><span class="nv">Pid</span><span class="p">},</span><span class="w"> </span><span class="p">[{</span><span class="nv">Pattern</span><span class="p">,</span><span class="w"> </span><span class="nv">Idx</span><span class="p">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="nv">Premises</span><span class="p">]),</span>
 <span class="w">    </span><span class="n">ok</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p><strong>receive_msg</strong> — o coração do runtime:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% receive_msg() -&gt; term()</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% receive_msg() -&gt; term()</span>
 <span class="nf">receive_msg</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">Self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">(),</span>
 <span class="w">    </span><span class="nv">Premises</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="nb">get</span><span class="p">({</span><span class="n">pon_premises</span><span class="p">,</span><span class="w"> </span><span class="nv">Self</span><span class="p">})</span><span class="w"> </span><span class="k">of</span>
@@ -310,21 +309,21 @@ recv_set L1                ; finaliza receive
 <span class="w">                </span><span class="n">receive_msg_timeout</span><span class="p">(</span><span class="n">self</span><span class="p">(),</span><span class="w"> </span><span class="n">infinity</span><span class="p">))</span>
 <span class="w">    </span><span class="k">end</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O loop <code>receive_msg_loop</code> é um <code>receive</code> normal que rejeita mensagens que não casam (retornando <code>nomatch</code>) e continua esperando. Isto elimina o scanning linear da mailbox: cada mensagem é testada apenas uma vez contra as Premises, e se não casa, é imediatamente rejeitada.</p>
 <p><strong>match_any</strong> — testa a mensagem contra todas as Premises:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">match_any</span><span class="p">([],</span><span class="w"> </span><span class="p">_</span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">nomatch</span><span class="p">;</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">match_any</span><span class="p">([],</span><span class="w"> </span><span class="p">_</span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">nomatch</span><span class="p">;</span>
 <span class="nf">match_any</span><span class="p">([{</span><span class="nv">Pat</span><span class="p">,</span><span class="w"> </span><span class="nv">Idx</span><span class="p">}</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="nv">Rest</span><span class="p">],</span><span class="w"> </span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">match_pattern</span><span class="p">(</span><span class="nv">Pat</span><span class="p">,</span><span class="w"> </span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="k">of</span>
 <span class="w">        </span><span class="n">true</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="w"> </span><span class="nv">Idx</span><span class="p">};</span>
 <span class="w">        </span><span class="n">false</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">match_any</span><span class="p">(</span><span class="nv">Rest</span><span class="p">,</span><span class="w"> </span><span class="nv">Msg</span><span class="p">)</span>
 <span class="w">    </span><span class="k">end</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p><strong>match_pattern</strong> — pattern matching simplificado (em Erlang puro):</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">match_pattern</span><span class="p">(</span><span class="nv">Pat</span><span class="p">,</span><span class="w"> </span><span class="nv">Term</span><span class="p">)</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="nv">Pat</span><span class="w"> </span><span class="o">=:=</span><span class="w"> </span><span class="nv">Term</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">true</span><span class="p">;</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">match_pattern</span><span class="p">(</span><span class="nv">Pat</span><span class="p">,</span><span class="w"> </span><span class="nv">Term</span><span class="p">)</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="nv">Pat</span><span class="w"> </span><span class="o">=:=</span><span class="w"> </span><span class="nv">Term</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">true</span><span class="p">;</span>
 <span class="nf">match_pattern</span><span class="p">({},</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">true</span><span class="p">;</span>
 <span class="nf">match_pattern</span><span class="p">({</span><span class="nv">PatA</span><span class="p">,</span><span class="w"> </span><span class="nv">PatB</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nv">TermA</span><span class="p">,</span><span class="w"> </span><span class="nv">TermB</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="n">match_pattern</span><span class="p">(</span><span class="nv">PatA</span><span class="p">,</span><span class="w"> </span><span class="nv">TermA</span><span class="p">)</span><span class="w"> </span><span class="ow">andalso</span><span class="w"> </span><span class="n">match_pattern</span><span class="p">(</span><span class="nv">PatB</span><span class="p">,</span><span class="w"> </span><span class="nv">TermB</span><span class="p">);</span>
@@ -340,30 +339,30 @@ recv_set L1                ; finaliza receive
 <span class="nf">match_pattern</span><span class="p">(</span><span class="nv">Pat</span><span class="p">,</span><span class="w"> </span><span class="p">_)</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="nb">is_float</span><span class="p">(</span><span class="nv">Pat</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">false</span><span class="p">;</span>
 <span class="nf">match_pattern</span><span class="p">(</span><span class="nv">Pat</span><span class="p">,</span><span class="w"> </span><span class="nv">Term</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Pat</span><span class="w"> </span><span class="o">=:=</span><span class="w"> </span><span class="nv">Term</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p><strong>unregister_premises</strong> — limpeza:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">unregister_premises</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">unregister_premises</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">Self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">(),</span>
 <span class="w">    </span><span class="nb">erase</span><span class="p">({</span><span class="n">pon_premises</span><span class="p">,</span><span class="w"> </span><span class="nv">Self</span><span class="p">}),</span>
 <span class="w">    </span><span class="n">ok</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <hr />
 <h2>4. Transformação Passo a Passo</h2>
 <p><strong>Antes (código Erlang original):</strong></p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">handle</span><span class="p">(</span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">handle</span><span class="p">(</span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="k">receive</span>
 <span class="w">        </span><span class="p">{</span><span class="n">call</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">,</span><span class="w"> </span><span class="nv">Req</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">From</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">reply</span><span class="p">,</span><span class="w"> </span><span class="nv">Req</span><span class="p">},</span><span class="w"> </span><span class="n">handle</span><span class="p">(</span><span class="nv">Msg</span><span class="p">);</span>
 <span class="w">        </span><span class="p">{</span><span class="n">cast</span><span class="p">,</span><span class="w"> </span><span class="nv">Msg</span><span class="p">}</span><span class="w">       </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">noreply</span><span class="p">,</span><span class="w"> </span><span class="nv">Msg</span><span class="p">};</span>
 <span class="w">        </span><span class="nv">Other</span><span class="w">             </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="nv">Other</span><span class="p">}</span>
 <span class="w">    </span><span class="k">end</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p><strong>Depois (código transformado pelo parse transform):</strong></p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="nf">handle</span><span class="p">(</span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">handle</span><span class="p">(</span><span class="nv">Msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nn">pon_runtime</span><span class="p">:</span><span class="nf">register_premises</span><span class="p">([</span>
 <span class="w">        </span><span class="p">{{</span><span class="n">call</span><span class="p">,</span><span class="w"> </span><span class="n">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">&#39;_&#39;</span><span class="p">},</span><span class="w"> </span><span class="n">true</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
 <span class="w">        </span><span class="p">{{</span><span class="n">cast</span><span class="p">,</span><span class="w"> </span><span class="n">&#39;_&#39;</span><span class="p">},</span><span class="w">      </span><span class="n">true</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
@@ -374,7 +373,7 @@ recv_set L1                ; finaliza receive
 <span class="w">    </span><span class="nn">pon_runtime</span><span class="p">:</span><span class="nf">unregister_premises</span><span class="p">(),</span>
 <span class="w">    </span><span class="n">ok</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>O fluxo de execução:
 1. <code>register_premises</code> armazena os padrões <code>{call, '_', '_'}</code>, <code>{cast, '_'}</code>, e <code>'_'</code> no dicionário do processo.
@@ -392,7 +391,7 @@ recv_set L1                ; finaliza receive
 <hr />
 <h2>6. Uso e Compilação</h2>
 <p>Para usar o PON-Compiler em um módulo:</p>
-<div class="code-block lang-erlang"><div class="highlight"><pre><span></span><span class="c">%% meu_modulo.erl</span>
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% meu_modulo.erl</span>
 <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">meu_modulo</span><span class="p">).</span>
 <span class="p">-</span><span class="ni">compile</span><span class="p">({</span><span class="n">parse_transform</span><span class="p">,</span><span class="w"> </span><span class="n">pon_compiler</span><span class="p">}).</span>
 <span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">loop</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
@@ -403,17 +402,17 @@ recv_set L1                ; finaliza receive
 <span class="w">        </span><span class="n">stop</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span>
 <span class="w">    </span><span class="k">end</span><span class="p">.</span>
 </pre></div>
-</div>
+</pre></div>
 
 <p>Compilar com:</p>
-<div class="code-block lang-bash"><div class="highlight"><pre><span></span>erlc<span class="w"> </span>+<span class="s1">&#39;{parse_transform, pon_compiler}&#39;</span><span class="w"> </span>+<span class="s1">&#39;{d, pon_beam}&#39;</span><span class="w"> </span>meu_modulo.erl
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>erlc<span class="w"> </span>+<span class="s1">&#39;{parse_transform, pon_compiler}&#39;</span><span class="w"> </span>+<span class="s1">&#39;{d, pon_beam}&#39;</span><span class="w"> </span>meu_modulo.erl
 </pre></div>
-</div>
+</pre></div>
 
 <p>Ou, se o parse transform estiver no path do compilador (adicione <code>-pa</code> para o diretório):</p>
-<div class="code-block lang-bash"><div class="highlight"><pre><span></span>erlc<span class="w"> </span>-pa<span class="w"> </span>/path/to/pon-compiler<span class="w"> </span>+<span class="s1">&#39;{parse_transform, pon_compiler}&#39;</span><span class="w"> </span>meu_modulo.erl
+<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>erlc<span class="w"> </span>-pa<span class="w"> </span>/path/to/pon-compiler<span class="w"> </span>+<span class="s1">&#39;{parse_transform, pon_compiler}&#39;</span><span class="w"> </span>meu_modulo.erl
 </pre></div>
-</div>
+</pre></div>
 
 <hr />
 <h2>7. Análise</h2>
@@ -647,13 +646,48 @@ recv_set L1                ; finaliza receive
 <li><a href="../../harness/benchmarks/lib/pon_runtime.erl">Código: pon_runtime.erl</a></li>
 <li>[Simão, J. M.; Stadzisz, P. C. "Paradigma Orientado a Notificações" (2008–2009).]</li>
 </ul>
-            </article>
-            <footer class="chapter-nav">
-                <a href="09-pon-gc.html" class="nav-prev">← PON-GC: Coleta por Cadeia Causal</a>
-                <a href="11-infraestrutura-fork.html" class="nav-next">A Infraestrutura do Fork →</a>
-            </footer>
-        </main>
-    </div>
-    <script src="theme/search.js"></script>
+</article>
+
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
+    <a href="09-pon-gc.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">← PON-GC: Coleta por Cadeia Causal</a>
+    <a href="11-infraestrutura-fork.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">A Infraestrutura do Fork →</a>
+</footer>
+
+</main>
+
+<script>
+function toggleSidebar() {
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var o = document.getElementById('overlay');
+    var b = document.getElementById('menuBtn');
+    var open = s.style.transform !== 'translateX(0%)' && s.style.transform !== '';
+    if (!open) {
+        s.style.transform = 'translateX(0%)';
+        m.style.marginLeft = '18rem';
+        o.classList.add('hidden');
+        b.innerHTML = '&#9776;';
+        localStorage.setItem('sidebar', 'open');
+    } else {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        if (window.innerWidth < 768) o.classList.remove('hidden');
+        b.innerHTML = '&#10005;';
+        localStorage.setItem('sidebar', 'closed');
+    }
+}
+(function() {
+    var pref = localStorage.getItem('sidebar');
+    var s = document.getElementById('sidebar');
+    var m = document.getElementById('main');
+    var b = document.getElementById('menuBtn');
+    if (pref === 'closed') {
+        s.style.transform = 'translateX(-100%)';
+        m.style.marginLeft = '0';
+        b.innerHTML = '&#10005;';
+    }
+})();
+</script>
+
 </body>
 </html>
