@@ -21,7 +21,7 @@ PREFIX_PON   = /opt/erlang/30-pon
 BUILD_OPTS = --without-javac --without-odbc --without-wx
 MAKE_OPTS  = -j$$(nproc)
 
-.PHONY: all build-stock build-pon build-all benchmark benchmark-list report status clean
+.PHONY: all build-stock build-pon build-all benchmark benchmark-list report status clean docker-build bench-docker bench-docker-run bench-docker-copy
 
 all: build-stock build-pon
 
@@ -60,6 +60,28 @@ benchmark-list:
 
 report:
 	open harness/results/latest/diff/index.html 2>/dev/null || xdg-open harness/results/latest/diff/index.html 2>/dev/null || echo "Relatório: harness/results/latest/diff/index.html"
+
+## === Docker ===
+
+DOCKER_IMAGE = pon-beam-bench
+DOCKER_CONTAINER = pon-beam-results
+RESULTS_DOCKER = harness/results/docker
+
+docker-build:
+	@echo "=== Buildando imagem Docker (OTP30 stock + PON-BEAM, ~30 min) ==="
+	docker build --no-cache -f docker/Dockerfile -t $(DOCKER_IMAGE) .
+
+bench-docker-run:
+	@echo "=== Rodando benchmarks dentro do container ==="
+	docker run --name $(DOCKER_CONTAINER) $(DOCKER_IMAGE)
+
+bench-docker-copy:
+	@echo "=== Copiando resultados para $(RESULTS_DOCKER)/ ==="
+	rm -rf $(RESULTS_DOCKER)
+	docker cp $(DOCKER_CONTAINER):/pon-beam/harness/results/latest/. $(RESULTS_DOCKER)/
+	@echo "Relatório: $(RESULTS_DOCKER)/diff/index.html"
+
+bench-docker: bench-docker-run bench-docker-copy
 
 ## === Livro PON-BEAM ===
 
