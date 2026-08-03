@@ -28,8 +28,19 @@ typedef struct {
     Uint64 premise_notifications;    /* Premises notificadas na chegada de msg */
     Uint64 mailbox_scans_avoided;    /* Scans lineares evitados */
     Uint64 messages_classified;      /* Mensagens classificadas por tipo */
-    Uint64 messages_type_collision;  /* Colisões no bucket de tipo */
+    Uint64 messages_type_collision;  /* Colises no bucket de tipo */
     Uint64 messages_pon_queued;      /* Mensagens enfileiradas via PON path */
+
+    /* === PON-Timer === */
+    Uint64 timerfd_created;          /* timerfd criados */
+    Uint64 timerfd_expirations;      /* Expiraes via timerfd */
+    Uint64 timer_wheel_fallback;     /* Quedas para timer wheel */
+    Uint64 timer_instigations;       /* Instigaes registradas */
+
+    /* === PON-Scheduler === */
+    Uint64 condition_wakeups;        /* Vezes que eventfd acordou scheduler */
+    Uint64 condition_notifications;  /* Notificaes para Condition */
+    Uint64 scheduler_idle_blocks;    /* Vezes que scheduler bloqueou no eventfd */
 
     /* === Temporais === */
     Uint64 pon_overhead_us;          /* Microssegundos gastos em infra PON */

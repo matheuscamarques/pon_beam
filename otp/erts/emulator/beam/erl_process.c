@@ -7023,14 +7023,16 @@ schedule_process(Process *p, erts_aint32_t in_state, ErtsProcLocks locks)
 
 #ifdef PON_BEAM
 /*
- * PON-BEAM: notifica o scheduler alvo que h um novo processo pronto.
- * Na Fase 3 (PON-Spawn), esta funo incrementa o contador de stats.
- * Na Fase 4 (PON-Scheduler), ser substituda por eventfd/condition.
+ * PON-BEAM: notifica o scheduler alvo que h um processo pronto.
+ * Usa a Condition do scheduler para acord-lo via eventfd.
  */
 static ERTS_INLINE void
 erts_pon_schedule_notify(Process *p)
 {
-    (void)p;
+    ErtsSchedulerData *esdp = erts_get_scheduler_data();
+    if (esdp) {
+        pon_condition_notify(&esdp->pon_condition, (void *)p);
+    }
     PON_STATS_INC(condition_notifications);
 }
 #endif

@@ -686,6 +686,7 @@ typedef struct ErtsSchedulerRegisters_ {
 
 #ifdef PON_BEAM
 #include "pon_stats.h"
+#include "pon_condition.h"
 #endif
 
 struct ErtsSchedulerData_ {
@@ -752,6 +753,8 @@ struct ErtsSchedulerData_ {
     Allctr_t *verify_unused_temp_alloc_data;
 #endif
 #ifdef PON_BEAM
+    /* PON-BEAM: Condition para notificao de processos prontos */
+    ErtsCondition pon_condition;
 #ifdef PON_BEAM_DEBUG
     /* PON-BEAM: per-scheduler counter stats (só com debug) */
     PonStats pon_stats;

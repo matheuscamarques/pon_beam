@@ -1237,7 +1237,8 @@ RUN_OBJS += \
 	$(OBJDIR)/erl_record.o \
 	$(OBJDIR)/erl_crash_dump.o \
 	$(OBJDIR)/pon_premise.o \
-	$(OBJDIR)/pon_timer.o
+	$(OBJDIR)/pon_timer.o \
+	$(OBJDIR)/pon_condition.o
 
 
 LTTNG_OBJS = $(OBJDIR)/erlang_lttng.o
