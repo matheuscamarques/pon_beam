@@ -14,6 +14,8 @@ FROM debian:bullseye-slim AS builder-stock
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential autoconf m4 libncurses-dev libssl-dev \
     unixodbc-dev git ca-certificates \
+    libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev \
+    libwxgtk3.0-gtk3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/otp
@@ -21,7 +23,7 @@ RUN git clone --single-branch --depth 1 \
     https://github.com/erlang/otp.git . \
     && ./otp_build autoconf \
     && ./configure --prefix=/opt/erlang-baseline \
-                   --without-javac --without-odbc --without-wx \
+                   --without-javac --without-odbc \
     && make -j$(nproc) \
     && make install
 
@@ -33,6 +35,8 @@ FROM debian:bullseye-slim AS builder-pon
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential autoconf m4 libncurses-dev libssl-dev \
     unixodbc-dev git ca-certificates \
+    libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev \
+    libwxgtk3.0-gtk3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/otp
@@ -47,7 +51,7 @@ RUN tar xzf /tmp/pon-beam-erts.tar.gz -C /usr/src/otp \
     && ls -la erts/emulator/beam/pon_*.c erts/include/internal/pon_*.h
 
 RUN ./configure --prefix=/opt/erlang-pon \
-                --without-javac --without-odbc --without-wx \
+                --without-javac --without-odbc \
     && (cd erts && ERL_TOP=/usr/src/otp ./configure \
         --prefix=/opt/erlang-pon --enable-pon-beam) \
     && make -j$(nproc) \
@@ -60,6 +64,7 @@ FROM debian:bullseye-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl1.1 libncurses6 ca-certificates \
+    libwxgtk3.0-gtk3-0v5 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder-stock /opt/erlang-baseline /opt/erlang-baseline
