@@ -49,7 +49,7 @@ body {
 }
 .sidebar-nav::-webkit-scrollbar-thumb {
     background: var(--border);
-    border-radius: 2px;
+    border-radius: 0;
 }
 
 .nav-header {
@@ -181,7 +181,7 @@ blockquote {
     padding: 0.8rem 1.2rem;
     margin: 1.2rem 0;
     background: rgba(88, 166, 255, 0.05);
-    border-radius: 0 6px 6px 0;
+    border-radius: 0;
     font-style: italic;
     color: var(--text-secondary);
 }
@@ -191,7 +191,7 @@ blockquote p { margin: 0; }
 /* ===== Code Blocks ===== */
 .code-block {
     margin: 1rem 0;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     border: 1px solid var(--border);
 }
@@ -211,7 +211,7 @@ blockquote p { margin: 0; }
 :not(pre) > code {
     background: var(--bg-tertiary);
     padding: 0.15em 0.4em;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 0.85em;
     color: var(--accent-orange);
 }
@@ -249,7 +249,7 @@ tr:hover {
     margin: 1.5rem auto;
     text-align: center;
     background: var(--bg-secondary);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 1rem;
     border: 1px solid var(--border);
     overflow-x: auto;
@@ -317,7 +317,7 @@ li {
 .nav-prev, .nav-next {
     padding: 0.5rem 1rem;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 0.9rem;
     transition: all 0.15s;
 }
@@ -369,7 +369,7 @@ li {
     margin: 2rem 0;
     padding: 1.5rem;
     background: var(--bg-secondary);
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid var(--border);
 }
 
@@ -378,7 +378,7 @@ li {
     margin: 2rem 0;
     padding: 1.5rem;
     background: var(--bg-secondary);
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid var(--border);
 }
 
@@ -388,7 +388,7 @@ li {
     margin: 0.5rem 0;
     background: var(--bg-primary);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 0;
     color: var(--text-primary);
     font-size: 1rem;
     font-family: var(--font-sans);
