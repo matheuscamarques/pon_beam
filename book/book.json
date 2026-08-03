@@ -8,6 +8,7 @@
   "chapters": [
     {"id": "capa",                      "title": "Capa", "part": "frontmatter"},
     {"id": "folha-de-rosto",            "title": "Folha de Rosto", "part": "frontmatter"},
+    {"id": "agradecimentos",            "title": "Agradecimentos", "part": "frontmatter"},
     {"id": "01-problema-polling",        "title": "O Problema: Custos Ocultos do Polling na BEAM", "part": "I"},
     {"id": "02-paradigma-pon",           "title": "O Paradigma Orientado a Notificações", "part": "I"},
     {"id": "03-visao-geral",             "title": "Visão Geral da PON-BEAM", "part": "I"},
