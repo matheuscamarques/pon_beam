@@ -127,16 +127,16 @@ def make_sidebar(chapters, current_id=None):
 def make_shared_js():
     return '''<script>
 function closeSidebar() {
-    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    var b=document.body,s=document.getElementById("sidebar"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    b.classList.add("sidebar-closed"); b.classList.remove("sidebar-open");
     s.style.transform="translateX(-100%)";
-    if(window.innerWidth>=768&&m)m.style.marginLeft="0";
-    if(o)o.classList.add("hidden");
-    if(f)f.style.display="flex"; localStorage.setItem("sidebar","closed");
+    if(o)o.classList.add("hidden"); if(f)f.style.display="flex";
+    localStorage.setItem("sidebar","closed");
 }
 function openSidebar() {
-    var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    var b=document.body,s=document.getElementById("sidebar"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
+    b.classList.remove("sidebar-closed"); b.classList.add("sidebar-open");
     s.style.transform="translateX(0%)";
-    if(window.innerWidth>=768&&m)m.style.marginLeft="18rem";
     if(window.innerWidth<768&&o)o.classList.remove("hidden");
     if(f)f.style.display="none"; localStorage.setItem("sidebar","open");
 }
@@ -160,16 +160,28 @@ function filterChapters(q) {
         ph.style.display=has?"":"none";
     });
 }
+function syncSidebar(){
+    var b=document.body,w=window.innerWidth,s=document.getElementById("sidebar"),f=document.getElementById("floatBtn");
+    if(w<768){
+        b.classList.remove("sidebar-open");
+        if(s)s.style.transform="translateX(-100%)";
+        if(f)f.style.display="flex";
+    }else{
+        if(localStorage.getItem("sidebar")!=="closed"){b.classList.add("sidebar-open");b.classList.remove("sidebar-closed");if(s)s.style.transform="translateX(0%)";if(f)f.style.display="none";}
+        else{b.classList.remove("sidebar-open");b.classList.add("sidebar-closed");if(s)s.style.transform="translateX(-100%)";if(f)f.style.display="flex";}
+    }
+}
+window.addEventListener("resize",syncSidebar);
 (function(){
     if(localStorage.getItem("sidebar")==="closed"){
-        var s=document.getElementById("sidebar"),m=document.getElementById("main"),f=document.getElementById("floatBtn");
+        var s=document.getElementById("sidebar"),f=document.getElementById("floatBtn");
+        document.body.classList.add("sidebar-closed");
         if(s)s.style.transform="translateX(-100%)";
-        if(window.innerWidth>=768&&m)m.style.marginLeft="0";
         if(f)f.style.display="flex";
-    }else if(window.innerWidth<768){
-        document.getElementById("sidebar").style.transform="translateX(-100%)";
-        var fb=document.getElementById("floatBtn");if(fb)fb.style.display="flex";
+    }else{
+        document.body.classList.add("sidebar-open");
     }
+    syncSidebar();
     ["I","II","III","IV"].forEach(function(p){
         var pref=localStorage.getItem("part-"+p);
         if(pref){
@@ -217,7 +229,7 @@ def render_page(ch, body_html, config):
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
-<main id="main" class="ml-72 max-md:ml-0 p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
+ <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
 {ch_hdr}
 <article{capa_style}>
 {body_html}
@@ -258,7 +270,7 @@ def render_index(config):
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
-<main id="main" class="ml-72 max-md:ml-0 p-8 max-md:p-4 max-w-4xl transition-all duration-200">
+ <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200">
 <header class="text-center py-8 md:py-12 border-b border-[#8B6914] mb-6 md:mb-8">
 <h1 class="text-3xl md:text-4xl font-extrabold text-[#FFD700] mb-2">PON-BEAM</h1>
 <p class="text-lg md:text-xl text-[#b8a88a] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>

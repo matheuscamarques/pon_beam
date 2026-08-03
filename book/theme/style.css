@@ -1,4 +1,13 @@
 /* PON-BEAM Book — Minimal overrides for Tailwind theme */
+
+/* sidebar state management */
+.sidebar-open #main { margin-left: 18rem; }
+.sidebar-closed #main { margin-left: 0; }
+@media (max-width: 767px) {
+    .sidebar-open #main { margin-left: 0; }
+    .sidebar-closed #main { margin-left: 0; }
+}
+
 :not(pre) > code {
     background: #2d1515;
     padding: 0.15em 0.4em;
