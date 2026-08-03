@@ -1,56 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3fb950"/>
-    </marker>
-    <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#58a6ff"/>
-    </marker>
-  </defs>
-  <rect width="320" height="200" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240">
+  <rect width="320" height="240" fill="none"/>
   <style>
-    .node { fill: #21262d; stroke: #30363d; stroke-width: 1.5; }
-    .node-pulse { fill: #161b22; stroke: #3fb950; stroke-width: 2; }
-    .edge { stroke: #3fb950; stroke-width: 1.5; fill: none; }
-    .edge-blue { stroke: #58a6ff; stroke-width: 1.5; fill: none; }
-    .label { fill: #8b949e; font-family: monospace; font-size: 9px; text-anchor: middle; }
-    .label-light { fill: #e6edf3; font-family: sans-serif; font-size: 10px; text-anchor: middle; font-weight: 600; }
+    .ring { fill:none; stroke:#8B6914; stroke-width:0.5; opacity:0.6; }
+    .ring-inner { fill:none; stroke:#FFD700; stroke-width:0.8; opacity:0.8; }
+    .core { fill:#FFD700; opacity:0.9; }
+    .core-glow { fill:#FFD700; opacity:0.15; }
+    .ray { stroke:#8B6914; stroke-width:0.4; opacity:0.3; }
+    .ray-strong { stroke:#FFD700; stroke-width:0.5; opacity:0.5; }
+    .particle { fill:#8B6914; opacity:0.5; }
   </style>
 
-  <!-- FBE -->
-  <rect class="node" x="20" y="75" width="60" height="50" rx="0"/>
-  <text class="label-light" x="50" y="102">FBE</text>
-  <text class="label" x="50" y="115">Processo</text>
+  <!-- outer rings -->
+  <circle class="ring" cx="160" cy="120" r="108"/>
+  <circle class="ring" cx="160" cy="120" r="96"/>
+  <circle class="ring-inner" cx="160" cy="120" r="84"/>
+  <circle class="ring" cx="160" cy="120" r="72"/>
+  <circle class="ring-inner" cx="160" cy="120" r="60"/>
 
-  <!-- Premise -->
-  <rect class="node" x="130" y="20" width="60" height="50" rx="0"/>
-  <text class="label-light" x="160" y="47">Premise</text>
+  <!-- rays radiating outward -->
+  <g>
+    <line class="ray" x1="160" y1="120" x2="160" y2="12"/>
+    <line class="ray-strong" x1="160" y1="120" x2="212" y2="22"/>
+    <line class="ray" x1="160" y1="120" x2="252" y2="52"/>
+    <line class="ray-strong" x1="160" y1="120" x2="268" y2="96"/>
+    <line class="ray" x1="160" y1="120" x2="268" y2="144"/>
+    <line class="ray-strong" x1="160" y1="120" x2="252" y2="188"/>
+    <line class="ray" x1="160" y1="120" x2="212" y2="218"/>
+    <line class="ray-strong" x1="160" y1="120" x2="160" y2="228"/>
+    <line class="ray" x1="160" y1="120" x2="108" y2="218"/>
+    <line class="ray-strong" x1="160" y1="120" x2="68" y2="188"/>
+    <line class="ray" x1="160" y1="120" x2="52" y2="144"/>
+    <line class="ray-strong" x1="160" y1="120" x2="52" y2="96"/>
+    <line class="ray" x1="160" y1="120" x2="68" y2="52"/>
+    <line class="ray-strong" x1="160" y1="120" x2="108" y2="22"/>
+  </g>
 
-  <!-- Condition -->
-  <rect class="node-pulse" x="130" y="130" width="60" height="50" rx="0"/>
-  <text class="label-light" x="160" y="157">Condition</text>
+  <!-- inner rings -->
+  <circle class="ring" cx="160" cy="120" r="48"/>
+  <circle class="ring-inner" cx="160" cy="120" r="36"/>
 
-  <!-- Action -->
-  <rect class="node" x="240" y="75" width="60" height="50" rx="0"/>
-  <text class="label-light" x="270" y="102">Action</text>
+  <!-- core glow -->
+  <circle class="core-glow" cx="160" cy="120" r="20"/>
+  <circle class="core-glow" cx="160" cy="120" r="14"/>
 
-  <!-- edges -->
-  <line class="edge" x1="80" y1="90" x2="130" y2="45" marker-end="url(#arrow)"/>
-  <line class="edge" x1="80" y1="110" x2="130" y2="155" marker-end="url(#arrow)"/>
-  <line class="edge" x1="160" y1="70" x2="160" y2="130" marker-end="url(#arrow)"/>
-  <line class="edge-blue" x1="190" y1="100" x2="240" y2="100" marker-end="url(#arrow2)"/>
-  <line class="edge" x1="270" y1="125" x2="270" y2="90" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
-  <path class="edge" d="M 270 75 Q 270 10 50 10 Q 20 10 20 75" stroke-dasharray="3,3"/>
+  <!-- core dot -->
+  <circle class="core" cx="160" cy="120" r="5"/>
 
-  <!-- labels -->
-  <text class="label" x="105" y="60">notifica</text>
-  <text class="label" x="105" y="140">notifica</text>
-  <text class="label" x="215" y="105">dispara</text>
-  <text class="label" x="280" y="115">altera</text>
-
-  <!-- cycle indicator -->
-  <circle cx="295" cy="15" r="12" fill="none" stroke="#3fb950" stroke-width="1.5"/>
-  <path d="M 292 10 L 295 6 L 298 10" fill="none" stroke="#3fb950" stroke-width="1.5"/>
-  <text class="label" x="295" y="22" font-size="7">ciclo</text>
+  <!-- scattered particles -->
+  <circle class="particle" cx="140" cy="38" r="1.5"/>
+  <circle class="particle" cx="230" cy="70" r="1.2"/>
+  <circle class="particle" cx="245" cy="160" r="1.5"/>
+  <circle class="particle" cx="90" cy="190" r="1.2"/>
+  <circle class="particle" cx="78" cy="55" r="1"/>
+  <circle class="particle" cx="195" cy="210" r="1.3"/>
+  <circle class="particle" cx="115" cy="35" r="1"/>
+  <circle class="particle" cx="240" cy="130" r="0.8"/>
 </svg>
