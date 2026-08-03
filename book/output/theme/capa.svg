@@ -1,170 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240">
   <defs>
-    <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFE066" stop-opacity="0.5"/>
+      <stop offset="30%" stop-color="#FFD700" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#8B6914" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coreSolid" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#FFE066"/>
-      <stop offset="40%" stop-color="#FFD700"/>
-      <stop offset="100%" stop-color="#8B6914" stop-opacity="0"/>
+      <stop offset="60%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#B8860B"/>
     </radialGradient>
-    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.3"/>
-      <stop offset="50%" stop-color="#8B6914" stop-opacity="0.1"/>
-      <stop offset="100%" stop-color="#8B6914" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="blur">
-      <feGaussianBlur stdDeviation="2"/>
+    <filter id="glowBlur">
+      <feGaussianBlur stdDeviation="3"/>
     </filter>
   </defs>
 
   <rect width="320" height="240" fill="none"/>
 
   <style>
-    .ring { fill:none; stroke:#8B6914; stroke-width:0.5; }
-    .ring-inner { fill:none; stroke:#FFD700; stroke-width:0.8; }
-    .core-main { fill:url(#coreGrad); }
-    .core-glow-fill { fill:url(#glowGrad); filter:url(#blur); }
-    .ray { stroke:#8B6914; stroke-width:0.4; }
-    .ray-strong { stroke:#FFD700; stroke-width:0.5; }
-    .particle { fill:#8B6914; }
+    .scene {
+      transform-origin: 160px 120px;
+      perspective: 800px;
+      transform-style: preserve-3d;
+    }
 
-    /* === core pulse === */
-    @keyframes pulse {
+    .orbit-group {
+      transform-origin: 160px 120px;
+      transform-style: preserve-3d;
+      animation: spinY 25s linear infinite;
+    }
+
+    .ring-tilt-1 {
+      transform-origin: 160px 120px;
+      transform-style: preserve-3d;
+      transform: rotateX(72deg);
+      animation: spinSelf 18s linear infinite reverse;
+    }
+    .ring-tilt-2 {
+      transform-origin: 160px 120px;
+      transform-style: preserve-3d;
+      transform: rotateX(-54deg);
+      animation: spinSelf 22s linear infinite;
+    }
+    .ring-tilt-3 {
+      transform-origin: 160px 120px;
+      transform-style: preserve-3d;
+      transform: rotateX(36deg);
+      animation: spinSelf 28s linear infinite reverse;
+    }
+    .ring-tilt-4 {
+      transform-origin: 160px 120px;
+      transform-style: preserve-3d;
+      transform: rotateX(-18deg);
+      animation: spinSelf 32s linear infinite;
+    }
+    .ring-tilt-5 {
+      transform-origin: 160px 120px;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg);
+      animation: spinSelf 15s linear infinite reverse;
+    }
+
+    .ring {
+      fill: none;
+      stroke: #8B6914;
+      stroke-width: 0.6;
+    }
+    .ring-bright {
+      fill: none;
+      stroke: #FFD700;
+      stroke-width: 0.8;
+    }
+    .ring-thin {
+      fill: none;
+      stroke: #8B6914;
+      stroke-width: 0.3;
+      opacity: 0.5;
+    }
+
+    .particle-orbit {
+      transform-origin: 160px 120px;
+      animation: spinSelf 6s linear infinite;
+    }
+    .particle-orbit-reverse {
+      transform-origin: 160px 120px;
+      animation: spinSelf 8s linear infinite reverse;
+    }
+
+    .dot { fill: #FFD700; }
+    .dot-dim { fill: #8B6914; }
+
+    @keyframes spinY {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(360deg); }
+    }
+    @keyframes spinSelf {
+      from { transform: rotateX(var(--tx, 0deg)) rotateY(0deg); }
+      to { transform: rotateX(var(--tx, 0deg)) rotateY(360deg); }
+    }
+
+    @keyframes corePulse {
       0%, 100% { transform: scale(1); opacity: 0.9; }
-      50% { transform: scale(1.5); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 1; }
     }
-    @keyframes glow {
-      0%, 100% { opacity: 0.15; transform: scale(1); }
-      50% { opacity: 0.35; transform: scale(1.3); }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.4); }
     }
-
-    /* === ray rotation === */
-    @keyframes spin {
-      from { transform: rotate(0deg); transform-origin: 160px 120px; }
-      to { transform: rotate(360deg); transform-origin: 160px 120px; }
-    }
-    @keyframes spin-reverse {
-      from { transform: rotate(360deg); transform-origin: 160px 120px; }
-      to { transform: rotate(0deg); transform-origin: 160px 120px; }
+    @keyframes coreSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
-    /* === ring waves === */
-    @keyframes wave {
-      0%, 100% { opacity: 0.25; stroke-width: 0.5; }
-      25% { opacity: 0.8; stroke-width: 1.2; }
-      50% { opacity: 0.5; stroke-width: 0.8; }
-      75% { opacity: 0.9; stroke-width: 1; }
-    }
-    @keyframes wave-inner {
-      0%, 100% { opacity: 0.3; stroke-width: 0.8; }
-      25% { opacity: 0.9; stroke-width: 1.5; }
-      50% { opacity: 0.6; stroke-width: 1; }
-    }
-
-    /* === particle drift === */
-    @keyframes float1 {
-      0%, 100% { transform: translate(0, 0); opacity: 0.5; }
-      25% { transform: translate(3px, -4px); opacity: 0.7; }
-      50% { transform: translate(-2px, 2px); opacity: 0.3; }
-      75% { transform: translate(4px, -1px); opacity: 0.6; }
-    }
-    @keyframes float2 {
-      0%, 100% { transform: translate(0, 0); opacity: 0.4; }
-      25% { transform: translate(-3px, 3px); opacity: 0.6; }
-      50% { transform: translate(2px, -3px); opacity: 0.2; }
-      75% { transform: translate(-4px, 2px); opacity: 0.5; }
-    }
-
-    .core-anim { animation: pulse 2.8s ease-in-out infinite; transform-origin: 160px 120px; }
-    .glow-anim { animation: glow 2.8s ease-in-out infinite; transform-origin: 160px 120px; }
-
-    .ray-group { animation: spin 45s linear infinite; transform-origin: 160px 120px; }
-    .ray-group-reverse { animation: spin-reverse 55s linear infinite; transform-origin: 160px 120px; }
-
-    .ring-1 { animation: wave 3.6s ease-in-out infinite; animation-delay: 0s; }
-    .ring-2 { animation: wave 3.6s ease-in-out infinite; animation-delay: 0.3s; }
-    .ring-3 { animation: wave 3.6s ease-in-out infinite; animation-delay: 0.6s; }
-    .ring-4 { animation: wave 3.6s ease-in-out infinite; animation-delay: 0.9s; }
-    .ring-5 { animation: wave-inner 3.6s ease-in-out infinite; animation-delay: 1.2s; }
-    .ring-6 { animation: wave 3.6s ease-in-out infinite; animation-delay: 1.5s; }
-    .ring-7 { animation: wave-inner 3.6s ease-in-out infinite; animation-delay: 1.8s; }
-    .ring-8 { animation: wave 3.6s ease-in-out infinite; animation-delay: 2.1s; }
-
-    .p1 { animation: float1 5.2s ease-in-out infinite; animation-delay: 0s; }
-    .p2 { animation: float2 6.1s ease-in-out infinite; animation-delay: 0.8s; }
-    .p3 { animation: float1 4.7s ease-in-out infinite; animation-delay: 1.6s; }
-    .p4 { animation: float2 5.8s ease-in-out infinite; animation-delay: 2.4s; }
-    .p5 { animation: float1 6.5s ease-in-out infinite; animation-delay: 0.3s; }
-    .p6 { animation: float2 4.3s ease-in-out infinite; animation-delay: 1.1s; }
-    .p7 { animation: float1 5.5s ease-in-out infinite; animation-delay: 1.9s; }
-    .p8 { animation: float2 6.8s ease-in-out infinite; animation-delay: 2.7s; }
+    .core-outer { animation: corePulse 3s ease-in-out infinite; transform-origin: 160px 120px; }
+    .glow-outer { animation: glowPulse 3s ease-in-out infinite; transform-origin: 160px 120px; }
+    .core-spin { animation: coreSpin 12s linear infinite; transform-origin: 160px 120px; }
   </style>
 
-  <!-- === outer rings === -->
-  <circle class="ring ring-8" cx="160" cy="120" r="112"/>
-  <circle class="ring ring-7" cx="160" cy="120" r="100"/>
-  <circle class="ring-inner ring-6" cx="160" cy="120" r="88"/>
-  <circle class="ring ring-5" cx="160" cy="120" r="76"/>
-  <circle class="ring-inner ring-4" cx="160" cy="120" r="64"/>
-  <circle class="ring ring-3" cx="160" cy="120" r="52"/>
-  <circle class="ring-inner ring-2" cx="160" cy="120" r="40"/>
-  <circle class="ring ring-1" cx="160" cy="120" r="28"/>
+  <g class="scene">
 
-  <!-- === ray group (clockwise) === -->
-  <g class="ray-group">
-    <line class="ray" x1="160" y1="120" x2="160" y2="8"/>
-    <line class="ray-strong" x1="160" y1="120" x2="218" y2="18"/>
-    <line class="ray" x1="160" y1="120" x2="258" y2="50"/>
-    <line class="ray-strong" x1="160" y1="120" x2="272" y2="96"/>
-    <line class="ray" x1="160" y1="120" x2="272" y2="144"/>
-    <line class="ray-strong" x1="160" y1="120" x2="258" y2="190"/>
-    <line class="ray" x1="160" y1="120" x2="218" y2="222"/>
-    <line class="ray-strong" x1="160" y1="120" x2="160" y2="232"/>
-    <line class="ray" x1="160" y1="120" x2="102" y2="222"/>
-    <line class="ray-strong" x1="160" y1="120" x2="62" y2="190"/>
-    <line class="ray" x1="160" y1="120" x2="48" y2="144"/>
-    <line class="ray-strong" x1="160" y1="120" x2="48" y2="96"/>
-    <line class="ray" x1="160" y1="120" x2="62" y2="50"/>
-    <line class="ray-strong" x1="160" y1="120" x2="102" y2="18"/>
+    <!-- glow background -->
+    <circle class="glow-outer" cx="160" cy="120" r="45" fill="url(#coreGlow)" filter="url(#glowBlur)"/>
+
+    <g class="orbit-group">
+
+      <!-- ring 5: equatorial (0) -->
+      <g class="ring-tilt-5">
+        <ellipse class="ring-bright" cx="160" cy="120" rx="95" ry="95"/>
+        <g class="particle-orbit">
+          <circle class="dot" cx="255" cy="120" r="2"/>
+          <circle class="dot-dim" cx="65" cy="120" r="1.5"/>
+        </g>
+      </g>
+
+      <!-- ring 4: slight tilt (-18) -->
+      <g class="ring-tilt-4">
+        <ellipse class="ring" cx="160" cy="120" rx="110" ry="110"/>
+        <g class="particle-orbit-reverse">
+          <circle class="dot-dim" cx="270" cy="120" r="1.5"/>
+          <circle class="dot" cx="50" cy="120" r="1.8"/>
+        </g>
+      </g>
+
+      <!-- ring 3: medium tilt (36) -->
+      <g class="ring-tilt-3">
+        <ellipse class="ring" cx="160" cy="120" rx="80" ry="80"/>
+        <g class="particle-orbit">
+          <circle class="dot" cx="240" cy="120" r="1.5"/>
+          <circle class="dot-dim" cx="80" cy="120" r="1.2"/>
+        </g>
+      </g>
+
+      <!-- ring 2: steep tilt (-54) -->
+      <g class="ring-tilt-2">
+        <ellipse class="ring-thin" cx="160" cy="120" rx="118" ry="118"/>
+        <g class="particle-orbit-reverse">
+          <circle class="dot" cx="278" cy="120" r="1.2"/>
+          <circle class="dot-dim" cx="42" cy="120" r="1"/>
+        </g>
+      </g>
+
+      <!-- ring 1: steepest tilt (72) -->
+      <g class="ring-tilt-1">
+        <ellipse class="ring-thin" cx="160" cy="120" rx="70" ry="70"/>
+        <g class="particle-orbit">
+          <circle class="dot" cx="230" cy="120" r="1.2"/>
+          <circle class="dot-dim" cx="90" cy="120" r="1"/>
+        </g>
+      </g>
+
+    </g>
+
+    <!-- inner bright ring spinning independently -->
+    <g class="core-spin">
+      <ellipse class="ring-bright" cx="160" cy="120" rx="22" ry="22" transform="rotate(15 160 120)" opacity="0.6"/>
+    </g>
+    <g class="core-spin" style="animation-delay:-6s">
+      <ellipse class="ring" cx="160" cy="120" rx="14" ry="14" transform="rotate(-25 160 120)" opacity="0.5"/>
+    </g>
+
+    <!-- core glow -->
+    <circle class="glow-outer" cx="160" cy="120" r="18" fill="url(#coreGlow)" filter="url(#glowBlur)"/>
+
+    <!-- core body -->
+    <circle class="core-outer" cx="160" cy="120" r="6" fill="url(#coreSolid)"/>
+
   </g>
-
-  <!-- === ray group (counter-clockwise, offset) === -->
-  <g class="ray-group-reverse" opacity="0.5">
-    <line class="ray" x1="160" y1="120" x2="160" y2="20"/>
-    <line class="ray" x1="160" y1="120" x2="200" y2="28"/>
-    <line class="ray" x1="160" y1="120" x2="240" y2="60"/>
-    <line class="ray" x1="160" y1="120" x2="260" y2="108"/>
-    <line class="ray" x1="160" y1="120" x2="256" y2="158"/>
-    <line class="ray" x1="160" y1="120" x2="238" y2="202"/>
-    <line class="ray" x1="160" y1="120" x2="200" y2="230"/>
-    <line class="ray" x1="160" y1="120" x2="150" y2="236"/>
-    <line class="ray" x1="160" y1="120" x2="100" y2="226"/>
-    <line class="ray" x1="160" y1="120" x2="60" y2="198"/>
-    <line class="ray" x1="160" y1="120" x2="44" y2="148"/>
-    <line class="ray" x1="160" y1="120" x2="50" y2="98"/>
-    <line class="ray" x1="160" y1="120" x2="72" y2="52"/>
-    <line class="ray" x1="160" y1="120" x2="110" y2="30"/>
-  </g>
-
-  <!-- === core glow === -->
-  <circle class="core-glow-fill glow-anim" cx="160" cy="120" r="28"/>
-  <circle class="core-glow-fill glow-anim" cx="160" cy="120" r="18"/>
-
-  <!-- === core === -->
-  <circle class="core-main core-anim" cx="160" cy="120" r="6"/>
-
-  <!-- === particles === -->
-  <circle class="particle p1" cx="130" cy="35" r="1.5"/>
-  <circle class="particle p2" cx="235" cy="68" r="1.2"/>
-  <circle class="particle p3" cx="250" cy="165" r="1.5"/>
-  <circle class="particle p4" cx="85" cy="195" r="1.2"/>
-  <circle class="particle p5" cx="75" cy="52" r="1"/>
-  <circle class="particle p6" cx="200" cy="215" r="1.3"/>
-  <circle class="particle p7" cx="110" cy="32" r="1"/>
-  <circle class="particle p8" cx="245" cy="135" r="0.8"/>
-  <circle class="particle p1" cx="185" cy="42" r="1" style="animation-delay:0.4s"/>
-  <circle class="particle p2" cx="210" cy="205" r="1.1" style="animation-delay:1.2s"/>
-  <circle class="particle p3" cx="95" cy="78" r="0.9" style="animation-delay:2s"/>
-  <circle class="particle p4" cx="220" cy="100" r="1" style="animation-delay:0.6s"/>
-  <circle class="particle p5" cx="68" cy="140" r="0.8" style="animation-delay:1.8s"/>
-  <circle class="particle p6" cx="180" cy="195" r="1.1" style="animation-delay:2.5s"/>
 </svg>
