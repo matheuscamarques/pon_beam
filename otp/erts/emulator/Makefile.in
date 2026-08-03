@@ -203,11 +203,18 @@ TYPE_FLAGS = @CFLAGS@ -DERTS_OPCODE_COUNTER_SUPPORT
 TYPE_CXXFLAGS = @CXXFLAGS@
 else
 
+ifeq ($(TYPE),ponbeam)
+TYPEMARKER = .ponbeam
+TYPE_FLAGS = @CFLAGS@ -DPON_BEAM
+TYPE_CXXFLAGS = @CXXFLAGS@ -DPON_BEAM
+else
+
 # If type isn't one of the above, it *is* opt type...
 override TYPE=opt
 TYPEMARKER =
 TYPE_FLAGS = @CFLAGS@
 TYPE_CXXFLAGS = @CXXFLAGS@
+endif
 endif
 endif
 endif
@@ -1228,7 +1235,8 @@ RUN_OBJS += \
 	$(OBJDIR)/erl_etp.o \
 	$(OBJDIR)/erl_internal_test.o \
 	$(OBJDIR)/erl_record.o \
-	$(OBJDIR)/erl_crash_dump.o
+	$(OBJDIR)/erl_crash_dump.o \
+	$(OBJDIR)/pon_premise.o
 
 
 LTTNG_OBJS = $(OBJDIR)/erlang_lttng.o

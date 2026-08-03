@@ -189,6 +189,13 @@ fi
 
 AC_SUBST(ENCRYPTED_CRASH_DUMPS)
 
+AC_ARG_ENABLE(pon-beam,
+AS_HELP_STRING([--enable-pon-beam], [enable PON-BEAM notification-oriented VM architecture]),
+[ case "$enableval" in
+    no) enable_pon_beam=no ;;
+    *)  enable_pon_beam=yes ;;
+  esac ], enable_pon_beam=no)
+
 AC_ARG_ENABLE(lock-counter,
 AS_HELP_STRING([--enable-lock-counter], [enable lock counters]),
 [ case "$enableval" in
@@ -341,6 +348,10 @@ case "$with_microstate_accounting" in
 		[Define as 1 if you want to enable microstate accounting, 2 if you want extra states]) ;;
     *) ;;
 esac
+
+if test "x$enable_pon_beam" = "xyes"; then
+    AC_DEFINE(PON_BEAM,[1],[Define to 1 if you want to enable PON-BEAM notification-oriented VM architecture])
+fi
 
 AC_ARG_ENABLE(ensure-os-monotonic-time,
 AS_HELP_STRING([--enable-ensure-os-monotonic-time],

@@ -684,6 +684,10 @@ typedef struct ErtsSchedulerRegisters_ {
 #endif
 } ErtsSchedulerRegisters;
 
+#ifdef PON_BEAM
+#include "pon_stats.h"
+#endif
+
 struct ErtsSchedulerData_ {
     ErtsSchedulerRegisters *registers;
 
@@ -746,6 +750,12 @@ struct ErtsSchedulerData_ {
 #ifdef ERTS_DO_VERIFY_UNUSED_TEMP_ALLOC
     erts_alloc_verify_func_t verify_unused_temp_alloc;
     Allctr_t *verify_unused_temp_alloc_data;
+#endif
+#ifdef PON_BEAM
+#ifdef PON_BEAM_DEBUG
+    /* PON-BEAM: per-scheduler counter stats (só com debug) */
+    PonStats pon_stats;
+#endif
 #endif
 };
 
@@ -1200,6 +1210,11 @@ struct process {
 
 #ifdef DEBUG
     Uint debug_reds_in;
+#endif
+
+#ifdef PON_BEAM
+    /* PON-BEAM: Premises registradas para este processo */
+    ErtsPremise *pon_premises;
 #endif
 
 };

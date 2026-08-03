@@ -56,6 +56,11 @@
 #include "erl_proc_sig_queue.h"
 #include "beam_common.h"
 
+#ifdef PON_BEAM
+#include "pon_premise.h"
+#include "pon_stats.h"
+#endif
+
 #define ERTS_CHECK_TIME_REDS CONTEXT_REDS
 #define ERTS_DELAYED_WAKEUP_INFINITY (~(Uint64) 0)
 #define ERTS_DELAYED_WAKEUP_REDUCTIONS ((Uint64) CONTEXT_REDS/2)

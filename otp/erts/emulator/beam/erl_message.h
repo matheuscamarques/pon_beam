@@ -29,6 +29,11 @@
 #include "erl_proc_sig_queue.h"
 #undef ERTS_PROC_SIG_QUEUE_TYPE_ONLY
 
+#ifdef PON_BEAM
+#include "pon_premise.h"
+#include "pon_stats.h"
+#endif
+
 #ifdef DEBUG
 #define ERTS_MSG_COPY_WORDS_PER_REDUCTION 4
 #else
@@ -392,6 +397,19 @@ typedef struct {
     /* Common for inner and middle queue */
     ErtsRecvMarkerBlock *recv_mrk_blk;
     Uint32 flags;
+
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: filas de mensagens classificadas por tipo.
+     * Cada bucket corresponde a um tag de tipo (byte baixo do header).
+     * Em vez de lista linear única, as mensagens so distribudas
+     * por bucket — permitindo notificao diretas Premises.
+     */
+    ErtsMessage *type_queues[PON_NUM_TYPE_BUCKETS];
+    Sint         type_queue_len[PON_NUM_TYPE_BUCKETS];
+    /* Save pointer por bucket (equivalente PON ao save tradicional) */
+    ErtsMessage *type_save[PON_NUM_TYPE_BUCKETS];
+#endif
 } ErtsSignalPrivQueues;
 
 typedef struct ErtsSignalInQueue_ {

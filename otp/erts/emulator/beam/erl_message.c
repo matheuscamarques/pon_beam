@@ -457,6 +457,23 @@ queue_messages(Eterm from,
         erts_proc_notify_new_message(receiver, receiver_locks);
     else
         erts_proc_notify_new_sig(receiver, state, ERTS_PSFLG_ACTIVE);
+
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: notifica as Premises do processo receiver sobre
+     * a chegada da mensagem. Aps o LNK_MESSAGE, a mensagem j
+     * est na fila principal; aqui classificamos por tipo e
+     * notificamos as Premises que matcham.
+     *
+     * So notificamos mensagens (ERTS_SIG_IS_MSG), no sinais.
+     */
+    if (last == &first->next && ERTS_SIG_IS_MSG(first)) {
+        if (receiver->pon_premises) {
+            Eterm term = ERL_MESSAGE_TERM(first);
+            erts_pon_notify_premises(receiver, first, term);
+        }
+    }
+#endif
 }
 
 static ERTS_INLINE
