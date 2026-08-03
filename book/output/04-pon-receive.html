@@ -4,50 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PON-Receive: Selective Receive por Premises — PON-BEAM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
+<script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="bg-[#0d1117] text-[#e6edf3]">
+<body class="bg-[#0d0a0a] text-[#e6edf3]">
 
-<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">
-<div class="p-4 border-b border-[#30363d]">
-<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
+<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#1a0f0f] border-r border-[#8B6914] overflow-y-auto z-50 transition-transform duration-200">
+<div class="p-4 border-b border-[#8B6914]">
+<a href="index.html" class="text-[#FFD700] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
 </div>
-<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte I: Fundamentos</div>
-<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte II: Subsistemas PON</div>
-<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte III: Engenharia e Validação</div>
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte IV: Síntese</div>
-<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Conclusão</a>
-<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Contra-capa</a>
+<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Capa</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
+<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
+<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte I: Fundamentos</div>
+<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
+<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte II: Subsistemas PON</div>
+<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)]">PON-Receive: Selective Receive por Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
+<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte III: Engenharia e Validação</div>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Harness de Benchmarking</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte IV: Síntese</div>
+<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Casos de Estudo</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
+<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Conclusão</a>
+<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Contra-capa</a>
 </aside>
 
-<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#2d1515] border border-[#8B6914] text-[#b8a88a] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#2d1515] transition-colors" onclick="toggleSidebar()">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
 
 <main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
 
-<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">PON-Receive: Selective Receive por Premises</h1>
+<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#8B6914]">PON-Receive: Selective Receive por Premises</h1>
 
 <article>
 <h1>4. PON-Receive: Selective Receive por Premises</h1>
@@ -62,7 +63,7 @@
 <p>O diagnóstico é mais grave em cenários de <em>timeout</em> longo ou <code>receive</code> infinito. Considere um processo aguardando uma mensagem específica enquanto outras 10.000 mensagens chegam para outros receives. A cada nova mensagem, o processo é acordado, varre até 10.001 mensagens (a nova + 10.000 anteriores no worst case), não encontra match, e volta a dormir. Onze mil trials para nada. O padrão é conhecido na comunidade Erlang como <em>mailbox scanning</em> e é tema recorrente em guias de performance: mantenha mailboxes curtas, use <code>selective receive</code> com parcimônia, considere <code>gen_server:call</code> com timeout.</p>
 <p>Em código C da BEAM, a varredura ocorre no loop que percorre a lista ligada de mensagens. A estrutura <code>ErtsSignalPrivQueues</code> (<code>erl_message.h:342</code>) mantém <code>first</code>, <code>last</code> e <code>save</code> como ponteiros para a lista encadeada. Cada mensagem é verificada com <code>ERTS_SIG_IS_MSG</code> e, sendo mensagem, seu termo é extraído e comparado contra o padrão compilado da cláusula. O <code>while (sig &amp;&amp; ERTS_SIG_IS_MSG(sig))</code> em <code>erl_proc_sig_queue.c:8666</code> é o coração do scanning linear.</p>
 <p>Podemos demonstrar o custo empiricamente com uma sessão Erlang:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% Custo do selective receive: O(N × M)</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% Custo do selective receive: O(N × M)</span>
 <span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10000</span><span class="p">.</span>
 <span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="c">%% Enche a mailbox com N mensagens sem match</span>
@@ -83,7 +84,7 @@
 <h2>4.2 Proposta: Mailbox como Conjunto de Premises</h2>
 <p>O PON-Receive implementa a re-arquitetura do selective receive substituindo o scanning linear por um conjunto de Premises que escutam passivamente. Cada cláusula do <code>receive</code> — cada padrão de mensagem — é compilada em uma entidade <code>ErtsPremise</code>. Quando uma mensagem chega na mailbox, ela é classificada por tipo (8 bits de tag, 256 buckets) e <em>notifica</em> as Premises que matcham. Nenhuma lista é percorrida. Nenhuma mensagem velha é reexaminada.</p>
 <p>A mailbox PON não é uma lista linear: é um array de 256 filas, uma por tag de tipo. Mensagens <code>{call, From, Req}</code> vão para o bucket do átomo <code>call</code>; mensagens <code>{cast, Msg}</code> vão para o bucket de <code>cast</code>. As Premises, por sua vez, registram interesse em tags específicas. Uma Premise <code>{call, _, _}</code> só é notificada por mensagens no bucket <code>call</code>. Uma Premise coringa <code>_</code> é notificada por qualquer bucket.</p>
-<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -196,7 +197,7 @@
 <hr />
 <h2>4.3 Estruturas de Dados</h2>
 <p>As estruturas centrais do PON-Receive estão definidas em <code>pon_premise.h</code> (<code>erts/include/internal/pon_premise.h</code>) e nos hooks em <code>erl_message.h</code>:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_premise.h — ErtsPremise (entidade Premise do PON)</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_premise.h — ErtsPremise (entidade Premise do PON)</span>
 <span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ErtsPremise_</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">Eterm</span><span class="w">                </span><span class="n">pattern</span><span class="p">;</span><span class="w">        </span><span class="cm">/* Padrão compilado (como termo) */</span>
 <span class="w">    </span><span class="kt">int</span><span class="w">                  </span><span class="p">(</span><span class="o">*</span><span class="n">match_fn</span><span class="p">)(</span><span class="n">Eterm</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Função de match otimizada */</span>
@@ -210,7 +211,7 @@
 </pre></div>
 
 <p>Cada Premise encapsula: o padrão da cláusula (<code>pattern</code>), uma função de match especializada (<code>match_fn</code> — ou NULL para usar o fallback), um flag <code>has_match</code> que indica se há mensagem disponível, a mensagem casada em si, e o índice da cláusula para preservar a precedência do <code>receive</code> Erlang (primeira cláusula que casa vence). A macro <code>ERTS_INIT_PREMISE</code> inicializa uma Premise:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#define ERTS_INIT_PREMISE(PREM, PAT, MATCH_FN, CIDX)                      \</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#define ERTS_INIT_PREMISE(PREM, PAT, MATCH_FN, CIDX)                      \</span>
 <span class="cp">    do {                                                                   \</span>
 <span class="cp">        (PREM)-&gt;pattern      = (PAT);                                      \</span>
 <span class="cp">        (PREM)-&gt;match_fn     = (MATCH_FN);                                 \</span>
@@ -224,7 +225,7 @@
 </pre></div>
 
 <p>A mailbox PON estende a estrutura <code>ErtsSignalPrivQueues</code> em <code>erl_message.h:401-412</code> com filas por tipo:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_message.h — hooks PON na estrutura de filas do processo</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_message.h — hooks PON na estrutura de filas do processo</span>
 <span class="cp">#ifdef PON_BEAM</span>
 <span class="w">    </span><span class="cm">/*</span>
 <span class="cm">     * PON-BEAM: filas de mensagens classificadas por tipo.</span>
@@ -242,7 +243,7 @@
 
 <p>O número de buckets é definido por <code>PON_NUM_TYPE_BUCKETS</code> = 256 (8 bits de tag). A tag é extraída do termo com a macro <code>pon_type_tag(term)</code> que toma os 8 bits baixos do primeiro elemento da tupla — suficientemente rápida para ser usada em hot path.</p>
 <p>No processo (<code>Process</code> em <code>erl_process.h:1218-1221</code>), o campo <code>pon_premises</code> mantém a lista ligada de Premises registradas:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
 <span class="w">    </span><span class="cm">/* PON-BEAM: Premises registradas para este processo */</span>
 <span class="w">    </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">pon_premises</span><span class="p">;</span>
 <span class="cp">#endif</span>
@@ -253,7 +254,7 @@
 <h2>4.4 O Mecanismo Passo a Passo</h2>
 <h3>Chegada de mensagem</h3>
 <p>Quando uma mensagem chega a um processo, a função <code>queue_messages</code> em <code>erl_message.c</code> é chamada. No final da função, após enfileirar a mensagem na lista principal, o hook PON é ativado (<code>erl_message.c:461-476</code>):</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
 <span class="w">    </span><span class="cm">/*</span>
 <span class="cm">     * PON-BEAM: notifica as Premises do processo receiver sobre</span>
 <span class="cm">     * a chegada da mensagem. Após o LNK_MESSAGE, a mensagem já</span>
@@ -275,7 +276,7 @@
 <p>A notificação só ocorre se o processo tem Premises registradas (<code>receiver-&gt;pon_premises != NULL</code>). Caso contrário, a mensagem entra na mailbox mas nenhuma Premise é notificada — zero overhead.</p>
 <h3>Notificação de Premises</h3>
 <p><code>erts_pon_notify_premises()</code> em <code>pon_premise.c:135-173</code> é o coração do mecanismo:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span>
 <span class="nf">erts_pon_notify_premises</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="w"> </span><span class="o">*</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">term</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
@@ -320,7 +321,7 @@
 <p>A função primeiro classifica a mensagem por tipo (<code>pon_extract_type_tag</code>) e a enfileira no bucket correspondente (<code>pon_enqueue_to_type_queue</code>). Em seguida, percorre a lista de Premises — que tipicamente tem 3 a 10 elementos, o número de cláusulas do <code>receive</code>. Para cada Premise ainda não satisfeita, chama <code>match_fn</code> (se existe uma especializada) ou <code>erts_pon_default_match</code> (fallback estrutural). Se houve match, marca <code>has_match = 1</code> e armazena a mensagem. O contador <code>mailbox_scans_avoided</code> é incrementado — é a métrica central de validação do projeto.</p>
 <h3>Receive</h3>
 <p>Quando o processo efetivamente executa a instrução <code>receive</code>, a função <code>erts_pon_receive()</code> encontra a primeira Premise satisfeita:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="n">Eterm</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="n">Eterm</span>
 <span class="nf">erts_pon_receive</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
@@ -360,7 +361,7 @@
 <p>Se nenhuma Premise está satisfeita (<code>erts_pon_receive</code> retorna <code>THE_NON_VALUE</code>), o processo vai para estado WAITING. Ao contrário da BEAM stock, onde o processo seria acordado para varrer a mailbox a cada nova mensagem, na PON-BEAM o processo só é acordado quando <code>erts_pon_notify_premises</code> retorna <code>matched &gt; 0</code> — ou seja, quando uma mensagem que casa alguma Premise chega. Mensagens que não casam <em>nenhuma</em> Premise não geram despertares.</p>
 <h3>Register/Unregister</h3>
 <p>Antes de executar um bloco <code>receive</code>, as Premises são registradas no processo com <code>erts_pon_register_premises</code>. Ao sair do bloco (match ou timeout), são removidas com <code>erts_pon_unregister_premises</code>:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span>
 <span class="nf">erts_pon_register_premises</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsPremise</span><span class="w"> </span><span class="o">*</span><span class="n">premises</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
@@ -398,7 +399,7 @@
 <hr />
 <h2>4.5 Função de Match Otimizada</h2>
 <p>O <code>erts_pon_default_match()</code> é o fallback para Premises sem <code>match_fn</code> especializada. Implementa pattern matching estrutural: tuplas são comparadas elemento a elemento, e <code>THE_NON_VALUE</code> no padrão funciona como wildcard:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span>
 <span class="nf">erts_pon_default_match</span><span class="p">(</span><span class="n">Eterm</span><span class="w"> </span><span class="n">pattern</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">term</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">term</span><span class="p">)</span>
@@ -466,7 +467,7 @@
 </tbody>
 </table>
 <p>A tabela revela a magnitude do ganho. No caso extremo — processo bloqueado recebendo 100K mensagens que não casam nenhuma Premise — a BEAM stock acorda o processo a cada mensagem e varre toda a mailbox. A PON-BEAM não acorda o processo nenhuma vez. O contraste é a diferença entre um sistema que degrada graciosamente e um sistema que colapsa sob pressão.</p>
-<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -554,7 +555,7 @@
 <p><strong><code>fase1_receive.erl</code></strong> — varia N de 10 a 100.000 mensagens na mailbox. Uma única cláusula busca uma mensagem alvo no final da fila. A BEAM stock mostra latência log-log linear (O(N)). A PON-BEAM mostra latência constante (O(1)). O gráfico obtido: baseline sobe de 12μs (N=10) para 82ms (N=100K); PON-BEAM varia de 8μs a 12μs no mesmo intervalo.</p>
 <p><strong><code>fase1_size.erl</code></strong> — mailbox fixa em 10.000 mensagens, varia M (número de cláusulas) de 1 a 100. A BEAM stock escala linearmente com M: cada cláusula adicional adiciona 10.000 trials. A PON-BEAM escala com M puro: cada cláusula adicional adiciona 1 notificação.</p>
 <p><strong><code>receive_clauses.erl</code></strong> — mailbox com 10.000 mensagens, 5 cláusulas. A mensagem alvo é colocada em posições variadas (início, meio, fim). Na BEAM stock, a latência depende da posição (mensagens anteriores ao alvo são varridas). Na PON-BEAM, a latência é independente da posição — a Premise é notificada no momento da chegada, não durante a varredura.</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">% fase1_receive.erl (benchmark implementado no harness)</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">% fase1_receive.erl (benchmark implementado no harness)</span>
 <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">fase1_receive</span><span class="p">).</span>
 <span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
 
@@ -683,7 +684,7 @@
 </table>
 <h3>Resultados da compilação</h3>
 <p>Todos os arquivos compilam sem erros com <code>-DPON_BEAM</code>:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>erts/emulator
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>erts/emulator
 $<span class="w"> </span><span class="nv">CC</span><span class="o">=</span>gcc<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-O2 -g -DPON_BEAM -D_GNU_SOURCE -DHAVE_CONFIG_H</span>
 <span class="s2">  -Ibeam -Isys/unix -Isys/common -I</span><span class="nv">$TARGET</span><span class="s2"> -I../include -I../include/</span><span class="nv">$TARGET</span>
 <span class="s2">  -I../include/internal -I</span><span class="nv">$TARGET</span><span class="s2">/opt/jit&quot;</span>
@@ -695,7 +696,7 @@ $<span class="w"> </span><span class="nv">$CC</span><span class="w"> </span><spa
 
 <h3>Observações da implementação</h3>
 <p><strong>Inclusão de headers e forward declaration.</strong> <code>ErtsMessage</code> é declarado via <code>typedef struct erl_mesg ErtsMessage;</code> em <code>erl_message.h:63</code>, mas o include de <code>pon_premise.h</code> (que usa <code>ErtsMessage*</code>) precisava vir antes. A solução foi usar forward declaration no <code>pon_premise.h</code>:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="p">;</span><span class="w">  </span><span class="cm">/* forward — ErtsMessage definido em erl_message.h */</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="p">;</span><span class="w">  </span><span class="cm">/* forward — ErtsMessage definido em erl_message.h */</span>
 </pre></div>
 </pre></div>
 
@@ -859,9 +860,9 @@ $<span class="w"> </span><span class="nv">$CC</span><span class="w"> </span><spa
 </ul>
 </article>
 
-<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
-    <a href="03-visao-geral.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">← Visão Geral da PON-BEAM</a>
-    <a href="05-pon-timer.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">PON-Timer: Instigações com timerfd →</a>
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#8B6914]">
+    <a href="03-visao-geral.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">← Visão Geral da PON-BEAM</a>
+    <a href="05-pon-timer.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">PON-Timer: Instigações com timerfd →</a>
 </footer>
 
 </main>

@@ -4,50 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>O Harness de Benchmarking — PON-BEAM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
+<script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="bg-[#0d1117] text-[#e6edf3]">
+<body class="bg-[#0d0a0a] text-[#e6edf3]">
 
-<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">
-<div class="p-4 border-b border-[#30363d]">
-<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
+<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#1a0f0f] border-r border-[#8B6914] overflow-y-auto z-50 transition-transform duration-200">
+<div class="p-4 border-b border-[#8B6914]">
+<a href="index.html" class="text-[#FFD700] font-bold text-lg no-underline hover:underline">PON-BEAM</a>
 </div>
-<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte I: Fundamentos</div>
-<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte II: Subsistemas PON</div>
-<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte III: Engenharia e Validação</div>
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
-<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte IV: Síntese</div>
-<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#8b949e] hover:text-[#e6edf3]">Conclusão</a>
-<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3] no-underline">Contra-capa</a>
+<a href="capa.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Capa</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Folha de Rosto</a>
+<a href="agradecimentos.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Agradecimentos</a>
+<a href="sobre-autor.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Sobre o Autor</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte I: Fundamentos</div>
+<a href="01-problema-polling.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Problema: Custos Ocultos do Polling na BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">O Paradigma Orientado a Notificações</a>
+<a href="03-visao-geral.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Visão Geral da PON-BEAM</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte II: Subsistemas PON</div>
+<a href="04-pon-receive.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Receive: Selective Receive por Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Timer: Instigações com timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Spawn: Notificação Imediata</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Scheduler: Condition e eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-ETS: Base de Fatos Notificante</a>
+<a href="09-pon-gc.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-GC: Coleta por Cadeia Causal</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">PON-Compiler: Geração Automática de Premises</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte III: Engenharia e Validação</div>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">A Infraestrutura do Fork</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)]">O Harness de Benchmarking</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Roadmap e Tradeoffs</a>
+<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte IV: Síntese</div>
+<a href="14-casos-estudo.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Casos de Estudo</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Trabalhos Relacionados e Posicionamento</a>
+<a href="16-conclusao.html" class="block px-4 py-1.5 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3]">Conclusão</a>
+<a href="contra-capa.html" class="block px-4 py-1.5 text-sm text-[#b8a88a] hover:text-[#e6edf3] no-underline">Contra-capa</a>
 </aside>
 
-<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#2d1515] border border-[#8B6914] text-[#b8a88a] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#2d1515] transition-colors" onclick="toggleSidebar()">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
 
 <main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200" style="min-height:100vh">
 
-<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">O Harness de Benchmarking</h1>
+<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#8B6914]">O Harness de Benchmarking</h1>
 
 <article>
 <h1>O Harness de Benchmarking</h1>
@@ -63,7 +64,7 @@
 <p>Este capítulo documenta a arquitetura completa do harness: o script <code>run.sh</code>, os módulos de biblioteca, a instrumentação C com <code>pon_stats.h</code>, o formato do diff report, e a interpretação de cada métrica.</p>
 <hr />
 <h2>2. Estrutura Completa do Harness</h2>
-<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#30363d] overflow-x-auto text-sm"><code>harness/
+<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code>harness/
 ├── run.sh                        # Script principal
 ├── config/
 │   ├── baseline.sh               # Paths do ERTS stock
@@ -98,7 +99,7 @@
 <hr />
 <h2>3. <code>run.sh</code> — Orquestrador Principal</h2>
 <p>O script <code>run.sh</code> executa todo o pipeline de validação. Seu fluxo é:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1"># run.sh — esqueleto do pipeline</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1"># run.sh — esqueleto do pipeline</span>
 <span class="c1"># 1. Parse de argumentos (--fase, --only, --list)</span>
 <span class="c1"># 2. Source dos paths dos ERTS (baseline.sh, ponbeam.sh)</span>
 <span class="c1"># 3. Verifica se os ERTS existem</span>
@@ -110,7 +111,7 @@
 </pre></div>
 
 <p>O script aceita três argumentos:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>./run.sh<span class="w">                    </span><span class="c1"># Suíte completa (todas as fases)</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>./run.sh<span class="w">                    </span><span class="c1"># Suíte completa (todas as fases)</span>
 ./run.sh<span class="w"> </span>--fase<span class="o">=</span><span class="m">1</span><span class="w">           </span><span class="c1"># Só benchmarks da fase 1</span>
 ./run.sh<span class="w"> </span>--fase<span class="o">=</span><span class="m">1</span>,2<span class="w">         </span><span class="c1"># Fases 1 e 2</span>
 ./run.sh<span class="w"> </span>--only<span class="o">=</span>receive<span class="w">     </span><span class="c1"># Só benchmarks com &quot;receive&quot; no nome</span>
@@ -121,7 +122,7 @@
 <p>A descoberta de benchmarks é feita por padrões de nome: arquivos <code>faseN_*.erl</code> em <code>benchmarks/</code> que não estão em <code>lib/</code>. O prefixo numérico (<code>fase1_</code>) indica a fase. O <code>--fase</code> filtra por prefixo; o <code>--only</code> filtra por substring no nome.</p>
 <h3>Execução de Benchmark</h3>
 <p>Cada benchmark é executado via:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="s2">&quot;</span><span class="nv">$erl</span><span class="s2">&quot;</span><span class="w"> </span>-noshell<span class="w"> </span>-pa<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LIB_DIR</span><span class="s2">&quot;</span><span class="w"> </span>-pa<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BENCHMARKS_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="s2">&quot;</span><span class="nv">$erl</span><span class="s2">&quot;</span><span class="w"> </span>-noshell<span class="w"> </span>-pa<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LIB_DIR</span><span class="s2">&quot;</span><span class="w"> </span>-pa<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BENCHMARKS_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-eval<span class="w"> </span><span class="s2">&quot;pon_harness:run(&#39;</span><span class="nv">$name</span><span class="s2">&#39;, \&quot;</span><span class="nv">$out</span><span class="s2">\&quot;), halt().&quot;</span>
 </pre></div>
 </pre></div>
@@ -130,7 +131,7 @@
 <hr />
 <h2>4. <code>pon_harness.erl</code> — Módulo Base</h2>
 <p>O <code>pon_harness.erl</code> (89 linhas) é o módulo que todo benchmark chama para se executar. Sua função principal:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% pon_harness.erl:6-20</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% pon_harness.erl:6-20</span>
 <span class="nf">run</span><span class="p">(</span><span class="nv">Name</span><span class="p">,</span><span class="w"> </span><span class="nv">OutputPath</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">Module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ensure_loaded</span><span class="p">(</span><span class="nv">Name</span><span class="p">),</span>
 <span class="w">    </span><span class="p">{</span><span class="nv">TimeUs</span><span class="p">,</span><span class="w"> </span><span class="nv">Result</span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Module</span><span class="p">:</span><span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
@@ -147,7 +148,7 @@
 </pre></div>
 
 <p><code>collect_stats()</code> coleta as seguintes métricas:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">collect_stats</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">collect_stats</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="p">#{</span>
 <span class="w">        </span><span class="n">cpu_utilization</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">cpu_utilization</span><span class="p">),</span>
 <span class="w">        </span><span class="n">context_switches</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">context_switches</span><span class="p">),</span>
@@ -167,7 +168,7 @@
 <hr />
 <h2>6. <code>pon_stats_reader.erl</code> — Leitura de Contadores PON</h2>
 <p>Um módulo auxiliar dedicado exclusivamente à leitura dos contadores PON em runtime:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% pon_stats_reader.erl (25 linhas)</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% pon_stats_reader.erl (25 linhas)</span>
 <span class="nf">read</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">system_info</span><span class="p">(</span><span class="n">pon_stats</span><span class="p">)</span><span class="w"> </span><span class="k">of</span>
 <span class="w">        </span><span class="nv">Stats</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Stats</span>
@@ -192,7 +193,7 @@
 <hr />
 <h2>7. <code>pon_diff.erl</code> — Geração do Diff Report</h2>
 <p>O <code>pon_diff.erl</code> (156 linhas) carrega os JSONs do baseline e do PON-BEAM, computa ratios de ganho, e renderiza HTML. O fluxo:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">generate</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">generate</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">Baseline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">load_results</span><span class="p">(</span><span class="nn">filename</span><span class="p">:</span><span class="nf">join</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;baseline&quot;</span><span class="p">)),</span>
 <span class="w">    </span><span class="nv">PonBeam</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">load_results</span><span class="p">(</span><span class="nn">filename</span><span class="p">:</span><span class="nf">join</span><span class="p">(</span><span class="nv">ResultsDir</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ponbeam&quot;</span><span class="p">)),</span>
 <span class="w">    </span><span class="nv">Diff</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">compute_diff</span><span class="p">(</span><span class="nv">Baseline</span><span class="p">,</span><span class="w"> </span><span class="nv">PonBeam</span><span class="p">),</span>
@@ -203,13 +204,13 @@
 
 <h3>Cálculo do Ratio</h3>
 <p>O ratio é computado preferencialmente a partir de <code>duration_us</code> (tempo de execução):</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">compute_ratio</span><span class="p">(#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;duration_us&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">BD</span><span class="p">},</span><span class="w"> </span><span class="p">#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;duration_us&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">PD</span><span class="p">})</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="nv">PD</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">compute_ratio</span><span class="p">(#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;duration_us&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">BD</span><span class="p">},</span><span class="w"> </span><span class="p">#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;duration_us&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">PD</span><span class="p">})</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="nv">PD</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">BD</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">PD</span><span class="p">;</span>
 </pre></div>
 </pre></div>
 
 <p>Se <code>duration_us</code> não estiver disponível (benchmarks que medem throughput), usa <code>result</code>:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">compute_ratio</span><span class="p">(#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;result&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">BR</span><span class="p">},</span><span class="w"> </span><span class="p">#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;result&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">PR</span><span class="p">})</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">compute_ratio</span><span class="p">(#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;result&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">BR</span><span class="p">},</span><span class="w"> </span><span class="p">#{</span><span class="o">&lt;&lt;</span><span class="s">&quot;result&quot;</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nv">PR</span><span class="p">})</span>
 <span class="w">    </span><span class="k">when</span><span class="w"> </span><span class="nb">is_number</span><span class="p">(</span><span class="nv">BR</span><span class="p">),</span><span class="w"> </span><span class="nb">is_number</span><span class="p">(</span><span class="nv">PR</span><span class="p">),</span><span class="w"> </span><span class="nv">PR</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">    </span><span class="nv">PR</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">BR</span><span class="p">;</span>
 </pre></div>
@@ -224,7 +225,7 @@
 <li><strong>Contadores PON</strong>: lista de contadores de instrumentação (se disponíveis).</li>
 </ol>
 <p>O estilo usa classes CSS:</p>
-<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#30363d] overflow-x-auto text-sm"><code>.gain  { color: #3fb950; font-weight: bold; }   /* ratio >= 1.05 */
+<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code>.gain  { color: #3fb950; font-weight: bold; }   /* ratio >= 1.05 */
 .loss  { color: #f85149; font-weight: bold; }   /* ratio <= 0.95 */
 .equal { color: #8b949e; }                       /* 0.95 < ratio < 1.05 */
 </code></pre>
@@ -232,7 +233,7 @@
 <hr />
 <h2>8. Formato do Diff Report</h2>
 <p>O relatório final é um HTML auto-contido em <code>results/TIMESTAMP/diff/index.html</code>:</p>
-<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#30363d] overflow-x-auto text-sm"><code><!DOCTYPE html>
+<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code><!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -283,7 +284,7 @@
 <hr />
 <h2>9. Instrumentação C: <code>pon_stats.h</code></h2>
 <p>Em C, os contadores são definidos como uma estrutura thread-local em <code>pon_stats.h</code>:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="cm">/* PON-Receive */</span>
 <span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">premises_registered</span><span class="p">;</span>
 <span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">premise_notifications</span><span class="p">;</span>
@@ -301,13 +302,13 @@
 </pre></div>
 
 <p>A estrutura <code>PonStats</code> contém <strong>17 métricas</strong> no total (incluindo contadores para timer, scheduler, ETS, GC). As macros de incremento são:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#define PON_STATS_INC(field)    (pon_stats.field++)</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#define PON_STATS_INC(field)    (pon_stats.field++)</span>
 <span class="cp">#define PON_STATS_ADD(field, n) (pon_stats.field += (n))</span>
 </pre></div>
 </pre></div>
 
 <p>Sem <code>PON_BEAM_DEBUG</code>, todas as macros são vazias — custo zero em produção:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM_DEBUG</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM_DEBUG</span>
 <span class="w">    </span><span class="cm">/* contadores ativos */</span>
 <span class="cp">#else</span>
 <span class="w">    </span><span class="cp">#define PON_STATS_INC(field)</span>
@@ -317,7 +318,7 @@
 </pre></div>
 
 <p>No código C da VM, os contadores são incrementados nos pontos de interesse:</p>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_premise.c:165 — notificação de Premise</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_premise.c:165 — notificação de Premise</span>
 <span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">premise_notifications</span><span class="p">);</span>
 <span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">mailbox_scans_avoided</span><span class="p">);</span>
 </pre></div>
@@ -326,7 +327,7 @@
 <p>Os contadores são expostos ao Erlang via <code>erlang:system_info(pon_stats)</code>, que agrega os valores de todos os schedulers e retorna um mapa.</p>
 <hr />
 <h2>10. Fluxo de Execução de uma Rodada de Benchmark</h2>
-<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
@@ -562,7 +563,7 @@
 </table>
 <hr />
 <h2>12. CLI Completa do Harness</h2>
-<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1"># Suíte completa</span>
+<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1"># Suíte completa</span>
 ./run.sh
 
 <span class="c1"># Filtro por fase</span>
@@ -686,9 +687,9 @@
 </ul>
 </article>
 
-<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
-    <a href="11-infraestrutura-fork.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">← A Infraestrutura do Fork</a>
-    <a href="13-roadmap-tradeoffs.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">Roadmap e Tradeoffs →</a>
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#8B6914]">
+    <a href="11-infraestrutura-fork.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">← A Infraestrutura do Fork</a>
+    <a href="13-roadmap-tradeoffs.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">Roadmap e Tradeoffs →</a>
 </footer>
 
 </main>

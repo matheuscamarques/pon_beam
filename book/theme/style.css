@@ -1,9 +1,9 @@
 /* PON-BEAM Book — Minimal overrides for Tailwind theme */
 :not(pre) > code {
-    background: #21262d;
+    background: #2d1515;
     padding: 0.15em 0.4em;
     font-size: 0.85em;
-    color: #d29922;
+    color: #ff6b35;
     font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
 }
 
@@ -24,12 +24,12 @@
 }
 
 blockquote {
-    border-left: 3px solid #58a6ff;
+    border-left: 3px solid #FFD700;
     padding: 0.8rem 1.2rem;
     margin: 1.2rem 0;
-    background: rgba(88, 166, 255, 0.05);
+    background: rgba(255, 215, 0, 0.06);
     font-style: italic;
-    color: #8b949e;
+    color: #b8a88a;
 }
 
 blockquote p {
@@ -50,7 +50,7 @@ article h2 {
     font-size: 1.5rem;
     font-weight: 700;
     margin: 2rem 0 0.8rem;
-    color: #58a6ff;
+    color: #FFD700;
 }
 
 article h3 {
@@ -61,14 +61,14 @@ article h3 {
 
 article hr {
     border: none;
-    border-top: 1px solid #30363d;
+    border-top: 1px solid #8B6914;
     margin: 2rem 0;
 }
 
 article img[src*="author.jpg"] {
     float: right;
     width: 140px;
-    border: 2px solid #30363d;
+    border: 2px solid #8B6914;
     margin: 0 0 1rem 1.5rem;
 }
 

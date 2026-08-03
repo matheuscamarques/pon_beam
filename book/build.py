@@ -19,7 +19,9 @@ OUTPUT = ROOT / "output"
 THEME = ROOT / "theme"
 BOOK_JSON = ROOT / "book.json"
 
+TAILWIND_CONFIG = '<script>tailwind.config={theme:{extend:{colors:{\'iron-bg\':\'#0d0a0a\',\'iron-surface\':\'#1a0f0f\',\'iron-hover\':\'#2d1515\',\'iron-gold\':\'#FFD700\',\'iron-gold-dim\':\'#8B6914\',\'iron-text\':\'#b8a88a\'}}}}}</script>'
 TAILWIND_CDN = '<script src="https://cdn.tailwindcss.com"></script>'
+TAILWIND_BOTH = TAILWIND_CONFIG + '\n' + TAILWIND_CDN
 
 PARTS = {
     "I": "Fundamentos",
@@ -42,7 +44,7 @@ def render_diagram(dot_code, diagram_id):
         )
         if r.returncode == 0:
             svg = re.sub(r'<\?xml.*?\?>|<!DOCTYPE.*?>', '', r.stdout).strip()
-            return f'<div class="my-6 text-center bg-[#161b22] border border-[#30363d] p-4 overflow-x-auto">{svg}</div>'
+            return f'<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto">{svg}</div>'
         return f'<pre class="text-red-500 text-sm">{r.stderr}</pre>'
     except FileNotFoundError:
         return '<pre class="text-red-500">Graphviz (dot) n\u00e3o encontrado. Instale: apt install graphviz</pre>'
@@ -69,18 +71,18 @@ def process_body(body):
             did = hashlib.md5(code.encode()).hexdigest()[:8]
             out = render_diagram(code, did)
             if title:
-                out += f'<p class="text-center text-sm text-[#8b949e] italic mt-1">{title}</p>'
+                out += f'<p class="text-center text-sm text-[#b8a88a] italic mt-1">{title}</p>'
             return out
         lexer = {'c': CLexer, 'erlang': ErlangLexer, 'elixir': ErlangLexer,
                  'console': BashLexer, 'bash': BashLexer, 'json': JsonLexer}.get(lang)
         if lexer:
             try:
                 h = highlight(code, lexer(), HtmlFormatter(style='monokai'))
-                return f'<div class="my-4 rounded-none border border-[#30363d] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed">{h}</pre></div>'
+                return f'<div class="my-4 rounded-none border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed">{h}</pre></div>'
             except Exception:
                 pass
-        cap = f'<p class="text-xs text-[#8b949e] mb-1 font-mono">{title}</p>' if title else ''
-        return f'{cap}<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#30363d] overflow-x-auto text-sm"><code>{code}</code></pre>'
+        cap = f'<p class="text-xs text-[#b8a88a] mb-1 font-mono">{title}</p>' if title else ''
+        return f'{cap}<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code>{code}</code></pre>'
 
     body = re.sub(r'```(\w*)([^\n]*)\n(.*?)```', replace_block, body, flags=re.DOTALL)
     return body
@@ -88,26 +90,26 @@ def process_body(body):
 
 def make_sidebar(chapters, current_id=None):
     lines = []
-    lines.append('<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#161b22] border-r border-[#30363d] overflow-y-auto z-50 transition-transform duration-200">')
-    lines.append('<div class="p-4 border-b border-[#30363d]">')
-    lines.append('<a href="index.html" class="text-[#58a6ff] font-bold text-lg no-underline hover:underline">PON-BEAM</a>')
+    lines.append('<aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#1a0f0f] border-r border-[#8B6914] overflow-y-auto z-50 transition-transform duration-200">')
+    lines.append('<div class="p-4 border-b border-[#8B6914]">')
+    lines.append('<a href="index.html" class="text-[#FFD700] font-bold text-lg no-underline hover:underline">PON-BEAM</a>')
     lines.append('</div>')
 
     for ch in chapters:
         if ch["part"] == "frontmatter":
-            active = 'text-[#58a6ff]' if ch["id"] == current_id else 'text-[#8b949e]'
+            active = 'text-[#FFD700]' if ch["id"] == current_id else 'text-[#b8a88a]'
             lines.append(f'<a href="{ch["id"]}.html" class="block px-4 py-1.5 text-sm {active} hover:text-[#e6edf3] no-underline">{ch["title"]}</a>')
 
     for pn, pname in PARTS.items():
-        lines.append(f'<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#8b949e] font-semibold">Parte {pn}: {pname}</div>')
+        lines.append(f'<div class="px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">Parte {pn}: {pname}</div>')
         for ch in chapters:
             if ch["part"] == pn:
-                active = 'text-[#58a6ff] border-l-2 border-[#58a6ff] bg-[rgba(88,166,255,0.08)]' if ch["id"] == current_id else 'text-[#8b949e] hover:text-[#e6edf3]'
+                active = 'text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)]' if ch["id"] == current_id else 'text-[#b8a88a] hover:text-[#e6edf3]'
                 lines.append(f'<a href="{ch["id"]}.html" class="block px-4 py-1.5 pl-8 text-sm no-underline {active}">{ch["title"]}</a>')
 
     for ch in chapters:
         if ch["part"] == "backmatter":
-            active = 'text-[#58a6ff]' if ch["id"] == current_id else 'text-[#8b949e]'
+            active = 'text-[#FFD700]' if ch["id"] == current_id else 'text-[#b8a88a]'
             lines.append(f'<a href="{ch["id"]}.html" class="block px-4 py-1.5 text-sm {active} hover:text-[#e6edf3] no-underline">{ch["title"]}</a>')
 
     lines.append('</aside>')
@@ -119,7 +121,7 @@ def render_page(ch, body_html, config):
     title = ch["title"]
     sidebar = make_sidebar(chapters, ch["id"])
     hide_ch_header = ch["id"] in ("capa", "folha-de-rosto", "contra-capa")
-    ch_header = f'<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#30363d]">{title}</h1>' if not hide_ch_header else ''
+    ch_header = f'<h1 class="text-2xl font-bold mb-6 pb-4 border-b border-[#8B6914]">{title}</h1>' if not hide_ch_header else ''
 
     prev_ch = None
     next_ch = None
@@ -129,8 +131,8 @@ def render_page(ch, body_html, config):
             if i < len(chapters) - 1: next_ch = chapters[i + 1]
             break
 
-    prev_html = f'<a href="{prev_ch["id"]}.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">\u2190 {prev_ch["title"]}</a>' if prev_ch else '<span></span>'
-    next_html = f'<a href="{next_ch["id"]}.html" class="px-4 py-2 border border-[#30363d] text-sm text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] no-underline">{next_ch["title"]} \u2192</a>' if next_ch else '<span></span>'
+    prev_html = f'<a href="{prev_ch["id"]}.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">\u2190 {prev_ch["title"]}</a>' if prev_ch else '<span></span>'
+    next_html = f'<a href="{next_ch["id"]}.html" class="px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline">{next_ch["title"]} \u2192</a>' if next_ch else '<span></span>'
 
     capa_style = ''
     if ch["id"] == "capa":
@@ -148,15 +150,15 @@ def render_page(ch, body_html, config):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} — PON-BEAM</title>
-    {TAILWIND_CDN}
+    {TAILWIND_BOTH}
     <link rel="stylesheet" href="theme/style.css">
     <link rel="stylesheet" href="theme/pygments.css">
 </head>
-<body class="bg-[#0d1117] text-[#e6edf3]">
+<body class="bg-[#0d0a0a] text-[#e6edf3]">
 
 {sidebar}
 
-<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#2d1515] border border-[#8B6914] text-[#b8a88a] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#2d1515] transition-colors" onclick="toggleSidebar()">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
 
@@ -168,7 +170,7 @@ def render_page(ch, body_html, config):
 {body_html}
 </article>
 
-<footer class="flex justify-between mt-12 pt-6 border-t border-[#30363d]">
+<footer class="flex justify-between mt-12 pt-6 border-t border-[#8B6914]">
     {prev_html}
     {next_html}
 </footer>
@@ -222,9 +224,9 @@ def render_index(config):
 
     parts_html = ''
     for pn, pname in PARTS.items():
-        parts_html += f'<section class="mb-8"><h2 class="text-xl font-bold text-[#58a6ff] mb-2">Parte {pn}: {pname}</h2><ol class="list-none p-0">'
+        parts_html += f'<section class="mb-8"><h2 class="text-xl font-bold text-[#FFD700] mb-2">Parte {pn}: {pname}</h2><ol class="list-none p-0">'
         for ch in chs_by_part.get(pn, []):
-            parts_html += f'<li class="my-1"><a href="{ch["id"]}.html" class="text-[#58a6ff] no-underline hover:underline">{ch["title"]}</a></li>'
+            parts_html += f'<li class="my-1"><a href="{ch["id"]}.html" class="text-[#FFD700] no-underline hover:underline">{ch["title"]}</a></li>'
         parts_html += '</ol></section>'
 
     return f'''<!DOCTYPE html>
@@ -233,26 +235,26 @@ def render_index(config):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PON-BEAM — Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</title>
-    {TAILWIND_CDN}
+    {TAILWIND_BOTH}
     <link rel="stylesheet" href="theme/style.css">
 </head>
-<body class="bg-[#0d1117] text-[#e6edf3]">
+<body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
-<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#21262d] border border-[#30363d] text-[#8b949e] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#30363d] transition-colors" onclick="toggleSidebar()">&#9776;</button>
+<button id="menuBtn" class="fixed top-3 left-3 z-[60] px-2.5 py-1.5 text-lg bg-[#2d1515] border border-[#8B6914] text-[#b8a88a] cursor-pointer leading-none hover:text-[#e6edf3] hover:bg-[#2d1515] transition-colors" onclick="toggleSidebar()">&#9776;</button>
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
 <main id="main" class="ml-72 p-8 max-w-4xl transition-all duration-200">
-<header class="text-center py-12 border-b border-[#30363d] mb-8">
-    <h1 class="text-4xl font-extrabold text-[#58a6ff] mb-2">PON-BEAM</h1>
-    <p class="text-xl text-[#8b949e] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>
-    <p class="text-sm text-[#8b949e]">{config["author"]}</p>
+<header class="text-center py-12 border-b border-[#8B6914] mb-8">
+    <h1 class="text-4xl font-extrabold text-[#FFD700] mb-2">PON-BEAM</h1>
+    <p class="text-xl text-[#b8a88a] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>
+    <p class="text-sm text-[#b8a88a]">{config["author"]}</p>
 </header>
-<section class="mb-8 p-6 bg-[#161b22] border border-[#30363d]">
+<section class="mb-8 p-6 bg-[#1a0f0f] border border-[#8B6914]">
     <h2 class="text-lg font-bold mb-2">Sobre este livro</h2>
-    <p class="text-[#8b949e] leading-relaxed">A <strong class="text-[#e6edf3]">PON-BEAM</strong> \u00e9 uma re-arquitetura da m\u00e1quina virtual BEAM usando o <strong class="text-[#e6edf3]">Paradigma Orientado a Notifica\u00e7\u00f5es (PON)</strong> de Jean Marcelo Sim\u00e3o. Cada subsistema interno da VM — scheduler, selective receive, timer wheel, ETS, garbage collector — \u00e9 redesenhado como uma entidade PON reativa.</p>
+    <p class="text-[#b8a88a] leading-relaxed">A <strong class="text-[#e6edf3]">PON-BEAM</strong> \u00e9 uma re-arquitetura da m\u00e1quina virtual BEAM usando o <strong class="text-[#e6edf3]">Paradigma Orientado a Notifica\u00e7\u00f5es (PON)</strong> de Jean Marcelo Sim\u00e3o. Cada subsistema interno da VM — scheduler, selective receive, timer wheel, ETS, garbage collector — \u00e9 redesenhado como uma entidade PON reativa.</p>
 </section>
 {parts_html}
-<footer class="text-center text-sm text-[#8b949e] mt-8 pt-4 border-t border-[#30363d]">
-    <p>Reposit\u00f3rio: <a href="{config["repo"]}" class="text-[#58a6ff]">{config["repo"]}</a></p>
+<footer class="text-center text-sm text-[#b8a88a] mt-8 pt-4 border-t border-[#8B6914]">
+    <p>Reposit\u00f3rio: <a href="{config["repo"]}" class="text-[#FFD700]">{config["repo"]}</a></p>
 </footer>
 </main>
 <script src="theme/search.js"></script>
