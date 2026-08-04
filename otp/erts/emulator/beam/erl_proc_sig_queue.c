@@ -924,20 +924,8 @@ enqueue_signals(int is_to_buffer, Process *rp, ErtsMessage *first,
      * depois, no fetch, sem custo proporcional a fila.
      */
     if (rp->pon_premises && num_msgs && !is_to_buffer) {
-        ErtsMessage *pon_mp = first;
-        ErtsMessage **pon_cell = this;
-        Uint pon_n = 0;
-        while (1) {
-            if (ERTS_SIG_IS_MSG(pon_mp))
-                pon_mp->pon_in_link = pon_cell;
-            if (&pon_mp->next == last)
-                break;
-            if (++pon_n > 1000000)
-                erts_exit(ERTS_ERROR_EXIT,
-                          "pon-enqueue: loop runaway");
-            pon_cell = &pon_mp->next;
-            pon_mp = pon_mp->next;
-        }
+        if (ERTS_SIG_IS_MSG(first))
+            first->pon_in_link = this;
     }
 #endif
 
@@ -10569,20 +10557,8 @@ static Uint proc_sig_queue_flush_buffer(Process* proc,
              * invalida apos o concat.
              */
             if (proc->pon_premises) {
-                ErtsMessage *pon_mp = buf->b.queue.first;
-                ErtsMessage **pon_cell = proc->sig_inq.last;
-                Uint pon_n = 0;
-                while (1) {
-                    if (ERTS_SIG_IS_MSG(pon_mp))
-                        pon_mp->pon_in_link = pon_cell;
-                    if (&pon_mp->next == buf->b.queue.last)
-                        break;
-                    if (++pon_n > 1000000)
-                        erts_exit(ERTS_ERROR_EXIT,
-                                  "pon-flush: loop runaway");
-                    pon_cell = &pon_mp->next;
-                    pon_mp = pon_mp->next;
-                }
+                if (ERTS_SIG_IS_MSG(buf->b.queue.first))
+                    buf->b.queue.first->pon_in_link = proc->sig_inq.last;
             }
 #endif
             sig_inq_concat(&proc->sig_inq, &buf->b.queue);
@@ -10696,20 +10672,8 @@ void erts_proc_sig_queue_flush_and_deinstall_buffers(Process* proc)
             ERTS_HDBG_CHECK_SIGNAL_IN_QUEUE(proc, &buffers->slots[i].b.queue);
 #ifdef PON_BEAM
             if (proc->pon_premises) {
-                ErtsMessage *pon_mp = buffers->slots[i].b.queue.first;
-                ErtsMessage **pon_cell = proc->sig_inq.last;
-                Uint pon_n = 0;
-                while (1) {
-                    if (ERTS_SIG_IS_MSG(pon_mp))
-                        pon_mp->pon_in_link = pon_cell;
-                    if (&pon_mp->next == buffers->slots[i].b.queue.last)
-                        break;
-                    if (++pon_n > 1000000)
-                        erts_exit(ERTS_ERROR_EXIT,
-                                  "pon-deinstall: loop runaway");
-                    pon_cell = &pon_mp->next;
-                    pon_mp = pon_mp->next;
-                }
+                if (ERTS_SIG_IS_MSG(buffers->slots[i].b.queue.first))
+                    buffers->slots[i].b.queue.first->pon_in_link = proc->sig_inq.last;
             }
 #endif
             sig_inq_concat(&proc->sig_inq, &buffers->slots[i].b.queue);

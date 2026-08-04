@@ -271,8 +271,13 @@ erts_pon_advance_to_matched(Process *p)
     ErtsMessage **orig_save = qs->save;
     ErtsMessage *cur = erts_msgq_peek_msg(p);
     while (cur && cur != m) {
+        if (!cur->pon_in_link)
+            cur->pon_in_link = qs->save;
         erts_msgq_set_save_next(p);
         cur = erts_msgq_peek_msg(p);
+    }
+    if (cur && cur == m && !m->pon_in_link) {
+        m->pon_in_link = qs->save;
     }
 
     if (!cur) {
