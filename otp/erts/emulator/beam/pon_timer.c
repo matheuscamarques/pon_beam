@@ -12,6 +12,10 @@
 
 #ifdef PON_BEAM
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include "pon_instigation.h"
 #include "pon_stats.h"
 

@@ -56,6 +56,9 @@
 #include "erl_alloc_util.h"
 #include "erl_global_literals.h"
 #include "beam_load.h"
+#ifdef PON_BEAM
+#include "pon_stats.h"
+#endif
 #include "erl_md5.h"
 #include "erl_iolist.h"
 #include "erl_debugger.h"
@@ -3628,6 +3631,41 @@ BIF_RETTYPE system_info_1(BIF_ALIST_1)
         erts_factory_close(&hfact);
 
         BIF_RET(res);
+    } else if (ERTS_IS_ATOM_STR("pon_stats", BIF_ARG_1)) {
+#ifdef PON_BEAM
+        /* PON-BEAM: contadores do scheduler corrente (thread-local).
+         * Com +S 1:1 todos os eventos do workload caem aqui. */
+        Eterm ks[8], vs[8];
+        ErtsHeapFactory hfact;
+        Uint xi = 0;
+
+#define PON_STAT_ENTRY(NAME, FIELD)                                     \
+        do {                                                            \
+            ks[xi] = erts_atom_put((byte *)(NAME), sizeof(NAME) - 1,    \
+                                   ERTS_ATOM_ENC_LATIN1, 0);            \
+            vs[xi] = make_small((Sint) pon_stats.FIELD);                \
+            xi++;                                                       \
+        } while (0)
+
+        PON_STAT_ENTRY("premises_registered", premises_registered);
+        PON_STAT_ENTRY("premise_notifications", premise_notifications);
+        PON_STAT_ENTRY("mailbox_scans_avoided", mailbox_scans_avoided);
+        PON_STAT_ENTRY("messages_classified", messages_classified);
+        PON_STAT_ENTRY("messages_type_collision", messages_type_collision);
+        PON_STAT_ENTRY("messages_pon_queued", messages_pon_queued);
+        PON_STAT_ENTRY("condition_notifications", condition_notifications);
+        PON_STAT_ENTRY("pon_overhead_us", pon_overhead_us);
+
+#undef PON_STAT_ENTRY
+
+        erts_factory_proc_init(&hfact, BIF_P);
+        res = erts_map_from_ks_and_vs(&hfact, ks, vs, 8);
+        erts_factory_close(&hfact);
+
+        BIF_RET(res);
+#else
+        BIF_ERROR(BIF_P, BADARG);
+#endif
     }
 
     BIF_ERROR(BIF_P, BADARG);

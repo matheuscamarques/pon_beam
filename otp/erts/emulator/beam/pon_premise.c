@@ -13,6 +13,7 @@
 #include "erl_vm.h"
 #include "global.h"
 #include "erl_process.h"
+#include "erl_proc_sig_queue.h"
 #include "pon_premise.h"
 #include "pon_stats.h"
 
@@ -29,15 +30,15 @@ erts_pon_default_match(Eterm pattern, Eterm term)
     if (pattern == term)
         return 1;
     if (is_tuple(pattern) && is_tuple(term)) {
-        int arity_p = arityval(pattern);
-        int arity_t = arityval(term);
-        if (arity_p != arity_t)
-            return 0;
         Eterm *ptr_p = tuple_val(pattern);
         Eterm *ptr_t = tuple_val(term);
-        for (int i = 0; i < arity_p; i++) {
+        int arity_p = arityval(*ptr_p);
+        int arity_t = arityval(*ptr_t);
+        if (arity_p != arity_t)
+            return 0;
+        for (int i = 1; i <= arity_p; i++) {
             Eterm pe = ptr_p[i];
-            /* THE_NON_VALUE no padro = wildcard (casa qualquer coisa) */
+            /* THE_NON_VALUE no padrao = wildcard (casa qualquer coisa) */
             if (is_non_value(pe))
                 continue;
             if (pe != ptr_t[i])
@@ -105,22 +106,20 @@ pon_extract_type_tag(Eterm term)
 
 /*
  * Insere uma mensagem na fila de tipo (bucket) correspondente.
+ *
+ * NOTA: nao alteramos msg->next aqui. A mensagem ja e linkada na fila
+ * principal pela ERTS (queue_messages -> LINK_MESSAGE). Re-linkar o
+ * mesmo erl_mesg numa segunda lista (type_queue) criaria cycles quando
+ * a 2a mensagem do bucket chegasse (last->next = msg, com msg ja na
+ * fila principal), corrompendo a mailbox. Ficamos apenas com o counter
+ * por bucket; a lista em si c a responsabilidade da fila principal.
  */
 static void
 pon_enqueue_to_type_queue(Process *p, struct erl_mesg *msg, Uint bucket)
 {
     ErtsSignalPrivQueues *qs = &p->sig_qs;
-    ErtsMessage **queue = &qs->type_queues[bucket];
 
-    /* Insere no final da fila de tipo */
-    if (*queue == NULL) {
-        *queue = msg;
-    } else {
-        ErtsMessage *last = *queue;
-        while (last->next)
-            last = last->next;
-        last->next = msg;
-    }
+    (void) msg;
     qs->type_queue_len[bucket]++;
 
     PON_STATS_INC(messages_classified);
@@ -146,7 +145,7 @@ erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term)
     Uint bucket = pon_extract_type_tag(term);
     pon_enqueue_to_type_queue(p, msg, bucket);
 
-    /* Notifica cada Premise que matcha o termo */
+/* Notifica cada Premise que matcha o termo */
     int matched = 0;
     ErtsPremise *prem = p->pon_premises;
     while (prem) {
@@ -206,6 +205,88 @@ erts_pon_receive(Process *p)
     best->matched_msg = NULL;
 
     return result;
+}
+
+/*
+ * Fast-path do selective receive (interpreter).
+ *
+ * Posiciona o save pointer da fila principal diretamente na mensagem
+ * que a Premise de menor clause_index já notificou. Enquanto o scan
+ * stock custa pattern matching completo por mensagem (dispatch de
+ * instruções + testes de cláusula), aqui cada mensagem intermediária
+ * custa apenas um chase de ponteiro (msg->next) e uma comparação de
+ * ponteiro contra matched_msg.
+ *
+ * Se a mensagem casada não for encontrada à frente do save (guarda de
+ * cláusula falhou, mensagem consumida por outra via, ou a mensagem
+ * ainda está em sig_inq esperando o fetch), restaura o save e limpa a
+ * Premise: o scan normal prossegue semântica-correto a partir da
+ * posição original.
+ */
+void
+erts_pon_advance_to_matched(Process *p)
+{
+    ASSERT(p != NULL);
+
+    if (!p->pon_premises)
+        return;
+
+    /* Melhor Premise = menor clause_index com has_match */
+    ErtsPremise *best = NULL;
+    ErtsPremise *prem = p->pon_premises;
+    while (prem) {
+        if (prem->has_match) {
+            if (!best || prem->clause_index < best->clause_index)
+                best = prem;
+        }
+        prem = prem->next_premise;
+    }
+
+    if (!best)
+        return;
+
+    /* Anda com o save pointer até a mensagem casada */
+    ErtsMessage **orig_save = p->sig_qs.save;
+    ErtsMessage *cur = erts_msgq_peek_msg(p);
+    while (cur && cur != best->matched_msg) {
+        erts_msgq_set_save_next(p);
+        cur = erts_msgq_peek_msg(p);
+    }
+
+    if (!cur) {
+        /* Não encontrada à frente: Premise obsoleta. Restaura o save
+         * para o scan normal continuar; a Premise será re-notificada
+         * quando uma nova mensagem compatível chegar. */
+        p->sig_qs.save = orig_save;
+        best->has_match = 0;
+        best->matched_term = THE_NON_VALUE;
+        best->matched_msg = NULL;
+        return;
+    }
+
+    PON_STATS_INC(mailbox_scans_avoided);
+}
+
+/*
+ * Chamada pelo remove_message do interpreter: a mensagem consumida
+ * satisfez uma (ou mais) Premise(s); limpa o estado para que futuras
+ * chegadas possam notificar novamente.
+ */
+void
+erts_pon_note_message_consumed(Process *p, ErtsMessage *msgp)
+{
+    ASSERT(p != NULL);
+    ASSERT(msgp != NULL);
+
+    ErtsPremise *prem = p->pon_premises;
+    while (prem) {
+        if (prem->matched_msg == msgp) {
+            prem->has_match = 0;
+            prem->matched_term = THE_NON_VALUE;
+            prem->matched_msg = NULL;
+        }
+        prem = prem->next_premise;
+    }
 }
 
 #endif /* PON_BEAM */

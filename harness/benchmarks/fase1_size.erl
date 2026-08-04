@@ -3,11 +3,13 @@
 
 %% receive_mailbox_size.erl — Escalabilidade: N mensagens na mailbox × latency
 %%
-%% Mede como o custo do receive escala com o tamanho da mailbox.
-%% Baseline: O(N). PON-BEAM: O(1).
+%% Mede como o custo do selective receive escala com o tamanho da mailbox.
+%% Baseline: O(N). PON-BEAM: O(1) via notificação de Premises.
 %%
-%% Resultado: #{sizes => [{N, BaselineUs, PonUs}]}
+%% Mesma técnica do fase1_receive: consumer com UMA cláusula alvo,
+%% noise que não casa (fica na fila), medição do scan.
 
+-define(ITERATIONS, 5).
 -define(SIZES, [1, 10, 100, 1000, 10000, 100000]).
 
 run() ->
@@ -15,30 +17,39 @@ run() ->
     #{sizes => Results}.
 
 benchmark(N) ->
-    Self = self(),
-    MsgNonMatch = {nomatch, list_to_tuple(lists:seq(1, 10))},
-    Target = {ziel, value},
-    Prefill = [MsgNonMatch || _ <- lists:seq(1, N)],
+    Latencies = [measure_scan(N) || _ <- lists:seq(1, ?ITERATIONS)],
+    Median = lists:nth(length(Latencies) div 2 + 1, lists:sort(Latencies)),
+    #{n => N, latency_us => Median, iters => length(Latencies)}.
 
-    Consumer = spawn(fun() -> consumer(Self) end),
-    timer:sleep(5),
+measure_scan(N) ->
+    Parent = self(),
+    Consumer = spawn(fun() -> consumer(Parent) end),
 
-    %% Envia preenchimento
-    lists:foreach(fun(M) -> Consumer ! M end, Prefill),
-    timer:sleep(5),
+    receive
+        {ready, Consumer} -> ok
+    after 2000 -> error
+    end,
 
-    %% Mede receive da mensagem alvo
+    Noise = {nomatch, list_to_tuple(lists:seq(1, 8))},
+    lists:foreach(fun(M) -> Consumer ! M end,
+                  lists:duplicate(N, Noise)),
+    timer:sleep(2),
+
     {TimeUs, _} = timer:tc(fun() ->
-        Consumer ! Target,
-        receive {consumer_done, R} -> R end
+        Consumer ! {ziel, value},
+        receive
+            {consumer_done, _R} -> ok
+        after 5000 -> error
+        end
     end),
-
-    #{n => N, latency_us => TimeUs}.
+    TimeUs.
 
 consumer(Parent) ->
+    try erlang:pon_register_premises([{ziel, value}])
+    catch error:undef -> ok
+    end,
+    Parent ! {ready, self()},
     receive
         {ziel, V} ->
-            Parent ! {consumer_done, V};
-        _ ->
-            consumer(Parent)
+            Parent ! {consumer_done, V}
     end.

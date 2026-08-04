@@ -2,21 +2,20 @@
  * pon_stats.h — Contadores de instrumentação PON-BEAM
  *
  * Contadores thread-local (per-scheduler) para validação do comportamento
- * dos subsistemas PON. Ativados com PON_BEAM_DEBUG.
+ * dos subsistemas PON. Sempre ativos quando PON_BEAM está definido —
+ * `erlang:system_info(pon_stats)` expõe os valores como um mapa.
  *
  * Uso:
  *   PON_STATS_INC(premise_notifications);
  *   PON_STATS_ADD(mailbox_scans_avoided, 42);
  *
- * Sem PON_BEAM_DEBUG, todas as macros são vazias (custo zero).
+ * Sem PON_BEAM, todas as macros são vazias (custo zero).
  */
 
 #ifndef PON_STATS_H__
 #define PON_STATS_H__
 
 #ifdef PON_BEAM
-
-#ifdef PON_BEAM_DEBUG
 
 #include "sys.h"
 #include "erl_term.h"
@@ -55,7 +54,8 @@ typedef struct {
     Uint64 pon_overhead_us;          /* Microssegundos gastos em infra PON */
 } PonStats;
 
-/* Ponteiro thread-local para stats per-scheduler */
+/* Ponteiro thread-local para stats per-scheduler.
+ * A instância é definida em erl_process.c. */
 extern __thread PonStats pon_stats;
 
 /* Atalhos para incremento */
@@ -65,21 +65,6 @@ extern __thread PonStats pon_stats;
 /* Marca tempo de início/fim para medir overhead (ms) */
 #define PON_STATS_BEGIN_TIMER()        Uint64 __pon_start = erts_timestamp_millis()
 #define PON_STATS_END_TIMER()          PON_STATS_ADD(pon_overhead_us, (erts_timestamp_millis() - __pon_start) * 1000)
-
-/* Inicializa stats (chamado uma vez por scheduler) */
-void pon_stats_init(void);
-void pon_stats_destroy(void);
-
-#else
-/* Sem PON_BEAM_DEBUG: macros vazias — custo zero */
-#define PON_STATS_INC(field)
-#define PON_STATS_ADD(field, n)
-#define PON_STATS_BEGIN_TIMER()
-#define PON_STATS_END_TIMER()
-
-#define pon_stats_init()
-#define pon_stats_destroy()
-#endif /* PON_BEAM_DEBUG */
 
 #endif /* PON_BEAM */
 #endif /* PON_STATS_H__ */

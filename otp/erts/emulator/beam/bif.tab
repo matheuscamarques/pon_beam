@@ -262,6 +262,12 @@ bif erlang:make_tuple/2
 bif erlang:append_element/2
 bif erlang:make_tuple/3
 
+#ifdef PON_BEAM
+# PON-BEAM: registro de Premises para selective receive orientado a notificações
+bif erlang:pon_register_premises/1
+bif erlang:pon_unregister_premises/0
+#endif
+
 bif erlang:system_flag/2
 bif erlang:system_info/1
 # Added 2006-11-07

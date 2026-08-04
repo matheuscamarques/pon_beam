@@ -43,6 +43,10 @@
 #include "erl_gc.h"
 #include "bif.h"
 #include "erl_bif_unique.h"
+#ifdef PON_BEAM
+#include "pon_premise.h"
+#include "pon_stats.h"
+#endif
 #include "erl_proc_sig_queue.h"
 #include "erl_check_io.h"
 #include "erl_global_literals.h"
@@ -960,6 +964,30 @@ enqueue_signals(int is_to_buffer, Process *rp, ErtsMessage *first,
         ASSERT(dbg_count_nmsigs(first) == 0);
 
     dest_queue->mlenoffs += num_msgs;
+
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: notifica as Premises do receiver sobre mensagens que
+     * acabaram de ser commitadas em sig_inq.
+     *
+     * Este é o caminho do flush de buffers (e do enqueue multi-
+     * mensagem); o caminho direto de mensagem única já notifica em
+     * erl_message.c (queue_messages -> LINK_MESSAGE). Sem isto, uma
+     * mensagem buffereada nunca notificaria a Premise e o receive
+     * bloquearia indevidamente.
+     */
+    if (!is_to_buffer && rp->pon_premises && num_msgs) {
+        ErtsMessage *pon_mp = first;
+        while (pon_mp) {
+            if (ERTS_SIG_IS_MSG(pon_mp))
+                erts_pon_notify_premises(rp, pon_mp,
+                                         ERL_MESSAGE_TERM(pon_mp));
+            if (&pon_mp->next == last)
+                break;
+            pon_mp = pon_mp->next;
+        }
+    }
+#endif
 
     ERTS_HDBG_INQ_LEN(dest_queue);
 

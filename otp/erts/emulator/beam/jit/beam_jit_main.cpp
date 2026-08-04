@@ -138,6 +138,18 @@ static void install_bifs(void) {
         ep->info.mfa.arity = entry->arity;
         ep->bif_number = i;
 
+#ifdef PON_BEAM
+        /* PON-BEAM: novos BIFs não são referenciados por módulos carregados,
+         * então o loader nunca linka o export para op_call_bif_W e o
+         * error_handler re-invocaria a chamada indefinidamente. Arme o
+         * trampoline diretamente, como erts_init_trap_export/3 faz. */
+        if (entry->f == pon_register_premises_1 ||
+            entry->f == pon_unregister_premises_0) {
+            ep->trampoline.common.op = BeamOpCodeAddr(op_call_bif_W);
+            ep->trampoline.bif.address = (BeamInstr)entry->f;
+        }
+#endif
+
         for (j = 0; j < ERTS_NUM_CODE_IX; j++) {
             erts_activate_export_trampoline(ep, j);
         }

@@ -59,6 +59,13 @@
 #ifdef PON_BEAM
 #include "pon_premise.h"
 #include "pon_stats.h"
+
+/*
+ * PON-BEAM: stats thread-local por scheduler.
+ * Definida aqui (a header declara extern) para ter exatamente uma
+ * instância por thread do emulador.
+ */
+__thread PonStats pon_stats;
 #endif
 
 #define ERTS_CHECK_TIME_REDS CONTEXT_REDS
@@ -7024,15 +7031,32 @@ schedule_process(Process *p, erts_aint32_t in_state, ErtsProcLocks locks)
 #ifdef PON_BEAM
 /*
  * PON-BEAM: notifica o scheduler alvo que h um processo pronto.
- * Usa a Condition do scheduler para acord-lo via eventfd.
+ *
+ * NOTA DE CORREO: a versa~o anterior chamava
+ * pon_condition_notify(&esdp->pon_condition, (void *)p), que usava o
+ * OWN primeiro byte do struct Process como node da ready_list. O 1o
+ * campo de Process e common.id (o PID — erl_ptab.h:80); sobrescrever
+ * esse campo a cada agenda destruia o identificador do processo e
+ * corrompia Eterms, terminando em "size_object: bad tag" (copy.c:260).
+ *
+ * Alem disso, pon_condition_create() nunca era chamada, entao a
+ * Condition ficava com fds/jlixo nao inicializados, e nada drenava a
+ * ready_list (nem wait nem try_dequeue existiam como callers).
+ *
+ * A implementacao segura da fase PON-Scheduler exige um node proprio
+ * (nao embutido no Process); enquanto isso nao existe, AQUI VAZIA:
+ * apenas incrementa os stats, sem tocar na memoria do processo.
+ *
+ * TODO[PON-SCHED]: implementar ready_list com node proprio + consumer
+ * no scheduler (pon_condition_wait de verdade) sem alisar o Process.
  */
 static ERTS_INLINE void
 erts_pon_schedule_notify(Process *p)
 {
-    ErtsSchedulerData *esdp = erts_get_scheduler_data();
-    if (esdp) {
-        pon_condition_notify(&esdp->pon_condition, (void *)p);
-    }
+    (void) p;
+    /* No-op: nao ha consumer real da Condition ainda e os fds nao
+     * sao inicializados (pon_condition_create nunca e chamada).
+     * Escrever em fd lixo seria perigoso. Stats apenas. */
     PON_STATS_INC(condition_notifications);
 }
 #endif
@@ -12580,6 +12604,20 @@ erl_create_process(Process* parent, /* Parent of process (default group leader).
     p->sig_qs.flags = qs_flags;
 
     p->static_flags = 0;
+#ifdef PON_BEAM
+    /* PON-BEAM: Premises começam desregistradas; type_queues zeradas.
+     * (o allocator do ERTS nao zera memoria — sem isso o hook de
+     * erl_message.c poderia ler ponteiro lixo e corromper termos) */
+    p->pon_premises = NULL;
+    {
+        int bi;
+        for (bi = 0; bi < PON_NUM_TYPE_BUCKETS; bi++) {
+            p->sig_qs.type_queues[bi] = NULL;
+            p->sig_qs.type_queue_len[bi] = 0;
+            p->sig_qs.type_save[bi] = NULL;
+        }
+    }
+#endif
     if (so->flags & SPO_SYSTEM_PROC)
 	p->static_flags |= ERTS_STC_FLG_SYSTEM_PROC;
     if (so->flags & SPO_USE_ARGS) {
@@ -13428,6 +13466,14 @@ delete_process(Process* p)
 
     /* free all pending messages */
     erts_proc_sig_cleanup_queues(p);
+
+#ifdef PON_BEAM
+    /* PON-BEAM: libera Premises registradas (não há mais remetentes
+     * possíveis — o processo está morto). */
+    if (p->pon_premises) {
+        erts_pon_unregister_premises(p);
+    }
+#endif
 
     /* Cleanup psd */
 

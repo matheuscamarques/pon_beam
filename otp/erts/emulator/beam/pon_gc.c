@@ -10,6 +10,10 @@
 
 #ifdef PON_BEAM
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include "pon_gc.h"
 #include "pon_stats.h"
 #include <stdlib.h>

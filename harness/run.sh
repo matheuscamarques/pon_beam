@@ -50,7 +50,7 @@ find_benchmarks() {
         local name
         name=$(basename "$f" .erl)
         local fase
-        fase=$(echo "$name" | cut -d'_' -f1)
+        fase=$(echo "$name" | sed 's/^fase//; s/_.*//')
 
         # Filtro por fase
         if [ -n "$fase_filter" ]; then
@@ -82,6 +82,18 @@ compile_benchmarks() {
     find "$LIB_DIR" -name "*.erl" -exec "$erlc" -o "$LIB_DIR" {} +
 }
 
+# Flags comuns dos ERTS nos benchmarks.
+# +S 1:1    — scheduler único: mede o mecanismo (não contention) e faz o
+#             pon_stats thread-local do system_info refletir o workload todo.
+#
+# Observação: +JPemulator NÃO existe neste ERTS (OTP 29/30 relabelado). O
+# fast-path PON-Receive (msg_instrs.tab) vive apenas no interpreter; por isso
+# o ERTS PON é instalado como FLAVOR=emu (interpreter) nesta etapa. O baseline
+# stock deve ser rebuildado como FLAVOR=emu para comparação justa.
+#
+# Override: ERTS_EXTRA_ARGS="+S 2:2" ./run.sh
+ERTS_EXTRA_ARGS="${ERTS_EXTRA_ARGS:-+S 1:1}"
+
 run_benchmarks() {
     local erl=$1
     local output_dir=$2
@@ -99,7 +111,7 @@ run_benchmarks() {
     find_benchmarks "$FASE_FILTER" "$ONLY_FILTER" | sort | while IFS='|' read -r name path; do
         echo -e "  ${YELLOW}[$label]${NC} $name..."
         local out="$output_dir/${name}.json"
-        "$erl" -noshell $pa_opts \
+        "$erl" -noshell $ERTS_EXTRA_ARGS $pa_opts \
             -eval "pon_harness:run(\"$name\", \"$out\"), halt()." 2>&1 | sed 's/^/    /'
     done
 }

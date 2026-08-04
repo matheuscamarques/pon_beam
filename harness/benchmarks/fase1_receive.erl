@@ -1,69 +1,70 @@
 -module(fase1_receive).
 -export([run/0]).
 
-%% receive_mailbox_scan.erl — Benchmark de scanning linear vs Premises
+%% receive_mailbox_scan.erl — Benchmark de selective receive scan
 %%
-%% Mede o tempo de selective receive variando o tamanho da mailbox.
-%% Baseline (sem PON): scanning linear O(N × M)
-%% PON-BEAM: notificação de Premises O(1)
+%% Mede o custo do scan seletivo variando o tamanho da mailbox.
+%% A mailbox é preenchida com N mensagens que NÃO casam nenhuma cláusula
+%% (permanecem na fila). A mensagem alvo é enviada por último.
 %%
-%% Resultado: #{scans => [{N, BaselineUs, PonUs, Ratio}]}
+%% Baseline (OTP stock): scan linear O(N) para encontrar o alvo.
+%% PON-BEAM: notificação de Premises entrega o alvo O(1).
+%%
+%% A consumer tem UMA única cláusula ({target, Value}) — sem catch-all,
+%% garantindo que as mensagens noise nunca sejam consumidas antes do alvo.
 
--define(NUM_CLAUSES, 3).
--define(SIZES, [10, 100, 1000, 10000]).
+-define(ITERATIONS, 9).
+-define(SIZES, [10, 100, 1000, 10000, 100000]).
 
 run() ->
     Results = lists:map(fun benchmark/1, ?SIZES),
-    Stats = collect_pon_stats(),
-    #{scans => Results, pon_stats => Stats}.
+    #{scans => Results}.
 
 benchmark(N) ->
-    %% Preenche mailbox com N mensagens que não casam
-    MsgNonMatch = {other, data},
-    Prefill = [MsgNonMatch || _ <- lists:seq(1, N)],
+    Latencies = [measure_scan(N) || _ <- lists:seq(1, ?ITERATIONS)],
+    Median = lists:nth(length(Latencies) div 2 + 1, lists:sort(Latencies)),
+    #{n => N, latency_us => Median, iters => length(Latencies)}.
 
-    %% Mensagem alvo no final
-    Target = {target, value},
+measure_scan(N) ->
+    Parent = self(),
+    Consumer = spawn(fun() -> consumer(Parent) end),
 
-    %% Mede tempo de receive
-    {TimeUs, Got} = timer:tc(fun() -> do_receive(Prefill, Target) end),
-
-    #{n => N, latency_us => TimeUs, got => Got}.
-
-do_receive(Prefill, Target) ->
-    Self = self(),
-    %% Cria processo consumidor com mailbox preenchida
-    Consumer = spawn(fun() -> consumer_loop(?NUM_CLAUSES, Self) end),
-    timer:sleep(10),  %% espera consumer estar pronto
-
-    %% Envia mensagens que não casam + alvo
-    lists:foreach(fun(M) -> Consumer ! M end, Prefill),
-    Consumer ! Target,
-
-    %% Aguarda resposta do consumer
+    %% Espera a consumer entrar no receive (handshake, fora da janela medida)
     receive
-        {done, Got} -> Got
-    after
-        5000 -> timeout
-    end.
+        {ready, Consumer} -> ok
+    after 2000 -> error
+    end,
 
-%% consumer_loop(NumClauses, Parent) ->
-%%   Executa receive com NumClauses cláusulas.
-%%   A primeira cláusula casa Target.
-consumer_loop(Clauses, Parent) ->
+    %% Preenche a mailbox com N mensagens que não casam nenhuma cláusula
+    Noise = {nomatch, list_to_tuple(lists:seq(1, 8))},
+    lists:foreach(fun(M) -> Consumer ! M end,
+                  lists:duplicate(N, Noise)),
+
+    %% Pequena pausa para garantir que o envio terminou (fora da janela medida)
+    timer:sleep(2),
+
+    %% Janela medida: envia alvo + aguarda o scan + resposta
+    {TimeUs, Got} = timer:tc(fun() ->
+        Consumer ! {target, value},
+        receive
+            {done, G} -> G
+        after 5000 -> error
+        end
+    end),
+
+    {target, value} = Got,
+    TimeUs.
+
+%% consumer: aceita apenas {target, Value}. Mensagens {nomatch, _}
+%% não casam e permanecem na mailbox — forçando o scan seletivo.
+consumer(Parent) ->
+    %% PON-BEAM: registra a Premise da cláusula. No baseline o BIF não
+    %% existe (undef) e o benchmark roda em modo stock puro.
+    try erlang:pon_register_premises([{target, value}])
+    catch error:undef -> ok
+    end,
+    Parent ! {ready, self()},
     receive
         {target, Value} ->
-            Parent ! {done, {target, Value}};
-        {other, _} ->
-            consumer_loop(Clauses, Parent);
-        _Other ->
-            consumer_loop(Clauses, Parent)
-    end.
-
-%% collect_pon_stats() -> map() | undefined
-collect_pon_stats() ->
-    try erlang:system_info(pon_stats) of
-        Stats -> Stats
-    catch
-        error:badarg -> undefined
+            Parent ! {done, {target, Value}}
     end.

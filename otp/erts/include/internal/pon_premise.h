@@ -82,5 +82,17 @@ int erts_pon_default_match(Eterm pattern, Eterm term);
  */
 int erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term);
 
+/*
+ * Fast-path do selective receive (interpreter): avança o save pointer
+ * da fila principal até a mensagem que a melhor Premise notificou.
+ */
+void erts_pon_advance_to_matched(Process *p);
+
+/*
+ * Chamada pelo remove_message: limpa o estado das Premises cuja
+ * mensagem casada foi consumida.
+ */
+void erts_pon_note_message_consumed(Process *p, struct erl_mesg *msgp);
+
 #endif /* PON_BEAM */
 #endif /* PON_PREMISE_H__ */

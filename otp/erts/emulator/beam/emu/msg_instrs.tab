@@ -138,6 +138,23 @@ i_loop_rec(Dest) {
     ASSERT(msgp == erts_msgq_peek_msg(c_p));
     ASSERT(ERTS_SIG_IS_INTERNAL_MSG(msgp));
 
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: fast-path do selective receive.
+     *
+     * Depois do fetch (caminho msgp==NULL acima), se uma Premise já
+     * notificou uma mensagem, avança o save pointer direto para ela
+     * (chase de ponteiros, sem pattern matching por mensagem).
+     * advance_to_matched nunca deixa o save no fim: se não encontrar,
+     * restaura e o scan normal continua.
+     */
+    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)) {
+        erts_pon_advance_to_matched(c_p);
+        msgp = erts_msgq_peek_msg(c_p);
+        ASSERT(msgp != NULL);
+    }
+#endif
+
     x(0) = ERL_MESSAGE_TERM(msgp);
 }
 
@@ -226,6 +243,17 @@ remove_message() {
 #endif
     erts_msgq_unlink_msg_set_save_first(c_p, msgp);
     CANCEL_TIMER(c_p);
+
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: a mensagem consumida satisfez uma Premise (na maioria
+     * dos casos via fast-path); limpa o estado dela para que futuras
+     * chegadas possam notificar novamente.
+     */
+    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)) {
+        erts_pon_note_message_consumed(c_p, msgp);
+    }
+#endif
 
     erts_save_message_in_proc(c_p, msgp);
     c_p->flags &= ~F_DELAY_GC;

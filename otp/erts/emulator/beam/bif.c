@@ -52,6 +52,10 @@
 #include "erl_msacc.h"
 #include "erl_proc_sig_queue.h"
 #include "erl_fun.h"
+#ifdef PON_BEAM
+#include "pon_premise.h"
+#include "pon_stats.h"
+#endif
 #ifdef ERTS_USE_BUILTIN_RYU
 #  include "ryu.h"
 #endif
@@ -3814,6 +3818,84 @@ BIF_RETTYPE self_0(BIF_ALIST_0)
 {
      BIF_RET(BIF_P->common.id);
 }
+
+/**********************************************************************/
+
+#ifdef PON_BEAM
+/*
+ * PON-BEAM: pon_register_premises(Patterns) -> true
+ *
+ * Registra no processo a lista de padrões (uma Premise por elemento,
+ * na ordem das cláusulas do selective receive). A partir daí, a
+ * chegada de uma mensagem compatível notifica a Premise, e o
+ * interpreter posiciona o receive direto nela (fast-path PON).
+ *
+ * A função é definida incondicionalmente porque a tabela de BIFs é
+ * gerada sem preprocessamento; sem PON_BEAM retorna badarg.
+ */
+BIF_RETTYPE pon_register_premises_1(BIF_ALIST_1)
+{
+    Process *p = BIF_P;
+    Eterm list = BIF_ARG_1;
+    ErtsPremise *prems = NULL;
+    ErtsPremise **tail = &prems;
+    Eterm l;
+    Uint idx = 0;
+
+    if (!is_list(list))
+        BIF_ERROR(BIF_P, BADARG);
+
+    l = list;
+    while (is_list(l)) {
+        Eterm *lp = list_val(l);
+        ErtsPremise *prem;
+
+        prem = erts_alloc(ERTS_ALC_T_TMP, sizeof(ErtsPremise));
+        ERTS_INIT_PREMISE(prem, lp[0], NULL, idx);
+        *tail = prem;
+        tail = &prem->next_premise;
+        idx++;
+        l = lp[1];
+    }
+    if (l != NIL) {
+        /* Lista imprópria: libera o alocado e falha */
+        while (prems) {
+            ErtsPremise *next = prems->next_premise;
+            erts_free(ERTS_ALC_T_TMP, prems);
+            prems = next;
+        }
+        BIF_ERROR(BIF_P, BADARG);
+    }
+
+    erts_pon_register_premises(p, prems);
+
+    BIF_RET(am_true);
+}
+
+/*
+ * PON-BEAM: pon_unregister_premises() -> true
+ */
+BIF_RETTYPE pon_unregister_premises_0(BIF_ALIST_0)
+{
+    Process *p = BIF_P;
+
+    erts_pon_unregister_premises(p);
+
+    BIF_RET(am_true);
+}
+#else
+/* Sem PON_BEAM: BIFs existem mas não fazem nada (badarg) para que a
+ * tabela gerada a partir do bif.tab continue linkando. */
+BIF_RETTYPE pon_register_premises_1(BIF_ALIST_1)
+{
+    BIF_ERROR(BIF_P, BADARG);
+}
+
+BIF_RETTYPE pon_unregister_premises_0(BIF_ALIST_0)
+{
+    BIF_ERROR(BIF_P, BADARG);
+}
+#endif /* PON_BEAM */
 
 /**********************************************************************/
 
