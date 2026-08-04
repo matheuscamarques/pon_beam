@@ -27,3 +27,11 @@ otp/erts/etc/unix/werl
 # IDE
 .vscode/
 .idea/
+
+# Generated docs & formal verification
+book/output/
+formal/
+
+# OTP lib build artifacts
+otp/lib/*/Makefile
+otp/lib/erl_interface/config.h.in
