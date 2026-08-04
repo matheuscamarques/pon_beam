@@ -44,12 +44,12 @@ if [ "$CHARTS_ONLY" -eq 0 ] && [ "$SKIP_BUILD" -eq 0 ]; then
   echo -e "${CYAN}=== Build OTP stock (baseline) ===${NC}"
   cd "$OTP_DIR"
   make clean 2>/dev/null || true
-  ./configure --prefix=/opt/erlang/30-stock --without-javac --without-odbc --without-wx
+  ./configure --prefix=/opt/erlang-30-stock --without-javac --without-odbc --without-wx
   make -j$(nproc) && make install
 
   echo -e "${CYAN}=== Build OTP com PON-BEAM ===${NC}"
   make clean 2>/dev/null || true
-  ./configure --prefix=/opt/erlang/30-pon --enable-pon-beam --without-javac --without-odbc --without-wx
+  ./configure --prefix=/opt/erlang-30-pon --enable-pon-beam --without-javac --without-odbc --without-wx
   make -j$(nproc) && make install
 fi
 

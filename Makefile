@@ -18,8 +18,8 @@ OTP_DIR = otp
 OTP_STOCK_DIR = /home/sanonichan/projetos/otp-stock
 HARNESS_DIR = harness
 
-PREFIX_STOCK = /opt/erlang/30-stock
-PREFIX_PON   = /opt/erlang/30-pon
+PREFIX_STOCK = /opt/erlang-30-stock
+PREFIX_PON   = /opt/erlang-30-pon
 
 BUILD_OPTS = --without-javac --without-odbc --without-wx
 MAKE_OPTS  = -j$$(nproc)
@@ -50,9 +50,9 @@ build:
 ## === Iteração rápida (só o emulador C, precisa de build completo antes) ===
 
 emulator-stock:
-	@echo "=== Recompilando só a VM stock em $(OTP_STOCK_DIR) ==="
-	cd $(OTP_STOCK_DIR)/erts/emulator && make $(MAKE_OPTS)
-	cd $(OTP_STOCK_DIR) && make install
+		@echo "=== Recompilando só a VM stock em $(OTP_STOCK_DIR) ==="
+		cd $(OTP_STOCK_DIR)/otp/erts/emulator && make $(MAKE_OPTS)
+		cd $(OTP_STOCK_DIR)/otp && make install
 
 emulator-pon:
 	@echo "=== Recompilando só a VM PON em $(OTP_DIR) ==="
