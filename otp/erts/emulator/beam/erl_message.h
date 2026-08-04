@@ -247,6 +247,24 @@ struct erl_mesg {
     ERL_MESSAGE_REF_FIELDS__;
 
     ErlHeapFragment hfrag;
+
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: link de entrada da mensagem na fila interna.
+     *
+     * pon_in_link aponta para o endereco do ponteiro da fila principal
+     * que aponta para ESTA mensagem (o campo `next` do antecessor, ou
+     * &sig_qs.first se for a cabeca). E gravado no momento em que a
+     * mensagem e movida da sig_inq para a fila interna (fetch), de
+     * modo que o receive PON possa posicionar o save pointer em O(1) —
+     * sem caminhar a lista inteira.
+     *
+     * NULL quando a mensagem entrou por um caminho nao instrumentado
+     * (fila do meio/prio, recv markers); nesse caso o advance cai para
+     * o scan linear com restauracao do save.
+     */
+    ErtsMessage **pon_in_link;
+#endif
 };
 
 /*
@@ -604,6 +622,15 @@ ERTS_GLB_FORCE_INLINE ErtsMessage *erts_alloc_message(Uint sz, Eterm **hpp)
         ERTS_ALC_T_MSG, sizeof(ErtsMessage) + (sz - 1)*sizeof(Eterm));
 
     ERTS_INIT_MESSAGE(mp);
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: somente mensagens completas (sz > 0) carregam o campo
+     * pon_in_link — mensagens sz == 0 usam ErtsMessageRef (menor) e
+     * nao tem o campo. data.attached != NULL distingue os dois.
+     * Szobe a escrita de pon_in_link para mensagens completas.
+     */
+    mp->pon_in_link = NULL;
+#endif
     mp->data.attached = ERTS_MSG_COMBINED_HFRAG;
     ERTS_INIT_HEAP_FRAG(&mp->hfrag, sz, sz);
 

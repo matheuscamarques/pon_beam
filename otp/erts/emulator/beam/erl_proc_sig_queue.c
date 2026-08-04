@@ -1400,6 +1400,48 @@ erts_proc_sig_fetch__(Process *proc,
             ASSERT(proc->sig_inq.mlenoffs > 0);
 
             if (!proc->sig_qs.cont && !ERTS_MSG_RECV_TRACED(proc)) {
+#ifdef PON_BEAM
+                /*
+                 * PON-BEAM: grava o link de entrada de cada mensagem
+                 * da fila interna (pon_in_link). O receive PON usa
+                 * este endereco para posicionar o save pointer em O(1).
+                 *
+                 * Cadeia: sig_inq.first -> ... -> ultima mensagem,
+                 * com sig_inq.last == &ultima->next (sentinel).
+                 */
+                if (proc->pon_premises) {
+                    ErtsMessage *pon_mp = proc->sig_inq.first;
+                    ErtsMessage **pon_cell = proc->sig_qs.last;
+                    int pon_n = 0;
+                    while (1) {
+                        /* Mensagem Ref (sz == 0) nao tem pon_in_link */
+                        if (pon_mp->data.attached) {
+                            pon_mp->pon_in_link = pon_cell;
+                            if (pon_n < 12)
+                                erts_fprintf(stderr,
+                                    "[pon-fetch] WRITE mp=%p term=%T att=%p cell=%p\\n",
+                                    (void *) pon_mp,
+                                    ERL_MESSAGE_TERM(pon_mp),
+                                    (void *) pon_mp->data.attached,
+                                    (void *) pon_cell);
+                        }
+                        else if (pon_n < 8)
+                            erts_fprintf(stderr,
+                                "[pon-fetch] skip mp=%p term=%T att=%p len=%ld\\n",
+                                (void *) pon_mp,
+                                ERL_MESSAGE_TERM(pon_mp),
+                                (void *) pon_mp->data.attached,
+                                (long) proc->sig_inq.mlenoffs);
+                        if (++pon_n > 1000000)
+                            erts_exit(ERTS_ERROR_EXIT,
+                                      "pon-fetch: loop runaway");
+                        if (&pon_mp->next == proc->sig_inq.last)
+                            break;
+                        pon_cell = &pon_mp->next;
+                        pon_mp = pon_mp->next;
+                    }
+                }
+#endif
                 *proc->sig_qs.last = proc->sig_inq.first;
                 proc->sig_qs.last = proc->sig_inq.last;
                 ASSERT(proc->sig_qs.mlenoffs == 0);

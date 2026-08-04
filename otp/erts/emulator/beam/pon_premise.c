@@ -211,17 +211,21 @@ erts_pon_receive(Process *p)
  * Fast-path do selective receive (interpreter).
  *
  * Posiciona o save pointer da fila principal diretamente na mensagem
- * que a Premise de menor clause_index já notificou. Enquanto o scan
- * stock custa pattern matching completo por mensagem (dispatch de
- * instruções + testes de cláusula), aqui cada mensagem intermediária
- * custa apenas um chase de ponteiro (msg->next) e uma comparação de
- * ponteiro contra matched_msg.
+ * que a Premise de menor clause_index já notificou.
  *
- * Se a mensagem casada não for encontrada à frente do save (guarda de
- * cláusula falhou, mensagem consumida por outra via, ou a mensagem
- * ainda está em sig_inq esperando o fetch), restaura o save e limpa a
- * Premise: o scan normal prossegue semântica-correto a partir da
- * posição original.
+ * Caminho O(1): se a mensagem casada entrou na fila interna por um
+ * caminho instrumentado (fetch), o campo pon_in_link dela guarda o
+ * endereco do ponteiro da fila principal que aponta para ela
+ * (prev->next ou &sig_qs.first). Basta apontar o save para la — sem
+ * caminhar a lista, sem pattern matching por mensagem.
+ *
+ * A validacao "*pon_in_link == matched_msg" garante que o link ainda
+ * aponta para a mensagem casada. Se nao (mensagem consumida por outra
+ * via, link reescrito, ou caminho nao instrumentado), cai para o scan
+ * linear da fila principal — que custa apenas um chase de ponteiro por
+ * mensagem intermediaria, e restaura o save + limpa a Premise se a
+ * mensagem nao for encontrada a frente do save, preservando a
+ * semantica do scan normal.
  */
 void
 erts_pon_advance_to_matched(Process *p)
@@ -245,10 +249,28 @@ erts_pon_advance_to_matched(Process *p)
     if (!best)
         return;
 
-    /* Anda com o save pointer até a mensagem casada */
-    ErtsMessage **orig_save = p->sig_qs.save;
+    ErtsMessage *m = best->matched_msg;
+    ErtsSignalPrivQueues *qs = &p->sig_qs;
+
+    /*
+     * Caminho O(1): link de entrada registrado no fetch e ainda valido.
+     * Guardas de conservadorismo: sem fila do meio (cont), sem prio
+     * queue e sem recv markers — caminhos em que o pon_in_link nao e
+     * mantido (ali o scan linear abaixo continua funcionando).
+     */
+    if (0 && m && m->data.attached && m->pon_in_link && *m->pon_in_link == m
+        && !qs->cont
+        && !(qs->flags & (FS_PRIO_MQ | FS_PRIO_MQ_END_MARK | FS_PRIO_MQ_SAVE))
+        && !qs->recv_mrk_blk) {
+        qs->save = m->pon_in_link;
+        PON_STATS_INC(mailbox_scans_avoided);
+        return;
+    }
+
+    /* Fallback: anda com o save pointer até a mensagem casada */
+    ErtsMessage **orig_save = qs->save;
     ErtsMessage *cur = erts_msgq_peek_msg(p);
-    while (cur && cur != best->matched_msg) {
+    while (cur && cur != m) {
         erts_msgq_set_save_next(p);
         cur = erts_msgq_peek_msg(p);
     }
@@ -257,7 +279,7 @@ erts_pon_advance_to_matched(Process *p)
         /* Não encontrada à frente: Premise obsoleta. Restaura o save
          * para o scan normal continuar; a Premise será re-notificada
          * quando uma nova mensagem compatível chegar. */
-        p->sig_qs.save = orig_save;
+        qs->save = orig_save;
         best->has_match = 0;
         best->matched_term = THE_NON_VALUE;
         best->matched_msg = NULL;
