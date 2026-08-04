@@ -258,7 +258,7 @@ erts_pon_advance_to_matched(Process *p)
      * queue e sem recv markers — caminhos em que o pon_in_link nao e
      * mantido (ali o scan linear abaixo continua funcionando).
      */
-    if (0 && m && m->data.attached && m->pon_in_link && *m->pon_in_link == m
+    if (m && m->pon_in_link && *m->pon_in_link == m
         && !qs->cont
         && !(qs->flags & (FS_PRIO_MQ | FS_PRIO_MQ_END_MARK | FS_PRIO_MQ_SAVE))
         && !qs->recv_mrk_blk) {

@@ -236,7 +236,46 @@ struct erl_heap_fragment {
 	ErlHeapFragment *heap_frag;			\
 	void *attached;					\
     } data;						\
-    Eterm m[ERL_MESSAGE_REF_ARRAY_SZ]
+    Eterm m[ERL_MESSAGE_REF_ARRAY_SZ]			\
+    PON_MESSAGE_REF_FIELDS__
+
+#ifdef PON_BEAM
+/*
+ * PON-BEAM: link de entrada da mensagem na fila interna.
+ *
+ * pon_in_link aponta para o endereco do ponteiro da fila principal
+ * que aponta para ESTA mensagem (o campo `next` do antecessor, ou
+ * &sig_qs.first se for a cabeca). E gravado no momento em que a
+ * mensagem e movida da sig_inq para a fila interna (fetch), de modo
+ * que o receive PON possa posicionar o save pointer em O(1) — sem
+ * caminhar a lista inteira.
+ *
+ * Vive em ERL_MESSAGE_REF_FIELDS__ (compartilhado por ErtsMessage e
+ * ErtsMessageRef): mensagens enviadas entre processos chegam como
+ * ErtsMessageRef (sz == 0, on-heap ou com heap fragment) e precisam
+ * do campo tambem. ERTS_INIT_MESSAGE reporta NULL para ambos.
+ */
+#define PON_MESSAGE_REF_FIELDS__			\
+    ; ErtsMessage **pon_in_link
+#else
+#define PON_MESSAGE_REF_FIELDS__
+#endif
+
+#ifdef PON_BEAM
+/*
+ * PON-BEAM: registra o link de entrada de uma mensagem ligada na
+ * sig_inq. Usada pelo LINK_MESSAGE (append de mensagem unica).
+ * O enqueue multi-mensagem (enqueue_signals) grava os links da
+ * cadeia diretamente.
+ */
+#define ERTS_PON_SET_IN_LINK(p, msg)					\
+    do {								\
+	if ((p)->pon_premises)						\
+	    (msg)->pon_in_link = (p)->sig_inq.last;			\
+    } while (0)
+#else
+#define ERTS_PON_SET_IN_LINK(p, msg) do { } while (0)
+#endif
 
 
 typedef struct erl_msg_ref__ {
@@ -247,24 +286,6 @@ struct erl_mesg {
     ERL_MESSAGE_REF_FIELDS__;
 
     ErlHeapFragment hfrag;
-
-#ifdef PON_BEAM
-    /*
-     * PON-BEAM: link de entrada da mensagem na fila interna.
-     *
-     * pon_in_link aponta para o endereco do ponteiro da fila principal
-     * que aponta para ESTA mensagem (o campo `next` do antecessor, ou
-     * &sig_qs.first se for a cabeca). E gravado no momento em que a
-     * mensagem e movida da sig_inq para a fila interna (fetch), de
-     * modo que o receive PON possa posicionar o save pointer em O(1) —
-     * sem caminhar a lista inteira.
-     *
-     * NULL quando a mensagem entrou por um caminho nao instrumentado
-     * (fila do meio/prio, recv markers); nesse caso o advance cai para
-     * o scan linear com restauracao do save.
-     */
-    ErtsMessage **pon_in_link;
-#endif
 };
 
 /*
@@ -513,6 +534,7 @@ typedef struct erl_trace_message_queue__ {
         ASSERT(ERTS_SIG_IS_MSG(msg));                                   \
         ERTS_HDBG_CHECK_SIGNAL_IN_QUEUE__((p), &(p)->sig_inq, "before");\
         ERTS_HDBG_INQ_LEN(&(p)->sig_inq);                               \
+        ERTS_PON_SET_IN_LINK((p), (msg));                               \
         *(p)->sig_inq.last = (msg);                                     \
         (p)->sig_inq.last = &(msg)->next;                               \
         (p)->sig_inq.mlenoffs++;                                        \
@@ -549,7 +571,14 @@ typedef struct erl_trace_message_queue__ {
         ERL_MESSAGE_FROM(MP) = NIL;                     \
         ERL_MESSAGE_DT_UTAG_INIT(MP);                   \
         MP->data.attached = NULL;                       \
+        PON_INIT_MESSAGE(MP);                           \
     } while (0)
+
+#ifdef PON_BEAM
+#define PON_INIT_MESSAGE(MP) ((MP)->pon_in_link = NULL)
+#else
+#define PON_INIT_MESSAGE(MP) ((void) 0)
+#endif
 
 void init_message(void);
 ErlHeapFragment* new_message_buffer(Uint);
@@ -622,15 +651,6 @@ ERTS_GLB_FORCE_INLINE ErtsMessage *erts_alloc_message(Uint sz, Eterm **hpp)
         ERTS_ALC_T_MSG, sizeof(ErtsMessage) + (sz - 1)*sizeof(Eterm));
 
     ERTS_INIT_MESSAGE(mp);
-#ifdef PON_BEAM
-    /*
-     * PON-BEAM: somente mensagens completas (sz > 0) carregam o campo
-     * pon_in_link — mensagens sz == 0 usam ErtsMessageRef (menor) e
-     * nao tem o campo. data.attached != NULL distingue os dois.
-     * Szobe a escrita de pon_in_link para mensagens completas.
-     */
-    mp->pon_in_link = NULL;
-#endif
     mp->data.attached = ERTS_MSG_COMBINED_HFRAG;
     ERTS_INIT_HEAP_FRAG(&mp->hfrag, sz, sz);
 

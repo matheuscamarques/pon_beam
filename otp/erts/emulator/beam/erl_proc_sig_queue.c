@@ -912,6 +912,35 @@ enqueue_signals(int is_to_buffer, Process *rp, ErtsMessage *first,
     *this = first;
     dest_queue->last = last;
 
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: grava o link de entrada de cada mensagem da cadeia
+     * (pon_in_link = endereco do ponteiro da fila que aponta para a
+     * mensagem). O advance O(1) do receive usa esse endereco para
+     * posicionar o save pointer sem scan linear.
+     *
+     * Feito no enqueue (lado do envio), fora da janela medida do
+     * receive. O no de mensagens ligado a uma Premise e verificado
+     * depois, no fetch, sem custo proporcional a fila.
+     */
+    if (rp->pon_premises && num_msgs && !is_to_buffer) {
+        ErtsMessage *pon_mp = first;
+        ErtsMessage **pon_cell = this;
+        Uint pon_n = 0;
+        while (1) {
+            if (ERTS_SIG_IS_MSG(pon_mp))
+                pon_mp->pon_in_link = pon_cell;
+            if (&pon_mp->next == last)
+                break;
+            if (++pon_n > 1000000)
+                erts_exit(ERTS_ERROR_EXIT,
+                          "pon-enqueue: loop runaway");
+            pon_cell = &pon_mp->next;
+            pon_mp = pon_mp->next;
+        }
+    }
+#endif
+
     set_flags = num_msgs ? ERTS_PSFLG_MSG_SIG_IN_Q : 0;
 
     if (!dest_queue->nmsigs.next) {
@@ -1400,48 +1429,6 @@ erts_proc_sig_fetch__(Process *proc,
             ASSERT(proc->sig_inq.mlenoffs > 0);
 
             if (!proc->sig_qs.cont && !ERTS_MSG_RECV_TRACED(proc)) {
-#ifdef PON_BEAM
-                /*
-                 * PON-BEAM: grava o link de entrada de cada mensagem
-                 * da fila interna (pon_in_link). O receive PON usa
-                 * este endereco para posicionar o save pointer em O(1).
-                 *
-                 * Cadeia: sig_inq.first -> ... -> ultima mensagem,
-                 * com sig_inq.last == &ultima->next (sentinel).
-                 */
-                if (proc->pon_premises) {
-                    ErtsMessage *pon_mp = proc->sig_inq.first;
-                    ErtsMessage **pon_cell = proc->sig_qs.last;
-                    int pon_n = 0;
-                    while (1) {
-                        /* Mensagem Ref (sz == 0) nao tem pon_in_link */
-                        if (pon_mp->data.attached) {
-                            pon_mp->pon_in_link = pon_cell;
-                            if (pon_n < 12)
-                                erts_fprintf(stderr,
-                                    "[pon-fetch] WRITE mp=%p term=%T att=%p cell=%p\\n",
-                                    (void *) pon_mp,
-                                    ERL_MESSAGE_TERM(pon_mp),
-                                    (void *) pon_mp->data.attached,
-                                    (void *) pon_cell);
-                        }
-                        else if (pon_n < 8)
-                            erts_fprintf(stderr,
-                                "[pon-fetch] skip mp=%p term=%T att=%p len=%ld\\n",
-                                (void *) pon_mp,
-                                ERL_MESSAGE_TERM(pon_mp),
-                                (void *) pon_mp->data.attached,
-                                (long) proc->sig_inq.mlenoffs);
-                        if (++pon_n > 1000000)
-                            erts_exit(ERTS_ERROR_EXIT,
-                                      "pon-fetch: loop runaway");
-                        if (&pon_mp->next == proc->sig_inq.last)
-                            break;
-                        pon_cell = &pon_mp->next;
-                        pon_mp = pon_mp->next;
-                    }
-                }
-#endif
                 *proc->sig_qs.last = proc->sig_inq.first;
                 proc->sig_qs.last = proc->sig_inq.last;
                 ASSERT(proc->sig_qs.mlenoffs == 0);
@@ -10572,6 +10559,32 @@ static Uint proc_sig_queue_flush_buffer(Process* proc,
         if (buf->b.alive) {
             ERTS_HDBG_CHECK_SIGNAL_IN_QUEUE(proc, &proc->sig_inq);
             ERTS_HDBG_CHECK_SIGNAL_IN_QUEUE(proc, &buf->b.queue);
+#ifdef PON_BEAM
+            /*
+             * PON-BEAM: grava o link de entrada das mensagens do slot
+             * agora que a cadeia sera concatenada na sig_inq. O cell da
+             * primeira mensagem e o sig_inq.last anterior; as demais
+             * usam &prev->next. Feito no flush (fora da janela medida
+             * do receive); a gravacao no enqueue do buffer seria
+             * invalida apos o concat.
+             */
+            if (proc->pon_premises) {
+                ErtsMessage *pon_mp = buf->b.queue.first;
+                ErtsMessage **pon_cell = proc->sig_inq.last;
+                Uint pon_n = 0;
+                while (1) {
+                    if (ERTS_SIG_IS_MSG(pon_mp))
+                        pon_mp->pon_in_link = pon_cell;
+                    if (&pon_mp->next == buf->b.queue.last)
+                        break;
+                    if (++pon_n > 1000000)
+                        erts_exit(ERTS_ERROR_EXIT,
+                                  "pon-flush: loop runaway");
+                    pon_cell = &pon_mp->next;
+                    pon_mp = pon_mp->next;
+                }
+            }
+#endif
             sig_inq_concat(&proc->sig_inq, &buf->b.queue);
             buf->b.queue.first = NULL;
             buf->b.queue.last = &buf->b.queue.first;
@@ -10681,6 +10694,24 @@ void erts_proc_sig_queue_flush_and_deinstall_buffers(Process* proc)
 
         if (buffers->slots[i].b.queue.first != NULL) {
             ERTS_HDBG_CHECK_SIGNAL_IN_QUEUE(proc, &buffers->slots[i].b.queue);
+#ifdef PON_BEAM
+            if (proc->pon_premises) {
+                ErtsMessage *pon_mp = buffers->slots[i].b.queue.first;
+                ErtsMessage **pon_cell = proc->sig_inq.last;
+                Uint pon_n = 0;
+                while (1) {
+                    if (ERTS_SIG_IS_MSG(pon_mp))
+                        pon_mp->pon_in_link = pon_cell;
+                    if (&pon_mp->next == buffers->slots[i].b.queue.last)
+                        break;
+                    if (++pon_n > 1000000)
+                        erts_exit(ERTS_ERROR_EXIT,
+                                  "pon-deinstall: loop runaway");
+                    pon_cell = &pon_mp->next;
+                    pon_mp = pon_mp->next;
+                }
+            }
+#endif
             sig_inq_concat(&proc->sig_inq, &buffers->slots[i].b.queue);
             ERTS_HDBG_CHECK_SIGNAL_IN_QUEUE(proc, &proc->sig_inq);
         }
