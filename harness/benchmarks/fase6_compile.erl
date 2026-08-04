@@ -1,76 +1,60 @@
 -module(fase6_compile).
 -export([run/0]).
 
-%% compile_receive.erl — Benchmark de compilao de receives com PON
+%% compile_receive.erl — Benchmark de compilação de receives com PON
 %%
 %% O parse transform pon_compiler converte blocos receive para
 %% chamadas a pon_runtime (register_premises + receive_msg).
 %%
-%% Este benchmark mede o tempo de compilao de uma funo com
-%% vrios receives, com e sem a transformada PON.
+%% Mede o tempo de compilação de um módulo real (com vários receives)
+%% com e sem a transformada PON.
+
+-define(TMP_PATH, "/tmp/pon_bench_compile.erl").
 
 run() ->
-    ModSrc = pon_test_module_source(),
+    Src = pon_test_module_source(),
+    ok = file:write_file(?TMP_PATH, Src),
 
     %% Compila sem PON (baseline)
-    {T1, {ok, _Mod1, Bin1}} = timer:tc(fun() ->
-        compile_source(ModSrc, [])
+    {T1, R1} = timer:tc(fun() ->
+        compile:file(?TMP_PATH, [return, binary])
     end),
 
     %% Compila com PON (parse transform)
-    {T2, {ok, _Mod2, Bin2}} = timer:tc(fun() ->
-        compile_source(ModSrc, [{parse_transform, pon_compiler}, {d, pon_beam}])
+    {T2, R2} = timer:tc(fun() ->
+        compile:file(?TMP_PATH, [return, binary,
+                                 {parse_transform, pon_compiler},
+                                 {d, pon_beam}])
     end),
 
-    PonStats = collect_pon_stats(),
+    BaselineOk = element(1, R1) =:= ok,
+    PonOk = element(1, R2) =:= ok,
+
+    Ratio = case BaselineOk andalso PonOk of
+        true -> max(1, T1) / max(1, T2);
+        false -> undefined
+    end,
+
     #{
         compile_baseline_us => T1,
         compile_pon_us => T2,
-        ratio => max(1, T1) / max(1, T2),
-        pon_stats => PonStats
+        baseline_ok => BaselineOk,
+        pon_ok => PonOk,
+        ratio => Ratio
     }.
 
 pon_test_module_source() ->
-    "-module(pon_test).\n"
-    "-export([handle/1]).\n"
+    "-module(pon_bench_compile).\n"
+    "-export([handle/2]).\n"
     "-compile({parse_transform, pon_compiler}).\n"
     "\n"
-    "handle(Msg) ->\n"
+    "handle(State, {call, From, Req}) ->\n"
     "    receive\n"
-    "        {call, From, Req} ->\n"
-    "            From ! {reply, Req},\n"
-    "            handle(Msg);\n"
+    "        {call, From2, Req2} when Req2 > 0 ->\n"
+    "            From2 ! {reply, Req2},\n"
+    "            handle(State, Req2);\n"
     "        {cast, Msg} ->\n"
     "            {noreply, Msg};\n"
     "        Other ->\n"
     "            {info, Other}\n"
     "    end.\n".
-
-compile_source(Src, Opts) ->
-    compile_source(Src, Opts, []).
-
-compile_source(Src, Opts, MoreOpts) ->
-    case compile_buffer(Src, Opts ++ MoreOpts) of
-        {ok, Mod, Bin} -> {ok, Mod, Bin};
-        {ok, Mod, Bin, _Warnings} -> {ok, Mod, Bin};
-        Error -> Error
-    end.
-
-compile_buffer(Src, Opts) ->
-    case epp:parse_file(Src, ".", []) of
-        {ok, Forms} ->
-            compile:forms(Forms, [from_core, return] ++ Opts);
-        {error, _} ->
-            %% Tenta como string direta
-            compile:forms([{attribute, 1, module, test},
-                           {function, 1, run, 0,
-                            [{clause, 1, [], [], [{atom, 1, ok}]}]}],
-                          Opts)
-    end.
-
-collect_pon_stats() ->
-    try erlang:system_info(pon_stats) of
-        Stats -> Stats
-    catch
-        error:badarg -> undefined
-    end.
