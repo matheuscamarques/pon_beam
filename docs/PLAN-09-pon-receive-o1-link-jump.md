@@ -107,6 +107,33 @@ mensagem; válido após o splice `sig_inq → fila interna`):
   e o stock **não re-vasculha** noise já varrido (save pointer) — forçar o
   scan O(N) cold exige o consumidor fora de receive na entrega.
 
+## 9a. Benchmark de scan cold (`fase1_receive_cold`) — RESULTADO OFICIAL
+
+Para medir o O(1) de forma determinística e repetível, novo benchmark
+`harness/benchmarks/fase1_receive_cold.erl`: o consumidor faz spin em
+`message_queue_len` (conta, não varre) até a entrega completa, depois entra no
+receive **frio**; a janela medida é o próprio receive na consumer
+(`monotonic_time`), excluindo entrega/wake. Roda na suíte via `--only=cold`.
+
+Mediana de 7 iterações, `+S 1:1` (harness oficial), run `20260804_163923`:
+
+| N | Baseline (µs) | PON-BEAM (µs) | Ganho |
+|---|--------------:|--------------:|------:|
+| 1000 | 17 | 2 | 8.5× |
+| 5000 | 123 | 5 | 24.6× |
+| 10000 | 253 | 5 | 50.6× |
+| 25000 | 825 | 5 | 165× |
+| 50000 | 1221 | 7 | 174× |
+
+Stock: linear O(N). PON: **plano ~5 µs** (O(1)). `mailbox_scans_avoided=70`
+(35 receivers × 2), 637035 mensagens classificadas. Repro­duzível (2ª corrida:
+17/123/253/825/1221 vs 2/5/5/5/7).
+
+**Metodologia**: o conta­dor `mailbox_scans_avoided` reflete saves O(1) **e**
+fallback linear; o índice isolado é a latência por N acima. O ganho de ~174×
+em N=50000 demonstra a tese "receive não escala"; o end-to-end
+(`fase1_receive`) permanece dominado por delivery/wake.
+
 ## 10. Próximos passos
 
 1. Rebuild baseline stock (`make build-stock` FLAVOR=emu) e rodar o harness

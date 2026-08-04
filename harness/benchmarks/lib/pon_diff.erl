@@ -113,8 +113,32 @@ render_rows(Diff) ->
                   end,
         [Acc,
          "<tr><td>", NameStr, "</td><td>", BDur, "</td><td>", PDur,
-         "</td><td class=\"", Class, "\">", RatioStr, "</td></tr>\n"]
+         "</td><td class=\"", Class, "\">", RatioStr, "</td></tr>\n",
+         render_scans(B, P)]
     end, [], Diff).
+
+%% Se o resultado do benchmark tiver latências por N (chave scans),
+%% renderiza tabela aninhada por tamanho de mailbox.
+render_scans(#{result := #{scans := BS}}, #{result := #{scans := PS}}) ->
+    case {lists:sort(BS), lists:sort(PS)} of
+        {[], _} -> [];
+        {_, []} -> [];
+        {SortedB, SortedP} ->
+            Rows = lists:zipwith(fun(#{latency_us := BL, n := N},
+                                      #{latency_us := PL}) ->
+                R = case PL of 0 -> undefined; _ -> BL / PL end,
+                Class = ratio_class(R),
+                ["<tr><td>", integer_to_list(N), "</td><td>",
+                 format_duration(BL), "</td><td>", format_duration(PL),
+                 "</td><td class=\"", Class, "\">", format_ratio(R),
+                 "</td></tr>\n"]
+            end, SortedB, SortedP),
+            ["<tr><td colspan=\"4\"><table>",
+             "<thead><tr><th>N</th><th>Baseline</th><th>PON-BEAM</th>",
+             "<th>Ganho</th></tr></thead><tbody>",
+             Rows, "</tbody></table></td></tr>\n"]
+    end;
+render_scans(_, _) -> [].
 
 render_pon_stats(Diff) ->
     PonBase = maps:fold(fun(_Name, #{ponbeam := P}, Acc) ->
