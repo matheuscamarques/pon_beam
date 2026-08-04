@@ -71,26 +71,46 @@ por `ErtsMessage` e `ErtsMessageRef`:
 - refs têm o campo → o registro de link vale para todo sinal;
 - `struct erl_mesg` = `ERL_MESSAGE_REF_FIELDS__` + `hfrag` (sem campo extra).
 
-## 8. Implementação final validada (Etapa D no working tree)
+## 8. Implementação LAZY (design atual no working tree)
 
-**Registro do `pon_in_link`** (célula = endereço do ponteiro que aponta para a
-mensagem; válido após o splice `sig_inq → fila interna`):
-1. `LINK_MESSAGE` (`erl_message.h`): `ERTS_PON_SET_IN_LINK(p,msg)` —
-   append de mensagem única → cell = `sig_inq.last` anterior.
+**Registro do `pon_in_link`** com custo **O(1) por cadeia** (não por mensagem):
+1. `LINK_MESSAGE` (`erl_message.h`): `ERTS_PON_SET_IN_LINK(p,msg)` — append de
+   mensagem única → cell = `sig_inq.last` (só o próprio msg).
 2. `enqueue_signals` (`erl_proc_sig_queue.c` ~912, guard `!is_to_buffer`):
-   cadeia multi-mensagem direta → cell = `this` / `&prev->next`.
-3. `proc_sig_queue_flush_buffer` e `flush_and_deinstall_buffers` (~10560/10690):
-   cadeias do buffer → sig_inq (cell = `sig_inq.last` anterior ao concat).
-   A gravação no enqueue-BUFFER seria inválida pós-concat, por isso é feita no
-   flush (também fora da janela medida do receive).
-- A walk de registro **não roda mais no fetch** (`erts_proc_sig_fetch__`,
-  splice é O(1)); a instrumentação ficou no lado do envio.
-- **Advance O(1)** (`erts_pon_advance_to_matched`, `pon_premise.c` ~231):
-  guard `m && m->pon_in_link && *m->pon_in_link == m && !qs->cont &&
-  !(qs->flags & (FS_PRIO_MQ|FS_PRIO_MQ_END_MARK|FS_PRIO_MQ_SAVE)) &&
-  !qs->recv_mrk_blk` → `qs->save = m->pon_in_link`; senão fallback linear
-  preservado (restaura save e limpa a Premise se obsoleta).
-- Instrumentação de debug (`getenv`, counters) **removida** do código.
+   **apenas a cabeça** da cadeia recebe `pon_in_link = this`.
+3. `proc_sig_queue_flush_buffer` e `flush_and_deinstall_buffers` (~10557/10672):
+   **apenas a cabeça** de cada chunk do buffer recebe `proc->sig_inq.last`
+   (a célula do concat — escrita fora da janela do receive).
+4. **Preenchimento lazy no fallback** (`erts_pon_advance_to_matched`,
+   `pon_premise.c` ~231): quando o O(1) não dispara (mensagem sem célula), o
+   walk do fallback grava `cur->pon_in_link = qs->save` para cada mensagem
+   até o alvo — a 1ª varredura de uma região custa O(distância), as seguintes
+   saltam O(1). No caso `!cur` (Premise obsoleta) o save é restaurado; as
+   células gravadas durante o walk parcial permanecem válidas (apontavam para
+   posições corretas).
+- Advance O(1) (guard `m && m->pon_in_link && *m->pon_in_link == m && !cont &&
+  !prio flags && !recv_mrk_blk`) inalterado. `PON_MESSAGE_REF_FIELDS__`
+  (campo em `ErtsMessage` e `ErtsMessageRef`) e `ERTS_PON_SET_IN_LINK` também.
+
+**Vantagem**: enqueue multi-mensagem é O(1) (antes O(chain) por batch) — tira o
+custo por mensagem do lado do envio/flush; troca por uma 1ª varredura amortizada.
+
+## 8a. Pontos de falha testados (build lazy, `+S 1:1`) — resultado
+
+Teste `pon_lazy_test` (`/tmp/opencode/pon_lazy_test.erl`):
+
+| Cenário | Resultado | Veredito |
+|---------|-----------|----------|
+| A: alvo no meio de cadeia multi-msg (20k) — 1º scan | 6 µs (fallback preenche cells) | OK |
+| A: 2º scan (alvo já varrido, célula preenchida) | 1 µs (O(1)) | OK — amortiza |
+| B: prioridade alta + PON (20k) | sem crash, alvo entregue | OK |
+| C: receive sem catch-all c/ noise | noise intacto (`message_queue_len==2`) | OK — advance não pula |
+| D: stress N=100000 | scan 6 µs, **sem SIGSEGV** | OK — corrupção Etapa C não re-emerge |
+
+Nota estrutural: alvo que chega DENTRO de um batch multi-mensagem (ex. dist,
+flush de chunk) não tem célula pré-gravada → o **1º** scan é fallback O(distância);
+os seguintes são O(1). Aceitável (amortizado); o critério de aceite (scan cold do
+harness) mede alvo entregue como mensagem única → O(1) estrito.
 
 ## 9. Validação (registro de medições)
 
@@ -133,6 +153,24 @@ Stock: linear O(N). PON: **plano ~5 µs** (O(1)). `mailbox_scans_avoided=70`
 fallback linear; o índice isolado é a latência por N acima. O ganho de ~174×
 em N=50000 demonstra a tese "receive não escala"; o end-to-end
 (`fase1_receive`) permanece dominado por delivery/wake.
+
+## 9b. Resultado oficial com build LAZY (suíte completa `20260804_170541`)
+
+Retestado após a troca para o design lazy (§8) — o critério de aceite se mantém:
+
+| N | Baseline (µs) | PON-BEAM (µs) | Ganho |
+|---|--------------:|--------------:|------:|
+| 1000 | 21 | 2 | 10.5× |
+| 5000 | 139 | 5 | 27.8× |
+| 10000 | 289 | 5 | 57.8× |
+| 25000 | 881 | 5 | 176× |
+| 50000 | 1489 | 6 | 248× |
+
+Suíte completa (baseline vs pon): `fase1_receive` 1.08× (N=10000 2.12×,
+N=100000 1.14×), `fase5_ets_read` 1.84×, `fase6_compile` 1.47×, demais em
+paridade/ruído. `fase1_receive_cold` confirma o O(1) do aceite. O diff report
+agora renderiza a tabela por N (aninhada) para benchmarks com chave `scans`
+(`pon_diff.erl`).
 
 ## 10. Próximos passos
 

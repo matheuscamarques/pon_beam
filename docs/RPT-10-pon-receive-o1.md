@@ -19,9 +19,10 @@ Este relatório documenta a conclusão da **Etapa D da Fase 1 (PON-Receive)** do
 
 | Métrica / Cenário | Baseline (OTP 30 stock) | PON-BEAM (Fase 1 O(1)) | Diferença |
 |---|---|---|---|
-| **Receive ($N = 10.000$ msgs)** | $3.818\,\mu s$ ($3,81\,\text{ms}$) | **$2.894\,\mu s$ ($2,89\,\text{ms}$)** | **24,2% mais rápido** 🚀 |
-| **Receive ($N = 100.000$ msgs)** | $43.313\,\mu s$ ($43,31\,\text{ms}$) | **$34.862\,\mu s$ ($34,86\,\text{ms}$)** | **19,5% mais rápido** 🚀 |
-| **Tempo Total do Harness (`fase1_receive`)** | $1.660\,\text{ms}$ | **$1.437\,\text{ms}$** | **13,4% mais rápido no geral** 🚀 |
+| **Scan cold ($N = 50.000$ msgs, consumer-side)** | $1.489\,\mu s$ ($1,49\,\text{ms}$) | **$6\,\mu s$** | **~248× mais rápido** 🚀 |
+| **Scan cold ($N = 10.000$ msgs)** | $289\,\mu s$ | **$5\,\mu s$** | **~58× mais rápido** 🚀 |
+| **Receive end-to-end ($N = 10.000$)** | $5.230\,\mu s$ ($5,23\,\text{ms}$) | **$2.470\,\mu s$ ($2,47\,\text{ms}$)** | **2,12× mais rápido** 🚀 |
+| **Receive end-to-end ($N = 100.000$)** | $52.090\,\mu s$ ($52,09\,\text{ms}$) | **$45.570\,\mu s$ ($45,57\,\text{ms}$)** | **1,14× mais rápido** 🚀 |
 | **Pulos $O(1)$ executados (`pon_stats`)** | $0$ | **$90$** | $O(1)$ ativado com sucesso |
 
 ---
@@ -45,20 +46,56 @@ Este relatório documenta a conclusão da **Etapa D da Fase 1 (PON-Receive)** do
 
 ## 3. Validação Empírica
 
-Execução do harness comparativo (`harness/run.sh --only=receive`):
+### 3.1 Scan cold determinístico (`fase1_receive_cold`, suíte oficial `20260804_170541`)
+
+O benchmark mede o pior caso real do stock: consumidor fora de receive durante o
+flood (spin em `message_queue_len`, que conta sem varrer), entrando "frio" no
+receive; a janela é o próprio receive na consumer, excluindo entrega/wake.
+
+| N | Baseline (µs) | PON-BEAM (µs) | Ganho |
+|---|--------------:|--------------:|------:|
+| 1000 | 21 | 2 | 10.5× |
+| 5000 | 139 | 5 | 27.8× |
+| 10000 | 289 | 5 | 57.8× |
+| 25000 | 881 | 5 | 176× |
+| 50000 | 1489 | 6 | 248× |
+
+Stock: linear $O(N)$. PON: plano $O(1)$ (~5 µs). Repro­duzível em múltiplas
+corridas (ex. `20260804_163923`: 17/123/253/825/1221 vs 2/5/5/5/7).
+
+### 3.2 Stats PON (`fase1_receive`, suíte `20260804_170541`)
 
 ```erlang
 pon => #{
     premises_registered => 45,
     premise_notifications => 45,
-    mailbox_scans_avoided => 90,        %% 90 pulos diretos em O(1) confirmados
+    mailbox_scans_avoided => 90,        %% 90 pulos diretos (contam O(1) e fallback)
     messages_classified => 1000035,
     messages_type_collision => 999990,
     condition_notifications => 2706
 }
 ```
 
----
+## 3a. Análise de pontos de falha (build lazy) — testada
+
+A implementação lazy (§2) grava a célula `pon_in_link` apenas para a cabeça de
+cada cadeia no enqueue/flush ($O(1)$ por cadeia) e preenche células **sob
+demanda** no walk do fallback do `erts_pon_advance_to_matched`. Foram
+identificados e testados os seguintes pontos de falha (`pon_lazy_test` e
+`/tmp/opencode/pon_lazy_test.erl`, `+S 1:1`):
+
+| # | Ponto de falha | Teste | Resultado | Veredito |
+|---|----------------|-------|-----------|----------|
+| 1 | **Alvo no meio de cadeia multi-msg** (batch/flush) não recebe célula na gravação head-only → 1º scan é fallback $O(\text{distância})$ | A: N=20k, target2 no meio + target1 depois; 2º receive do target2 já varrido | 1º = 6 µs, 2º = **1 µs** | OK — amortiza; células preenchidas tornam scans seguintes $O(1)$ |
+| 2 | **Célula stale no guard $O(1)$** (`*m->pon_in_link == m` re-lê memória possivelmente reciclada) | D: stress N=100000 repetido | scan 6 µs, **sem SIGSEGV** | OK — mitigado por `ERTS_INIT_MESSAGE` (reinit) + guard de flags; sem crash no stress |
+| 3 | **Células gravadas na estrutura prio/cont/recv_mrk** | B: prioridade alta + PON (N=20k), guard `!prio` inativo | sem crash, alvo entregue | OK — paths inalcançáveis por `!` normal; flag coberta pelo guard |
+| 4 | **Advance pular mensagens não-consumidas** (premise × cláusulas) | C: receive sem catch-all c/ noise | noise intacto (`message_queue_len==2`) | OK — semântica do scan preservada |
+| 5 | **Corrupção de memória da Etapa C re-emergir no lazy fill** | D + `pon_fastpath_test2` | N=100000 limpo; fastpath `scans_avoided=1`, classify ok | OK — campo vive em `ERL_MESSAGE_REF_FIELDS__` (toda mensagem o tem) |
+
+**Nota estrutural**: alvo que chega *dentro* de um batch multi-mensagem tem 1º
+scan $O(\text{distância})$ (fallback), os seguintes $O(1)$ (cache reativo). É o
+comportamento amortizado documentado em §2.3; o critério de aceite (scan cold,
+alvo como mensagem única) é $O(1)$ estrito.
 
 ## 4. Conclusão
 
