@@ -36,9 +36,11 @@ formal/
 otp/lib/*/Makefile
 otp/lib/*/config.h.in
 harness/db/*.db
+*.patch
 
 # Session exports
 opencode-session-export.json
 *.jsonl
+
 
 
