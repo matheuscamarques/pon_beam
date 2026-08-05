@@ -12,6 +12,8 @@
 -define(TMP_PATH, "/tmp/pon_bench_compile.erl").
 
 run() ->
+    code:add_patha("harness/benchmarks/lib"),
+    code:add_patha("benchmarks/lib"),
     Src = pon_test_module_source(),
     ok = file:write_file(?TMP_PATH, Src),
 
@@ -23,12 +25,22 @@ run() ->
     %% Compila com PON (parse transform)
     {T2, R2} = timer:tc(fun() ->
         compile:file(?TMP_PATH, [return, binary,
+                                 {i, "harness/benchmarks/lib"},
+                                 {i, "benchmarks/lib"},
                                  {parse_transform, pon_compiler},
                                  {d, pon_beam}])
     end),
 
-    BaselineOk = element(1, R1) =:= ok,
-    PonOk = element(1, R2) =:= ok,
+    BaselineOk = case R1 of
+        {ok, _, _} -> true;
+        {ok, _, _, _} -> true;
+        _ -> false
+    end,
+    PonOk = case R2 of
+        {ok, _, _} -> true;
+        {ok, _, _, _} -> true;
+        _ -> false
+    end,
 
     Ratio = case BaselineOk andalso PonOk of
         true -> max(1, T1) / max(1, T2);
@@ -40,19 +52,20 @@ run() ->
         compile_pon_us => T2,
         baseline_ok => BaselineOk,
         pon_ok => PonOk,
+        r1 => R1,
+        r2 => R2,
         ratio => Ratio
     }.
 
 pon_test_module_source() ->
     "-module(pon_bench_compile).\n"
-    "-export([handle/2]).\n"
-    "-compile({parse_transform, pon_compiler}).\n"
+    "-export([handle/1]).\n"
     "\n"
-    "handle(State, {call, From, Req}) ->\n"
+    "handle(State) ->\n"
     "    receive\n"
-    "        {call, From2, Req2} when Req2 > 0 ->\n"
-    "            From2 ! {reply, Req2},\n"
-    "            handle(State, Req2);\n"
+    "        {call, From, Req} when Req > 0 ->\n"
+    "            From ! {reply, Req},\n"
+    "            handle(State);\n"
     "        {cast, Msg} ->\n"
     "            {noreply, Msg};\n"
     "        Other ->\n"

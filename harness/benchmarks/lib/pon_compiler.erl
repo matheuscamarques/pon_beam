@@ -67,65 +67,55 @@ walk_expr(Other) -> Other.
 
 %% build_pon_receive — gera cdigo PON para um receive
 build_pon_receive(L, Clauses, After) ->
-    MsgVar = {var, L, '_pon_msg'},
+    MsgVar = {var, 0, 'PonMsg'},
     %% Registra Premises
     PremiseList = build_premise_list(L, Clauses),
-    Register = {call, L, {remote, {atom, L, pon_runtime},
-                                  {atom, L, register_premises}},
-                       [PremiseList]},
+    Register = {call, 0, {remote, 0, {atom, 0, pon_runtime},
+                                     {atom, 0, register_premises}},
+                          [PremiseList]},
     %% Recebe mensagem
     Recv = case After of
         none ->
-            {call, L, {remote, {atom, L, pon_runtime},
-                               {atom, L, receive_msg}}, []};
+            {match, 0, MsgVar,
+             {call, 0, {remote, 0, {atom, 0, pon_runtime},
+                                   {atom, 0, receive_msg}}, []}};
         {AfterMs, _AfterBody} ->
-            {call, L, {remote, {atom, L, pon_runtime},
-                               {atom, L, receive_msg_timeout}},
-                       [{integer, L, AfterMs}]}
+            {match, 0, MsgVar,
+             {call, 0, {remote, 0, {atom, 0, pon_runtime},
+                                   {atom, 0, receive_msg_timeout}},
+                       [{integer, 0, AfterMs}]}}
     end,
-    %% Match e dispatch
-    MatchVar = {var, L, '_pon_match'},
-    Dispatch = build_dispatch(L, Clauses, 0),
+    %% Dispatch baseado na mensagem recebida
+    Dispatch = build_dispatch(L, Clauses, MsgVar),
     %% Cleanup
-    Unreg = {call, L, {remote, {atom, L, pon_runtime},
-                               {atom, L, unregister_premises}}, []},
+    Unreg = {call, 0, {remote, 0, {atom, 0, pon_runtime},
+                                  {atom, 0, unregister_premises}}, []},
     [Register, Recv, Dispatch, Unreg].
 
 %% build_premise_list — gera lista de padres
 build_premise_list(L, Clauses) ->
     Patterns = lists:map(
-        fun({clause, CL, [Pat], _Gs, _Bd}) ->
-            {tuple, CL, [pat_to_term(CL, Pat),
-                         {atom, CL, true},
-                         {integer, CL, 0}]}
+        fun({clause, _CL, [Pat], _Gs, _Bd}) ->
+            {tuple, 0, [pat_to_term(0, Pat),
+                        {atom, 0, true},
+                        {integer, 0, 0}]}
         end, Clauses),
     list_to_ast(L, Patterns).
 
 pat_to_term(_L, {atom, _, A}) -> {atom, 0, A};
 pat_to_term(_L, {integer, _, I}) -> {integer, 0, I};
-pat_to_term(L, {tuple, _, Es}) ->
-    {tuple, L, [pat_to_term(L, E) || E <- Es]};
-pat_to_term(L, {cons, _, H, T}) ->
-    {cons, L, pat_to_term(L, H), pat_to_term(L, T)};
+pat_to_term(_L, {tuple, _, Es}) ->
+    {tuple, 0, [pat_to_term(0, E) || E <- Es]};
+pat_to_term(_L, {cons, _, H, T}) ->
+    {cons, 0, pat_to_term(0, H), pat_to_term(0, T)};
 pat_to_term(_L, {nil, _}) -> {nil, 0};
-pat_to_term(L, {var, _, '_'}) -> {var, L, '_'};
-pat_to_term(L, {var, _, _Name}) -> {var, L, '_'};
-pat_to_term(L, {match, _, P, _}) -> pat_to_term(L, P);
-pat_to_term(L, Other) -> {atom, L, pon_complex}.
+pat_to_term(_L, {var, _, '_'}) -> {atom, 0, '_'};
+pat_to_term(_L, {var, _, _Name}) -> {atom, 0, '_'};
+pat_to_term(_L, {match, _, P, _}) -> pat_to_term(0, P);
+pat_to_term(_L, _Other) -> {atom, 0, pon_complex}.
 
 list_to_ast(_L, []) -> {nil, 0};
-list_to_ast(L, [H | T]) -> {cons, L, H, list_to_ast(L, T)}.
+list_to_ast(L, [H | T]) -> {cons, 0, H, list_to_ast(L, T)}.
 
-build_dispatch(L, [{clause, CL, [Pat], _Gs, Body} | Rest], Idx) ->
-    PatTerm = pat_to_term(CL, Pat),
-    {call, CL, {remote, {atom, CL, erlang}, {atom, CL, element}},
-               [{integer, CL, 2},
-                {tuple, CL, [{atom, CL, ok}] ++ Body}]}.
-
-%% build_receive_clause_match — constri match expr para clusula
-build_receive_clause_match(L, Pat, Body, MsgVar) ->
-    {'case', L, MsgVar,
-     [{clause, L, [Pat], [],
-       [{tuple, L, [{atom, L, ok} | Body]}]},
-      {clause, L, [{var, L, '_'}], [],
-       [{atom, L, nomatch}]}]}.
+build_dispatch(_L, Clauses, MsgVar) ->
+    {'case', 0, MsgVar, Clauses}.
