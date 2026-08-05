@@ -16,6 +16,7 @@ Init ==
 
 SendRemote(src, dst, msg) ==
     /\ src # dst
+    /\ NodeState[src].clock < 3
     /\ [id |-> msg, src |-> src, dst |-> dst] \notin Network
     /\ Network' = Network \cup {[id |-> msg, src |-> src, dst |-> dst, clock |-> NodeState[src].clock + 1]}
     /\ NodeState' = [NodeState EXCEPT ![src].clock = NodeState[src].clock + 1]
