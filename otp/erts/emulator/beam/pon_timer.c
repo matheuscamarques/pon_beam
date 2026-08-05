@@ -105,6 +105,7 @@ void pon_timer_instigation_fire(ErtsTimerInstigation *inst)
         return;
 
     inst->base.fired = 1;
+    PON_STATS_INC(timerfd_expirations);
 }
 
 int pon_timer_process_expirations(void)

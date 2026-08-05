@@ -61,6 +61,16 @@ typedef struct ErtsPremise_ {
     } while (0)
 
 /*
+ * Declarações das funções das Premises. Envolvidas em extern "C" porque
+ * pon_premise.h é incluído por erl_proc_sig_queue.h (e este por TUs do
+ * JIT, C++): o hook do scan advance referencia estas funções a partir
+ * de código C++ sem mudar a linkage das definições (C) em pon_premise.c.
+ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
  * Registra uma lista de premises no processo.
  */
 void erts_pon_register_premises(Process *p, ErtsPremise *premises);
@@ -85,14 +95,34 @@ int erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term);
 /*
  * Fast-path do selective receive (interpreter): avança o save pointer
  * da fila principal até a mensagem que a melhor Premise notificou.
+ * Chamado pelo scan advance (erts_msgq_set_save_next). Retorna 1 se
+ * reposicionou o save pointer (jump O(1) ou fallback), 0 caso contrário.
  */
-void erts_pon_advance_to_matched(Process *p);
+int erts_pon_advance_to_matched(Process *p);
 
 /*
  * Chamada pelo remove_message: limpa o estado das Premises cuja
  * mensagem casada foi consumida.
  */
 void erts_pon_note_message_consumed(Process *p, struct erl_mesg *msgp);
+
+/*
+ * Receive baseado em Premises (caminho do interpreter substituído pelo
+ * fast-path de advance). Retorna o termo da melhor Premise satisfeita,
+ * ou THE_NON_VALUE se nenhuma Premise está satisfeita.
+ */
+Eterm erts_pon_receive(Process *p);
+
+/*
+ * Próxima sequência de chegada para uma mensagem notificada. Ordena
+ * mensagens casadas de Premises distintas pela ordem real de chegada
+ * na fila (necessária para o receive seletivo multi-cláusula).
+ */
+Uint64 erts_pon_next_msg_seq(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PON_BEAM */
 #endif /* PON_PREMISE_H__ */

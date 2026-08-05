@@ -55,8 +55,8 @@ measure_scan(N) ->
 consumer(Parent, Total) ->
     %% PON-BEAM: registra a Premise da cláusula. No baseline o BIF não
     %% existe (undef) e o benchmark roda em modo stock puro.
-    try erlang:pon_register_premises([{target, value}])
-    catch error:undef -> ok
+    try erlang:pon_register_premises([{{target, value}, true, 0}])
+    catch _:_ -> ok
     end,
     Parent ! {ready, self()},
     spin_until(Total),

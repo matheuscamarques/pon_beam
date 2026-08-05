@@ -1417,8 +1417,28 @@ erts_proc_sig_fetch__(Process *proc,
             ASSERT(proc->sig_inq.mlenoffs > 0);
 
             if (!proc->sig_qs.cont && !ERTS_MSG_RECV_TRACED(proc)) {
+#ifdef PON_BEAM
+                /*
+                 * PON-BEAM: grava o link INTERNO da primeira mensagem
+                 * da cadeia. O enqueue registrou o link da sig_inq
+                 * (fila externa); após o splice abaixo a cadeia passa
+                 * a viver na fila interna (inner queue) e o slot da
+                 * sig_inq é resetado. Este é o endereço de ponteiro do
+                 * qual o advance O(1) do receive precisa (o slot antigo
+                 * da fila interna onde a cadeia foi encadeada). Só a
+                 * primeira mensagem da cadeia: as demais mantêm o
+                 * próprio slot `prev->next`.
+                 */
+                ErtsMessage **pon_inner_tail = proc->sig_qs.last;
+                ErtsMessage *pon_chain_first = proc->sig_inq.first;
+#endif
                 *proc->sig_qs.last = proc->sig_inq.first;
                 proc->sig_qs.last = proc->sig_inq.last;
+#ifdef PON_BEAM
+                if (proc->pon_premises && pon_chain_first) {
+                    pon_chain_first->pon_in_link = pon_inner_tail;
+                }
+#endif
                 ASSERT(proc->sig_qs.mlenoffs == 0);
                 proc->sig_qs.mq_len += proc->sig_inq.mlenoffs;
                 erts_chk_sys_mon_long_msgq_on(proc);

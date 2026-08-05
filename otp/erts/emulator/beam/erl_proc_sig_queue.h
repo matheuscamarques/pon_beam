@@ -322,6 +322,9 @@ void erl_proc_sig_hdbg_chk_recv_marker_block(struct process *c_p);
 
 #include "erl_process.h"
 #include "erl_bif_unique.h"
+#ifdef PON_BEAM
+#include "pon_premise.h"
+#endif
 
 
 void erts_proc_sig_queue_maybe_install_buffers(Process* p, erts_aint32_t state);
@@ -2377,6 +2380,17 @@ erts_msgq_unlink_msg_set_save_first(Process *c_p, ErtsMessage *msgp)
     else if (ERTS_SIG_IS_RECV_MARKER(sigp))
         ((ErtsRecvMarker *) sigp)->prev_next = c_p->sig_qs.save;
     erts_msgq_set_save_first(c_p);
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: a mensagem consumida satisfez uma (ou mais) Premise(s);
+     * limpa o estado para que futuras chegadas notifiquem novamente.
+     * Ponto único de remoção do receive (interpreter e JIT usam esta
+     * função via remove_message), complementando o hook do scan advance.
+     */
+    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)) {
+        erts_pon_note_message_consumed(c_p, msgp);
+    }
+#endif
     ERTS_HDBG_CHECK_SIGNAL_PRIV_QUEUE__(c_p, 0, "after");
 }
 
@@ -2387,6 +2401,47 @@ erts_msgq_set_save_next(Process *c_p)
     ErtsMessage **sigpp = &(*c_p->sig_qs.save)->next;
     ASSERT(!(c_p->sig_qs.flags & FS_HANDLING_SIGS));
     ERTS_HDBG_CHECK_SIGNAL_PRIV_QUEUE(c_p, 0);
+#ifdef PON_BEAM
+    /*
+     * PON-BEAM: o primeiro avanço de cada receive (save_info == FIRST,
+     * i.e., save no início da fila interna) é a chance de posicionar o
+     * save pointer direto na mensagem notificada pela Premise — o
+     * selective receive vira O(1), sem scan linear. Se o advance
+     * reposicionou o save (retorno 1), o avanço normal é pulado: o
+     * loop_rec seguinte encontra a mensagem casada.
+     */
+    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)
+        && ERTS_MQ_GET_SAVE_INFO(c_p) == FS_SET_SAVE_INFO_FIRST) {
+        if (erts_pon_advance_to_matched(c_p))
+            return;
+    }
+#ifdef PON_DBG_HOOK
+    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)) {
+        static int pon_hook_n = 0;
+        if (pon_hook_n < 50) {
+            pon_hook_n++;
+            fprintf(stderr, "PON-HOOK #%d p=%p prem=%p save_info=%d "
+                    "save=%p first=%p\n", pon_hook_n, (void*) c_p,
+                    (void*) c_p->pon_premises,
+                    (int) ERTS_MQ_GET_SAVE_INFO(c_p),
+                    (void*) c_p->sig_qs.save, (void*) c_p->sig_qs.first);
+        }
+    }
+#else
+#define PON_DBG_HOOK 1
+    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)) {
+        static int pon_hook_n = 0;
+        if (pon_hook_n < 50) {
+            pon_hook_n++;
+            fprintf(stderr, "PON-HOOK #%d p=%p prem=%p save_info=%d "
+                    "save=%p first=%p\n", pon_hook_n, (void*) c_p,
+                    (void*) c_p->pon_premises,
+                    (int) ERTS_MQ_GET_SAVE_INFO(c_p),
+                    (void*) c_p->sig_qs.save, (void*) c_p->sig_qs.first);
+        }
+    }
+#endif
+#endif
     if (sigp && ERTS_SIG_IS_RECV_MARKER(sigp))
         sigpp = erts_msgq_pass_recv_markers(c_p, sigpp);
     c_p->sig_qs.save = sigpp;

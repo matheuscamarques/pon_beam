@@ -182,11 +182,22 @@
 #define ERTS_WANT_TIMER_WHEEL_API
 #include "erl_time.h"
 
+#ifdef PON_BEAM
+#  include "pon_stats.h"
+#  include <sys/timerfd.h>
+#  include <unistd.h>
+#endif
+
 #define ERTS_MAX_CLKTCKS \
     ERTS_MONOTONIC_TO_CLKTCKS(ERTS_MONOTONIC_TIME_MAX)
 
 #define ERTS_CLKTCKS_WEEK \
     ERTS_MONOTONIC_TO_CLKTCKS(ERTS_SEC_TO_MONOTONIC(7*60*60*24))
+
+#ifdef PON_BEAM
+static void pon_timer_wheel_arm(ErtsTimerWheel *tiw);
+static int pon_timer_wheel_can_skip_scan(ErtsTimerWheel *tiw);
+#endif
 
 #ifdef ERTS_ENABLE_LOCK_CHECK
 #define ASSERT_NO_LOCKED_LOCKS		erts_lc_check_exact(NULL, 0)
@@ -316,6 +327,10 @@ struct ErtsTimerWheel_ {
     int true_next_timeout_time;
     ErtsMonotonicTime next_timeout_pos;
     ErtsMonotonicTime next_timeout_time;
+#ifdef PON_BEAM
+    int pon_fd;                          /* timerfd canary, -1 = nao criado */
+    ErtsMonotonicTime pon_armed_deadline;/* deadline armada, -1 = disarmada */
+#endif
 };
 
 #define ERTS_TW_SLOT_AT_ONCE (-1)
@@ -762,6 +777,15 @@ erts_check_next_timeout_time(ErtsSchedulerData *esdp)
 	return tiw->next_timeout_time; /* known timeout... */
     if (tiw->next_timeout_pos > tiw->pos + ERTS_TW_SOON_WHEEL_SIZE)
         return tiw->next_timeout_time; /* sufficiently later away... */
+#ifdef PON_BEAM
+    if (pon_timer_wheel_can_skip_scan(tiw)) {
+        /* Instigacao temporal: o canary confirma que o deadline cacheado
+         * ainda nao foi alcancado. Varredura evitada. */
+        PON_STATS_INC(timer_scans_avoided);
+        return tiw->next_timeout_time;
+    }
+    PON_STATS_INC(timer_wheel_fallback);
+#endif
     ERTS_MSACC_PUSH_AND_SET_STATE_CACHED_X(ERTS_MSACC_STATE_TIMERS);
     time = find_next_timeout(esdp, tiw);
     ERTS_MSACC_POP_STATE_M_X();
@@ -835,6 +859,9 @@ erts_bump_timers(ErtsTimerWheel *tiw, ErtsMonotonicTime curr_time)
                 tiw->later.pos = bump_to + ERTS_TW_SOON_WHEEL_SIZE;
                 tiw->later.pos &= ERTS_TW_LATER_WHEEL_POS_MASK;
 		tiw->yield_slot = ERTS_TW_SLOT_INACTIVE;
+#ifdef PON_BEAM
+                pon_timer_wheel_arm(tiw);
+#endif
                 ERTS_MSACC_POP_STATE_M_X();
 		return;
 	    }
@@ -1023,6 +1050,10 @@ erts_bump_timers(ErtsTimerWheel *tiw, ErtsMonotonicTime curr_time)
     ERTS_TW_ASSERT(tiw->next_timeout_pos == bump_to);
 
     (void) find_next_timeout(NULL, tiw);
+#ifdef PON_BEAM
+    /* Deadline final recomputado: re-arma o canary para o proximo ciclo. */
+    pon_timer_wheel_arm(tiw);
+#endif
     ERTS_MSACC_POP_STATE_M_X();
 }
 
@@ -1172,6 +1203,99 @@ erts_timer_wheel_memory_size(void)
     return sizeof(ErtsTimerWheel)*erts_no_schedulers;
 }
 
+#ifdef PON_BEAM
+
+/*
+ * PON-Timer: instigacao temporal via timerfd.
+ *
+ * O timer wheel mantem um cache do proximo deadline
+ * (tiw->next_timeout_time). Este cache so deixa de ser valido quando
+ * um novo timer com deadline estritamente anterior e setado, caso em
+ * que erts_twheel_set_timer() o atualiza (e re-arma o canary). O
+ * canary e um timerfd absoluto em CLOCK_MONOTONIC armado nesse
+ * deadline: enquanto ele estiver pendente (nao expirado), o cache e
+ * uma cota inferior valida do proximo deadline verdadeiro e a
+ * varredura find_next_timeout() pode ser ignorada. A expiracao do
+ * canary cai de volta no caminho stock (varredura), garantindo
+ * correcao em todos os caminhos.
+ */
+
+static void
+pon_timer_wheel_arm(ErtsTimerWheel *tiw)
+{
+    struct itimerspec spec;
+    ErtsMonotonicTime deadline_us;
+    ErtsMonotonicTime now_us, remaining_us;
+
+    if (tiw->pon_fd == -1) {
+        tiw->pon_fd = timerfd_create(CLOCK_MONOTONIC,
+                                     TFD_NONBLOCK | TFD_CLOEXEC);
+        if (tiw->pon_fd == -1) {
+            /* Sem timerfd: comportamento identico ao stock. */
+            tiw->pon_armed_deadline = -1;
+            return;
+        }
+        PON_STATS_INC(timerfd_created);
+    }
+
+    if (tiw->next_timeout_time == tiw->pon_armed_deadline)
+        return; /* ja armado com o mesmo deadline */
+
+    deadline_us = ERTS_MONOTONIC_TO_USEC(tiw->next_timeout_time);
+    now_us = ERTS_MONOTONIC_TO_USEC(erts_get_monotonic_time(NULL));
+    remaining_us = deadline_us - now_us;
+
+    if (remaining_us < 1000) {
+        /*
+         * Deadline no subtick (< 1ms): deixa o wheel decidir como no
+         * stock. Desarma o canary para nunca dormir alem do wheel.
+         */
+        if (tiw->pon_armed_deadline != -1) {
+            spec.it_value.tv_sec = 0;
+            spec.it_value.tv_nsec = 0;
+            spec.it_interval.tv_sec = 0;
+            spec.it_interval.tv_nsec = 0;
+            if (timerfd_settime(tiw->pon_fd, 0, &spec, NULL) != -1)
+                tiw->pon_armed_deadline = -1;
+        }
+        PON_STATS_INC(timer_wheel_fallback);
+        return;
+    }
+
+    spec.it_interval.tv_sec = 0;
+    spec.it_interval.tv_nsec = 0;
+    spec.it_value.tv_sec = (long)(deadline_us / 1000000ULL);
+    spec.it_value.tv_nsec = (long)((deadline_us % 1000000ULL) * 1000);
+
+    if (timerfd_settime(tiw->pon_fd, TFD_TIMER_ABSTIME, &spec, NULL) == -1) {
+        PON_STATS_INC(timer_wheel_fallback);
+        return;
+    }
+    tiw->pon_armed_deadline = tiw->next_timeout_time;
+    PON_STATS_INC(timer_instigations);
+}
+
+/*
+ * Retorna 1 se o canary estiver armado e ainda pendente: nesse caso o
+ * cache next_timeout_time e confiavel (cota inferior do proximo
+ * deadline verdadeiro) e a varredura pode ser ignorada.
+ */
+static int
+pon_timer_wheel_can_skip_scan(ErtsTimerWheel *tiw)
+{
+    struct itimerspec remain;
+
+    if (tiw->pon_fd == -1 || tiw->pon_armed_deadline == -1)
+        return 0;
+    if (timerfd_gettime(tiw->pon_fd, &remain) == -1)
+        return 0;
+    if (remain.it_value.tv_sec == 0 && remain.it_value.tv_nsec == 0)
+        return 0; /* expirado: nao confiar no cache */
+    return 1;
+}
+
+#endif /* PON_BEAM */
+
 ErtsTimerWheel *
 erts_create_timer_wheel(ErtsSchedulerData *esdp)
 {
@@ -1223,6 +1347,11 @@ erts_create_timer_wheel(ErtsSchedulerData *esdp)
     tiw->sentinel.prev = &tiw->sentinel;
     tiw->sentinel.timeout = NULL;
     tiw->sentinel.arg = NULL;
+#ifdef PON_BEAM
+    tiw->pon_fd = -1;
+    tiw->pon_armed_deadline = -1;
+    pon_timer_wheel_arm(tiw);
+#endif
     return tiw;
 }
 
@@ -1304,6 +1433,10 @@ erts_twheel_set_timer(ErtsTimerWheel *tiw,
         if (timeout_pos < tiw->next_timeout_pos) {
             tiw->next_timeout_pos = timeout_pos;
             tiw->next_timeout_time = ERTS_CLKTCKS_TO_MONOTONIC(timeout_pos);
+#ifdef PON_BEAM
+            /* Novo deadline estritamente anterior: re-arma o canary. */
+            pon_timer_wheel_arm(tiw);
+#endif
         }
     }
     ERTS_MSACC_POP_STATE_M_X();

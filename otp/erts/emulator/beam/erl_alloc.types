@@ -214,6 +214,14 @@ type	PORT_DATA_LOCK	DRIVER		SYSTEM		port_data_lock
 type	PTAB_LIST_DEL	SHORT_LIVED	PROCESSES	ptab_list_deleted_el
 type	PTAB_LIST_CNKI	SHORT_LIVED	PROCESSES	ptab_list_chunk_info
 type	PTAB_LIST_PIDS	SHORT_LIVED	PROCESSES	ptab_list_pids
+type	PON_PREMISE	STANDARD	PROCESSES	pon_premise
+# ^ PON-BEAM: premises são alocadas pelo bif (scheduler do receiver) e
+#   liberadas no exit do processo (possivelmente outro scheduler);
+#   STANDARD (temp_alloc é thread-specific) evita free cross-thread.
+type	PON_GC	STANDARD	SYSTEM		pon_gc
+# ^ PON-BEAM: nos, refs e payloads do GC por notificação podem ser
+#   alocados por um scheduler e liberados por outro (exit do processo);
+#   STANDARD evita free cross-thread como em PON_PREMISE.
 type	RE_TMP_BUF	TEMPORARY	SYSTEM		re_tmp_buf
 type    RE_SHORTLIVED   SHORT_LIVED     SYSTEM          re_shortlived
 type    RE_INIT         LONG_LIVED      SYSTEM          re_init

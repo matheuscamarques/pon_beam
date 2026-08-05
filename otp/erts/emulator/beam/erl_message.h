@@ -256,7 +256,8 @@ struct erl_heap_fragment {
  * do campo tambem. ERTS_INIT_MESSAGE reporta NULL para ambos.
  */
 #define PON_MESSAGE_REF_FIELDS__			\
-    ; ErtsMessage **pon_in_link
+    ; ErtsMessage **pon_in_link                         \
+    ; Uint64 pon_seq
 #else
 #define PON_MESSAGE_REF_FIELDS__
 #endif
@@ -270,8 +271,10 @@ struct erl_heap_fragment {
  */
 #define ERTS_PON_SET_IN_LINK(p, msg)					\
     do {								\
-	if ((p)->pon_premises)						\
+	if ((p) && (p)->pon_premises)					\
 	    (msg)->pon_in_link = (p)->sig_inq.last;			\
+	else								\
+	    (msg)->pon_in_link = NULL;					\
     } while (0)
 #else
 #define ERTS_PON_SET_IN_LINK(p, msg) do { } while (0)
@@ -575,7 +578,7 @@ typedef struct erl_trace_message_queue__ {
     } while (0)
 
 #ifdef PON_BEAM
-#define PON_INIT_MESSAGE(MP) ((MP)->pon_in_link = NULL)
+#define PON_INIT_MESSAGE(MP) ((MP)->pon_in_link = NULL, (MP)->pon_seq = 0)
 #else
 #define PON_INIT_MESSAGE(MP) ((void) 0)
 #endif

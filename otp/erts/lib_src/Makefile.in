@@ -97,6 +97,12 @@ TYPE_SUFFIX = .icount
 CFLAGS += -DERTS_OPCODE_COUNTER_SUPPORT
 PRE_LD=
 else
+ifeq ($(TYPE),ponbeam)
+# PON-BEAM: tipo de build com -DPON_BEAM (mesmas libs do opt,
+# apenas diretorio MADE distinto para coexistir com o baseline)
+TYPE_SUFFIX=
+PRE_LD=
+else
 override TYPE=opt
 ifeq (@JIT_ENABLED@, yes)
 OMIT_OMIT_FP=yes

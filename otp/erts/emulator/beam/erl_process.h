@@ -687,6 +687,7 @@ typedef struct ErtsSchedulerRegisters_ {
 #ifdef PON_BEAM
 #include "pon_stats.h"
 #include "pon_condition.h"
+#include "pon_gc.h"
 #endif
 
 struct ErtsSchedulerData_ {
@@ -1218,6 +1219,11 @@ struct process {
 #ifdef PON_BEAM
     /* PON-BEAM: Premises registradas para este processo */
     ErtsPremise *pon_premises;
+
+    /* PON-BEAM: estado do GC por notificao deste processo.
+     * Criado sob demanda pelo primeiro BIF PON-GC; liberado
+     * no exit do processo (erl_process.c). */
+    PonGcState *pon_gc;
 #endif
 
 };

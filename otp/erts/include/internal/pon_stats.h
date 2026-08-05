@@ -35,6 +35,7 @@ typedef struct {
     Uint64 timerfd_expirations;      /* Expiraes via timerfd */
     Uint64 timer_wheel_fallback;     /* Quedas para timer wheel */
     Uint64 timer_instigations;       /* Instigaes registradas */
+    Uint64 timer_scans_avoided;      /* Varreduras find_next_timeout evitadas */
 
     /* === PON-Scheduler === */
     Uint64 condition_wakeups;        /* Vezes que eventfd acordou scheduler */

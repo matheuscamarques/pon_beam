@@ -54,6 +54,7 @@
 #include "erl_fun.h"
 #ifdef PON_BEAM
 #include "pon_premise.h"
+#include "pon_gc.h"
 #include "pon_stats.h"
 #endif
 #ifdef ERTS_USE_BUILTIN_RYU
@@ -3850,7 +3851,7 @@ BIF_RETTYPE pon_register_premises_1(BIF_ALIST_1)
         Eterm *lp = list_val(l);
         ErtsPremise *prem;
 
-        prem = erts_alloc(ERTS_ALC_T_TMP, sizeof(ErtsPremise));
+        prem = erts_alloc(ERTS_ALC_T_PON_PREMISE, sizeof(ErtsPremise));
         ERTS_INIT_PREMISE(prem, lp[0], NULL, idx);
         *tail = prem;
         tail = &prem->next_premise;
@@ -3861,7 +3862,7 @@ BIF_RETTYPE pon_register_premises_1(BIF_ALIST_1)
         /* Lista imprópria: libera o alocado e falha */
         while (prems) {
             ErtsPremise *next = prems->next_premise;
-            erts_free(ERTS_ALC_T_TMP, prems);
+            erts_free(ERTS_ALC_T_PON_PREMISE, prems);
             prems = next;
         }
         BIF_ERROR(BIF_P, BADARG);
@@ -3883,6 +3884,234 @@ BIF_RETTYPE pon_unregister_premises_0(BIF_ALIST_0)
 
     BIF_RET(am_true);
 }
+
+/*
+ * PON-BEAM: pon_gc_register_objects(Sizes) -> [Id]
+ *
+ * Cria um PonGcNode por tamanho de payload na lista Sizes (inteiros
+ * nao negativos). Os ids retornados sao usados em pon_gc_add_root/1
+ * e pon_gc_add_ref/2. O payload de cada no e reservado com o tamanho
+ * pedido e somente e liberado quando o no e coletado (WHITE), ou no
+ * exit do processo.
+ */
+BIF_RETTYPE pon_gc_register_objects_1(BIF_ALIST_1)
+{
+    Process *p = BIF_P;
+    Eterm list = BIF_ARG_1;
+    PonGcState *gc;
+    ErtsHeapFactory hfact;
+    Eterm l;
+    Eterm res = NIL;
+    Sint *ids = NULL;
+    int n = 0, cap = 16, i;
+
+    if (!is_list(list))
+        BIF_ERROR(BIF_P, BADARG);
+
+    gc = erts_pon_gc_state(p);
+    if (!gc)
+        BIF_ERROR(BIF_P, BADARG);
+
+    ids = (Sint *) erts_alloc(ERTS_ALC_T_TMP, (Uint) cap * sizeof(Sint));
+    if (!ids)
+        BIF_ERROR(BIF_P, BADARG);
+
+    l = list;
+    while (is_list(l)) {
+        Eterm *lp = list_val(l);
+        Sint size;
+        void *payload = NULL;
+        PonGcNode *node;
+
+        if (!is_small(lp[0]) || (size = signed_val(lp[0])) < 0)
+            BIF_ERROR(BIF_P, BADARG);
+        if (size > 0) {
+            payload = erts_alloc(ERTS_ALC_T_PON_GC, (Uint) size);
+            if (!payload)
+                BIF_ERROR(BIF_P, BADARG);
+        }
+        node = pon_gc_node_create(gc, payload, (size_t) size);
+        if (!node) {
+            if (payload)
+                erts_free(ERTS_ALC_T_PON_GC, payload);
+            BIF_ERROR(BIF_P, BADARG);
+        }
+        if (n == cap) {
+            Sint *nids;
+            cap *= 2;
+            nids = (Sint *) erts_realloc(ERTS_ALC_T_TMP, ids,
+                                         (Uint) cap * sizeof(Sint));
+            if (!nids)
+                BIF_ERROR(BIF_P, BADARG);
+            ids = nids;
+        }
+        ids[n++] = (Sint) node->id;
+        l = lp[1];
+    }
+    if (l != NIL)
+        BIF_ERROR(BIF_P, BADARG);
+
+    /* Monta lista de ids (ordem de criacao) no heap do processo. */
+    erts_factory_proc_init(&hfact, p);
+    res = NIL;
+    for (i = n - 1; i >= 0; i--) {
+        Eterm *hp = erts_produce_heap(&hfact, 2, 0);
+        hp[0] = make_small(ids[i]);
+        hp[1] = res;
+        res = make_list(hp);
+    }
+    erts_factory_close(&hfact);
+
+    erts_free(ERTS_ALC_T_TMP, ids);
+
+    BIF_RET(res);
+}
+
+/*
+ * PON-BEAM: pon_gc_add_root(Id) -> true | false
+ */
+BIF_RETTYPE pon_gc_add_root_1(BIF_ALIST_1)
+{
+    Process *p = BIF_P;
+    Eterm arg = BIF_ARG_1;
+    PonGcState *gc;
+    PonGcNode *node;
+    Sint id;
+
+    if (!is_small(BIF_ARG_1))
+        BIF_ERROR(BIF_P, BADARG);
+    id = signed_val(arg);
+
+    gc = erts_pon_gc_state(p);
+    if (!gc)
+        BIF_RET(am_false);
+
+    node = pon_gc_node_by_id(gc, (uint64_t) id);
+    if (!node)
+        BIF_RET(am_false);
+
+    pon_gc_add_root(gc, node);
+
+    BIF_RET(am_true);
+}
+
+/*
+ * PON-BEAM: pon_gc_add_ref(FromId, ToId) -> true | false
+ */
+BIF_RETTYPE pon_gc_add_ref_2(BIF_ALIST_2)
+{
+    Process *p = BIF_P;
+    PonGcState *gc;
+    PonGcNode *from;
+    PonGcNode *to;
+    Sint fid;
+    Sint tid;
+
+    if (!is_small(BIF_ARG_1) || !is_small(BIF_ARG_2))
+        BIF_ERROR(BIF_P, BADARG);
+    fid = signed_val(BIF_ARG_1);
+    tid = signed_val(BIF_ARG_2);
+
+    gc = erts_pon_gc_state(p);
+    if (!gc)
+        BIF_RET(am_false);
+
+    from = pon_gc_node_by_id(gc, (uint64_t) fid);
+    to   = pon_gc_node_by_id(gc, (uint64_t) tid);
+    if (!from || !to)
+        BIF_RET(am_false);
+
+    pon_gc_add_ref(from, to);
+
+    BIF_RET(am_true);
+}
+
+/*
+ * PON-BEAM: pon_gc_collect() -> map
+ *
+ * Executa o GC completo por notificacao (mark + sweep). Objetos
+ * vivos sao as raizes + alcancaveis por refs. Objetos mortos
+ * (WHITE apos o mark) tem o payload liberado sem varredura.
+ *
+ * Retorna estatisticas do ciclo.
+ */
+BIF_RETTYPE pon_gc_collect_0(BIF_ALIST_0)
+{
+    Process *p = BIF_P;
+    PonGcState *gc;
+    ErtsHeapFactory hfact;
+    Eterm ks[8], vs[8];
+    Uint xi = 0;
+    uint64_t removed;
+
+    gc = erts_pon_gc_state(p);
+    if (!gc)
+        BIF_ERROR(BIF_P, BADARG);
+
+    removed = pon_gc_mark_sweep(gc);
+
+    PON_STATS_ADD(gc_notifications_sent, gc->notifications_sent);
+    PON_STATS_ADD(gc_scans_avoided, removed);
+    PON_STATS_INC(gc_incremental_steps);
+
+#define PON_GC_STAT_ENTRY(NAME, VALUE) do {                               \
+        ks[xi] = erts_atom_put((byte *)(NAME), sizeof(NAME) - 1,          \
+                               ERTS_ATOM_ENC_LATIN1, 0);                  \
+        vs[xi] = make_small((Sint) (VALUE));                              \
+        xi++;                                                             \
+    } while (0)
+
+    PON_GC_STAT_ENTRY("collected", removed);
+    PON_GC_STAT_ENTRY("live", gc->live_nodes);
+    PON_GC_STAT_ENTRY("total", gc->total_nodes);
+    PON_GC_STAT_ENTRY("notifications_sent", gc->notifications_sent);
+    PON_GC_STAT_ENTRY("scans", gc->scan_count);
+    PON_GC_STAT_ENTRY("bytes_freed", gc->bytes_freed);
+    PON_GC_STAT_ENTRY("cycles", gc->cycles);
+    PON_GC_STAT_ENTRY("scans_avoided", removed);
+
+#undef PON_GC_STAT_ENTRY
+
+    erts_factory_proc_init(&hfact, p);
+    BIF_RET(erts_map_from_ks_and_vs(&hfact, ks, vs, xi));
+}
+
+/*
+ * PON-BEAM: pon_gc_dump() -> map
+ *
+ * Estado corrente do grafo PON-GC do processo sem coletar.
+ */
+BIF_RETTYPE pon_gc_dump_0(BIF_ALIST_0)
+{
+    Process *p = BIF_P;
+    PonGcState *gc;
+    ErtsHeapFactory hfact;
+    Eterm ks[6], vs[6];
+    Uint xi = 0;
+
+    gc = erts_pon_gc_state(p);
+    if (!gc)
+        BIF_ERROR(BIF_P, BADARG);
+
+#define PON_GC_STAT_ENTRY(NAME, VALUE) do {                               \
+        ks[xi] = erts_atom_put((byte *)(NAME), sizeof(NAME) - 1,          \
+                               ERTS_ATOM_ENC_LATIN1, 0);                  \
+        vs[xi] = make_small((Sint) (VALUE));                              \
+        xi++;                                                             \
+    } while (0)
+
+    PON_GC_STAT_ENTRY("total", gc->total_nodes);
+    PON_GC_STAT_ENTRY("live", gc->live_nodes);
+    PON_GC_STAT_ENTRY("dead", gc->dead_nodes);
+    PON_GC_STAT_ENTRY("notifications_sent", gc->notifications_sent);
+    PON_GC_STAT_ENTRY("scans", gc->scan_count);
+    PON_GC_STAT_ENTRY("cycles", gc->cycles);
+
+#undef PON_GC_STAT_ENTRY
+
+    erts_factory_proc_init(&hfact, p);
+    BIF_RET(erts_map_from_ks_and_vs(&hfact, ks, vs, xi));
+}
 #else
 /* Sem PON_BEAM: BIFs existem mas não fazem nada (badarg) para que a
  * tabela gerada a partir do bif.tab continue linkando. */
@@ -3892,6 +4121,31 @@ BIF_RETTYPE pon_register_premises_1(BIF_ALIST_1)
 }
 
 BIF_RETTYPE pon_unregister_premises_0(BIF_ALIST_0)
+{
+    BIF_ERROR(BIF_P, BADARG);
+}
+
+BIF_RETTYPE pon_gc_register_objects_1(BIF_ALIST_1)
+{
+    BIF_ERROR(BIF_P, BADARG);
+}
+
+BIF_RETTYPE pon_gc_add_root_1(BIF_ALIST_1)
+{
+    BIF_ERROR(BIF_P, BADARG);
+}
+
+BIF_RETTYPE pon_gc_add_ref_2(BIF_ALIST_2)
+{
+    BIF_ERROR(BIF_P, BADARG);
+}
+
+BIF_RETTYPE pon_gc_collect_0(BIF_ALIST_0)
+{
+    BIF_ERROR(BIF_P, BADARG);
+}
+
+BIF_RETTYPE pon_gc_dump_0(BIF_ALIST_0)
 {
     BIF_ERROR(BIF_P, BADARG);
 }

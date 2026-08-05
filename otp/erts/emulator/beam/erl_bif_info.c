@@ -3635,7 +3635,7 @@ BIF_RETTYPE system_info_1(BIF_ALIST_1)
 #ifdef PON_BEAM
         /* PON-BEAM: contadores do scheduler corrente (thread-local).
          * Com +S 1:1 todos os eventos do workload caem aqui. */
-        Eterm ks[8], vs[8];
+        Eterm ks[20], vs[20];
         ErtsHeapFactory hfact;
         Uint xi = 0;
 
@@ -3655,11 +3655,23 @@ BIF_RETTYPE system_info_1(BIF_ALIST_1)
         PON_STAT_ENTRY("messages_pon_queued", messages_pon_queued);
         PON_STAT_ENTRY("condition_notifications", condition_notifications);
         PON_STAT_ENTRY("pon_overhead_us", pon_overhead_us);
+        PON_STAT_ENTRY("timerfd_created", timerfd_created);
+        PON_STAT_ENTRY("timer_instigations", timer_instigations);
+        PON_STAT_ENTRY("timer_scans_avoided", timer_scans_avoided);
+        PON_STAT_ENTRY("timer_wheel_fallback", timer_wheel_fallback);
+        PON_STAT_ENTRY("timerfd_expirations", timerfd_expirations);
+        PON_STAT_ENTRY("condition_wakeups", condition_wakeups);
+        PON_STAT_ENTRY("scheduler_idle_blocks", scheduler_idle_blocks);
+        PON_STAT_ENTRY("ets_watchers_registered", ets_watchers_registered);
+        PON_STAT_ENTRY("ets_watcher_hits", ets_watcher_hits);
+        PON_STAT_ENTRY("gc_notifications_sent", gc_notifications_sent);
+        PON_STAT_ENTRY("gc_scans_avoided", gc_scans_avoided);
+        PON_STAT_ENTRY("gc_incremental_steps", gc_incremental_steps);
 
 #undef PON_STAT_ENTRY
 
         erts_factory_proc_init(&hfact, BIF_P);
-        res = erts_map_from_ks_and_vs(&hfact, ks, vs, 8);
+        res = erts_map_from_ks_and_vs(&hfact, ks, vs, 20);
         erts_factory_close(&hfact);
 
         BIF_RET(res);

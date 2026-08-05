@@ -6041,6 +6041,10 @@ init_scheduler_data(ErtsSchedulerData* esdp, int num,
 
     init_scheduler_registers(esdp);
 
+#ifdef PON_BEAM
+    pon_condition_create(&esdp->pon_condition);
+#endif
+
     esdp->dirty_shadow_process = shadow_proc;
     if (shadow_proc) {
 	erts_init_empty_process(shadow_proc);
@@ -7053,11 +7057,17 @@ schedule_process(Process *p, erts_aint32_t in_state, ErtsProcLocks locks)
 static ERTS_INLINE void
 erts_pon_schedule_notify(Process *p)
 {
-    (void) p;
-    /* No-op: nao ha consumer real da Condition ainda e os fds nao
-     * sao inicializados (pon_condition_create nunca e chamada).
-     * Escrever em fd lixo seria perigoso. Stats apenas. */
     PON_STATS_INC(condition_notifications);
+    if (p) {
+        ErtsSchedulerData *esdp = erts_proc_sched_data(p);
+        if (!esdp) {
+            esdp = erts_get_scheduler_data();
+        }
+        if (esdp && esdp->pon_condition.epoll_fd != -1) {
+            pon_condition_notify(&esdp->pon_condition, (void *)p);
+            PON_STATS_INC(condition_wakeups);
+        }
+    }
 }
 #endif
 
@@ -12605,10 +12615,11 @@ erl_create_process(Process* parent, /* Parent of process (default group leader).
 
     p->static_flags = 0;
 #ifdef PON_BEAM
-    /* PON-BEAM: Premises começam desregistradas; type_queues zeradas.
+    /* PON-BEAM: Premises comecam desregistradas; type_queues zeradas.
      * (o allocator do ERTS nao zera memoria — sem isso o hook de
      * erl_message.c poderia ler ponteiro lixo e corromper termos) */
     p->pon_premises = NULL;
+    p->pon_gc = NULL;
     {
         int bi;
         for (bi = 0; bi < PON_NUM_TYPE_BUCKETS; bi++) {
@@ -13473,6 +13484,9 @@ delete_process(Process* p)
     if (p->pon_premises) {
         erts_pon_unregister_premises(p);
     }
+
+    /* PON-BEAM: libera o estado do GC por notificação. */
+    erts_pon_gc_destroy_state(p);
 #endif
 
     /* Cleanup psd */

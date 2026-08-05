@@ -20,6 +20,24 @@
 #ifdef PON_BEAM
 
 /*
+ * Sequência global de chegada de mensagens para Premises.
+ *
+ * Ordena mensagens casadas de Premises distintas pela ordem real de
+ * chegada na fila: o receive seletivo escolhe a mensagem mais antiga
+ * que casa QUALQUER cláusula (semântica do scan linear do OTP), e a
+ * ordem das cláusulas só decide qual cláusula casa dentro da mensagem.
+ * Um contador global monotônico preserva a ordem por receiver sem
+ * exigir campo no Process (evita colisão de edição no struct).
+ */
+static erts_atomic64_t pon_msg_seq;
+
+Uint64
+erts_pon_next_msg_seq(void)
+{
+    return (Uint64) erts_atomic64_inc_read_nob(&pon_msg_seq);
+}
+
+/*
  * Funo de match default: compara um termo contra um padro.
  * Usa pattern matching simplificado (equivalente ao `=:=`).
  * fallback quando no h match_fn especializada.
@@ -54,15 +72,18 @@ erts_pon_default_match(Eterm pattern, Eterm term)
  * Substitui qualquer lista anterior.
  */
 void
-erts_pon_register_premises(Process *p, ErtsPremise *premises)
+ erts_pon_register_premises(Process *p, ErtsPremise *premises)
 {
+    ErtsPremise *old;
+    ErtsPremise *next;
+
     ASSERT(p != NULL);
 
     /* Libera premises antigas (se houver) */
-    ErtsPremise *old = p->pon_premises;
+    old = p->pon_premises;
     while (old) {
-        ErtsPremise *next = old->next_premise;
-        erts_free(ERTS_ALC_T_TMP, old);
+        next = old->next_premise;
+        erts_free(ERTS_ALC_T_PON_PREMISE, old);
         old = next;
     }
 
@@ -75,14 +96,17 @@ erts_pon_register_premises(Process *p, ErtsPremise *premises)
  * Remove todas as Premises registradas no processo.
  */
 void
-erts_pon_unregister_premises(Process *p)
+ erts_pon_unregister_premises(Process *p)
 {
+    ErtsPremise *prem;
+    ErtsPremise *next;
+
     ASSERT(p != NULL);
 
-    ErtsPremise *prem = p->pon_premises;
+    prem = p->pon_premises;
     while (prem) {
-        ErtsPremise *next = prem->next_premise;
-        erts_free(ERTS_ALC_T_TMP, prem);
+        next = prem->next_premise;
+        erts_free(ERTS_ALC_T_PON_PREMISE, prem);
         prem = next;
     }
     p->pon_premises = NULL;
@@ -132,8 +156,12 @@ pon_enqueue_to_type_queue(Process *p, struct erl_mesg *msg, Uint bucket)
  * Retorna o nmero de Premises que matcharam.
  */
 int
-erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term)
+ erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term)
 {
+    Uint bucket;
+    ErtsPremise *prem;
+    int matched;
+
     ASSERT(p != NULL);
     ASSERT(msg != NULL);
     ASSERT(is_value(term));
@@ -141,13 +169,16 @@ erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term)
     if (!p->pon_premises)
         return 0;
 
+    /* Sequência de chegada para a ordenação entre Premises */
+    msg->pon_seq = erts_pon_next_msg_seq();
+
     /* Extrai tag de tipo e classifica */
-    Uint bucket = pon_extract_type_tag(term);
+    bucket = pon_extract_type_tag(term);
     pon_enqueue_to_type_queue(p, msg, bucket);
 
-/* Notifica cada Premise que matcha o termo */
-    int matched = 0;
-    ErtsPremise *prem = p->pon_premises;
+    /* Notifica cada Premise que matcha o termo */
+    matched = 0;
+    prem = p->pon_premises;
     while (prem) {
         if (!prem->has_match) {
             int match_ok;
@@ -177,16 +208,20 @@ erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term)
  * se nenhuma Premise est satisfeita (processo deve bloquear).
  */
 Eterm
-erts_pon_receive(Process *p)
+ erts_pon_receive(Process *p)
 {
+    ErtsPremise *best;
+    ErtsPremise *prem;
+    Eterm result;
+
     ASSERT(p != NULL);
 
     if (!p->pon_premises)
         return THE_NON_VALUE;
 
     /* Procura a primeira Premise satisfeita (pela ordem das clusulas) */
-    ErtsPremise *best = NULL;
-    ErtsPremise *prem = p->pon_premises;
+    best = NULL;
+    prem = p->pon_premises;
     while (prem) {
         if (prem->has_match) {
             if (!best || prem->clause_index < best->clause_index)
@@ -199,7 +234,7 @@ erts_pon_receive(Process *p)
         return THE_NON_VALUE;
 
     /* Consome a mensagem */
-    Eterm result = best->matched_term;
+    result = best->matched_term;
     best->has_match = 0;
     best->matched_term = THE_NON_VALUE;
     best->matched_msg = NULL;
@@ -211,7 +246,12 @@ erts_pon_receive(Process *p)
  * Fast-path do selective receive (interpreter).
  *
  * Posiciona o save pointer da fila principal diretamente na mensagem
- * que a Premise de menor clause_index já notificou.
+ * que a Premise notificou. Chamado pelo scan advance — hook em
+ * erts_msgq_set_save_next (loop_rec_end) — que roda na PRIMEIRA
+ * iteração de cada receive: no estado save_info == FIRST o save está
+ * no início da fila interna (resultado do set_save_first do receive
+ * anterior) e nenhum marker de receive pode estar ativo; pular para a
+ * mensagem notificada é o mesmo resultado do scan linear, em O(1).
  *
  * Caminho O(1): se a mensagem casada entrou na fila interna por um
  * caminho instrumentado (fetch), o campo pon_in_link dela guarda o
@@ -221,60 +261,129 @@ erts_pon_receive(Process *p)
  *
  * A validacao "*pon_in_link == matched_msg" garante que o link ainda
  * aponta para a mensagem casada. Se nao (mensagem consumida por outra
- * via, link reescrito, ou caminho nao instrumentado), cai para o scan
- * linear da fila principal — que custa apenas um chase de ponteiro por
- * mensagem intermediaria, e restaura o save + limpa a Premise se a
- * mensagem nao for encontrada a frente do save, preservando a
- * semantica do scan normal.
+ * via, link reescrito, ou caminho nao instrumentado), a Premise esta
+ * obsoleta: limpa o estado dela e retorna sem mexer no save — o scan
+ * linear normal continua (correto, apenas mais lento).
+ *
+ * Se o save ja esta NA posicao da mensagem casada (jump feito por uma
+ * chamada anterior cuja clausula nao casou, ou mensagem alcancada pelo
+ * scan), a Premise tambem esta obsoleta para esta passada: limpa e
+ * retorna, evitando loop infinito de re-jump para a mesma mensagem.
+ *
+ * Multi-clausula: a mensagem selecionada e a de MENOR sequencia de
+ * chegada (pon_seq) entre as Premises satisfeitas — o receive seletivo
+ * escolhe a mensagem mais antiga que casa QUALQUER clausula; a ordem
+ * das clausulas so decide qual clausula casa dentro da mensagem.
  */
-void
-erts_pon_advance_to_matched(Process *p)
+int
+ erts_pon_advance_to_matched(Process *p)
 {
+    ErtsSignalPrivQueues *qs;
+    ErtsPremise *best;
+    ErtsPremise *prem;
+    ErtsMessage *m;
+    ErtsMessage *cur;
+    ErtsMessage **orig_save;
+
     ASSERT(p != NULL);
 
     if (!p->pon_premises)
-        return;
+        return 0;
 
-    /* Melhor Premise = menor clause_index com has_match */
-    ErtsPremise *best = NULL;
-    ErtsPremise *prem = p->pon_premises;
+    qs = &p->sig_qs;
+    best = NULL;
+    m = NULL;
+    cur = NULL;
+    orig_save = NULL;
+
+#define PON_DBG_DUMP(COND, MSG)                                         \
+    do {                                                                \
+        static int pon_dbg_n = 0;                                       \
+        if ((COND) && pon_dbg_n < 300) {                                \
+            pon_dbg_n++;                                                \
+            fprintf(stderr, "PON-ADV #%d %s save=%p save_info=%d "      \
+                    "cont=%d flags=%x best=%p m=%p link=%p\n",          \
+                    pon_dbg_n, (MSG), (void*) qs->save,                  \
+                    ERTS_MQ_GET_SAVE_INFO(p), (int) qs->cont,           \
+                    (int) qs->flags, (void*) best, (void*) m,           \
+                    (void*) (m ? m->pon_in_link : NULL));               \
+        }                                                               \
+    } while (0)
+
+    /*
+     * Gate de segurança: o jump so e valido no inicio do scan de um
+     * receive (save_info FIRST, sem markers/prio). Em qualquer outro
+     * estado (scan em andamento, receive com marker RCVM, prio queue),
+     * o scan normal deve continuar intocado.
+     */
+    if (ERTS_MQ_GET_SAVE_INFO(p) != FS_SET_SAVE_INFO_FIRST) {
+        PON_DBG_DUMP(1, "gate-saveinfo");
+        return 0;
+    }
+    if (qs->cont
+        || (qs->flags & (FS_PRIO_MQ | FS_PRIO_MQ_END_MARK | FS_PRIO_MQ_SAVE))) {
+        PON_DBG_DUMP(1, "gate-cont-prio");
+        return 0;
+    }
+
+    /* Melhor Premise = menor pon_seq (chegada mais antiga) com has_match */
+    best = NULL;
+    prem = p->pon_premises;
     while (prem) {
         if (prem->has_match) {
-            if (!best || prem->clause_index < best->clause_index)
+            if (!best || prem->matched_msg->pon_seq < best->matched_msg->pon_seq)
                 best = prem;
         }
         prem = prem->next_premise;
     }
 
-    if (!best)
-        return;
+    if (!best) {
+        PON_DBG_DUMP(1, "no-best");
+        return 0;
+    }
 
-    ErtsMessage *m = best->matched_msg;
-    ErtsSignalPrivQueues *qs = &p->sig_qs;
+    m = best->matched_msg;
+    cur = *qs->save;
+
+    /* Save aponta para algo que nao e mensagem (marker): nao mexer. */
+    if (cur && !ERTS_SIG_IS_MSG(cur)) {
+        PON_DBG_DUMP(1, "cur-not-msg");
+        return 0;
+    }
 
     /*
-     * Caminho O(1): link de entrada registrado no fetch e ainda valido.
-     * Guardas de conservadorismo: sem fila do meio (cont), sem prio
-     * queue e sem recv markers — caminhos em que o pon_in_link nao e
-     * mantido (ali o scan linear abaixo continua funcionando).
+     * Caminho O(1): link de entrada registrado no fetch e ainda valido,
+     * e o save ainda nao alcancou a mensagem casada.
      */
     if (m && m->pon_in_link && *m->pon_in_link == m
-        && !qs->cont
-        && !(qs->flags & (FS_PRIO_MQ | FS_PRIO_MQ_END_MARK | FS_PRIO_MQ_SAVE))
-        && !qs->recv_mrk_blk) {
+        && qs->save != m->pon_in_link) {
         qs->save = m->pon_in_link;
         PON_STATS_INC(mailbox_scans_avoided);
-        return;
+        return 1;
+    }
+    PON_DBG_DUMP(1, "o1-fail");
+
+    /*
+     * Premise obsoleta: mensagem consumida por outra via (link
+     * reescrito) ou ja alcancada pelo scan (save na posicao dela).
+     * Limpa o estado para que futuras chegadas notifiquem de novo;
+     * o scan linear normal prossegue do save atual.
+     */
+    if (!m || !m->pon_in_link || *m->pon_in_link != m
+        || qs->save == m->pon_in_link) {
+        best->has_match = 0;
+        best->matched_term = THE_NON_VALUE;
+        best->matched_msg = NULL;
+        return 0;
     }
 
     /* Fallback: anda com o save pointer até a mensagem casada */
-    ErtsMessage **orig_save = qs->save;
-    ErtsMessage *cur = erts_msgq_peek_msg(p);
+    orig_save = qs->save;
     while (cur && cur != m) {
         if (!cur->pon_in_link)
             cur->pon_in_link = qs->save;
         erts_msgq_set_save_next(p);
-        cur = erts_msgq_peek_msg(p);
+        cur = *qs->save;
     }
     if (cur && cur == m && !m->pon_in_link) {
         m->pon_in_link = qs->save;
@@ -288,10 +397,11 @@ erts_pon_advance_to_matched(Process *p)
         best->has_match = 0;
         best->matched_term = THE_NON_VALUE;
         best->matched_msg = NULL;
-        return;
+        return 0;
     }
 
     PON_STATS_INC(mailbox_scans_avoided);
+    return 1;
 }
 
 /*
@@ -300,12 +410,14 @@ erts_pon_advance_to_matched(Process *p)
  * chegadas possam notificar novamente.
  */
 void
-erts_pon_note_message_consumed(Process *p, ErtsMessage *msgp)
+ erts_pon_note_message_consumed(Process *p, ErtsMessage *msgp)
 {
+    ErtsPremise *prem;
+
     ASSERT(p != NULL);
     ASSERT(msgp != NULL);
 
-    ErtsPremise *prem = p->pon_premises;
+    prem = p->pon_premises;
     while (prem) {
         if (prem->matched_msg == msgp) {
             prem->has_match = 0;

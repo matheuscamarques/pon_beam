@@ -266,6 +266,12 @@ bif erlang:make_tuple/3
 # PON-BEAM: registro de Premises para selective receive orientado a notificações
 bif erlang:pon_register_premises/1
 bif erlang:pon_unregister_premises/0
+# PON-BEAM: GC por notificação (tri-color, Dijkstra 1978)
+bif erlang:pon_gc_register_objects/1
+bif erlang:pon_gc_add_root/1
+bif erlang:pon_gc_add_ref/2
+bif erlang:pon_gc_collect/0
+bif erlang:pon_gc_dump/0
 #endif
 
 bif erlang:system_flag/2

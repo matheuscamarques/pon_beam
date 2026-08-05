@@ -45,8 +45,8 @@ measure_scan(N) ->
     TimeUs.
 
 consumer(Parent) ->
-    try erlang:pon_register_premises([{ziel, value}])
-    catch error:undef -> ok
+    try erlang:pon_register_premises([{{ziel, value}, true, 0}])
+    catch _:_ -> ok
     end,
     Parent ! {ready, self()},
     receive
