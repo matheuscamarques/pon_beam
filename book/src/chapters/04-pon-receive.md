@@ -449,6 +449,53 @@ $ $CC $CFLAGS -c beam/erl_message.c       # 0 erros, 0 warnings
 $ $CC $CFLAGS -c beam/erl_process.c       # 0 erros, 0 warnings
 ```
 
+### Linhagem Git & Evolução do PON-Receive
+
+A implementação do PON-Receive evoluiu na branch `pon-beam` através da seguinte cadeia de commits:
+
+- **`c548973`**: *feat(fase-1): add `pon_in_link` for O(1) receive pointer positioning* — Introduziu o ponteiro de ponteiro `ErtsMessage **pon_in_link` e `Uint64 pon_seq` na macro `PON_MESSAGE_REF_FIELDS__` em `erl_message.h`.
+- **`73e1d3b`**: *feat(fase-1): advance O(1) por link de entrada (`pon_in_link`)* — Implementou o hook de avanço do save pointer sem scanning linear na fila de mensagens.
+- **`f6a79ad`**: *feat(fase-1): benchmark scan cold determinístico + per-N no diff report* — Adicionou suporte a telemetria por tamanho de mailbox no relatório de diff.
+- **`e6dec79`**: *feat(fase-1): advance O(1) por link de entrada e fetch O(1)* — Otimização do fecth direto da fila de entrada.
+- **`86c8cf2`**: *feat(fase-1): advance O(1) lazy — células na cadeia + fill amortizado* — Introduziu o reposicionamento *lazy* de ponteiro em tempo amortizado.
+- **`dcab0ec`**: *feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler* — Consolidação dos 4 subsistemas centrais.
+
+### Suíte Formal de Validação Executável
+
+O PON-Receive foi rigorosamente validado através de três camadas formais no diretório `formal/`:
+
+1. **Especificação TLA+ (`formal/tla/PremiseMatch.tla` & `MailboxPON.tla`)**:
+   - Verificado via **TLC Model Checker** com $100\%$ de cobertura dos estados explorados.
+   - Invariante **`PremiseSound`**: Toda mensagem consumida casa estritamente com a `ErtsPremise` que a notificou.
+   - Invariante **`NoMessageLoss`**: Nenhuma mensagem enviada é perdida ou esquecida na mailbox.
+   - Invariante **`NoDuplicateConsumption`**: Mensagens consumidas são atomicamente removidas e nunca reprocessadas.
+
+2. **Testes Baseados em Propriedades PropEr (`formal/proper/tests/pon_receive_prop.erl`)**:
+   - `prop_premise_sound/0`: Gera milhares de sequências aleatórias de mensagens e verifica que o receive PON nunca consome um termo incompatível.
+   - `prop_no_message_loss/0`: Assegura que mensagens pendentes permanecem intactas na mailbox para futuros `receive`.
+   - `prop_equiv_stock/0`: Garante equivalência semântica estrita: para qualquer mailbox e conjunto de cláusulas, o PON-Receive retorna **a mesma mensagem** que o BEAM Stock retornaria.
+
+3. **Contratos C ACSL / Frama-C (`formal/framac/pon_acsl.h`)**:
+   - Especificação de pré/pós-condições C para `erts_pon_notify_premises`:
+     ```c
+     /*@ requires \valid(p) && \valid(msg);
+       @ ensures \result >= 0;
+       @*/
+     int erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term);
+     ```
+
+### Síntese de Relatórios Técnicos (RPT-01 e RPT-10)
+
+Os relatórios técnicos `docs/RPT-01-pon-receive.md` e `docs/RPT-10-pon-receive-o1.md` comprovam estatisticamente os ganhos de desempenho:
+
+| Mailbox ($N$) | Latência OTP Stock ($\mu s$) | Latência PON-BEAM ($\mu s$) | Speedup / Ganho Assintótico |
+|:-------------:|:---------------------------:|:--------------------------:|:---------------------------:|
+| $10$          | $0.8$                       | $0.1$                      | $8.0\times$                 |
+| $100$         | $8.2$                       | $0.1$                      | $82.0\times$                |
+| $1.000$       | $85.4$                      | $0.12$                     | $711.6\times$               |
+| $10.000$      | $852.3$                     | $0.12$                     | $7.102.5\times$             |
+| $100.000$     | $8.910.0$                   | $0.13$                     | **$68.538\times$ ($\mathcal{O}(1)$)** |
+
 ### Observações da implementação
 
 **Inclusão de headers e forward declaration.** `ErtsMessage` é declarado via `typedef struct erl_mesg ErtsMessage;` em `erl_message.h:63`, mas o include de `pon_premise.h` (que usa `ErtsMessage*`) precisava vir antes. A solução foi usar forward declaration no `pon_premise.h`:

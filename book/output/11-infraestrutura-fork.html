@@ -84,7 +84,7 @@ A PON-BEAM é 100% compatível."
 </blockquote>
 <hr />
 <h2>1. Introdução</h2>
-<p>A PON-BEAM não é uma nova VM. É uma re-arquitetura seletiva da BEAM existente — o fork OTP 30.0-rc0 modificado cirurgicamente para substituir polling por notificação em subsistemas específicos. Cada modificação é envolta em <code>#ifdef PON_BEAM</code> para preservar o código original intacto. O resultado é um binário <code>beam.ponbeam.smp</code> que co-existe com o <code>beam.smp</code> stock no mesmo sistema, compartilhando o mesmo formato .beam, a mesma ABI de NIFs, os mesmos protocolos de distribuição, e a mesma semântica observável de Erlang.</p>
+<p>A PON-BEAM não é uma nova VM. É uma re-arquitetura seletiva da BEAM existente — o fork experimental <code>OTP 30.0-rc0</code> modificado cirurgicamente para substituir polling por notificação em subsistemas específicos (vale ressaltar que a codificação <code>30.0-rc0</code> é a identificação de versão de desenvolvimento usada neste protótipo de pesquisa, não se tratando de um release oficial da Ericsson). Cada modificação é envolta em <code>#ifdef PON_BEAM</code> para preservar o código original intacto. O resultado é um binário <code>beam.ponbeam.smp</code> que co-existe com o <code>beam.smp</code> stock no mesmo sistema, compartilhando o mesmo formato .beam, a mesma ABI de NIFs, os mesmos protocolos de distribuição, e a mesma semântica observável de Erlang.</p>
 <p>Este capítulo documenta a infraestrutura do fork: a estratégia de branches, o sistema de compilação condicional, o <code>configure.ac</code>, o <code>Makefile.in</code>, a árvore completa de arquivos modificados (14 novos + 6 modificados), e as garantias de compatibilidade.</p>
 <hr />
 <h2>2. Estratégia de Branches</h2>
@@ -331,6 +331,16 @@ build-pon-debug:
         make -j$(nproc) && make install
 </code></pre>
 
+<hr />
+<h2>5.1 Linhagem Git da Infraestrutura do Fork</h2>
+<p>A infraestrutura de build e fork foi construída e mantida através dos seguintes commits na branch <code>pon-beam</code>:</p>
+<ul>
+<li><strong><code>0a3a579</code></strong>: <em>refactor(bench): simplify idle and compile benchmarks using runtime()</em> — Refatoração inicial dos benchmarks.</li>
+<li><strong><code>4efb8a6</code></strong>: <em>chore(gitignore): ignore build artifacts, docs output, and formal verification files</em> — Configuração de exclusão de artefatos temporários.</li>
+<li><strong><code>c553ee3</code></strong>: <em>chore: remover arquivos .patch legados da raiz e atualizar .gitignore</em> — Limpeza de patches antigos.</li>
+<li><strong><code>fcde188</code></strong>: <em>chore(gitignore): ignore session export files</em> — Suporte a rastreabilidade de conversas.</li>
+<li><strong><code>50ec36c</code></strong>: <em>chore: ignorar ferramentas temporárias do TLC em formal/tla/tools/</em> — Manutenção dos validadores formais.</li>
+</ul>
 <hr />
 <h2>6. Árvore Completa de Arquivos</h2>
 <p>As 8 fases produziram <strong>14 novos arquivos</strong> e <strong>6 arquivos OTP modificados</strong>:</p>

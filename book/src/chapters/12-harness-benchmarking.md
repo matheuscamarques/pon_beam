@@ -240,6 +240,19 @@ O estilo usa classes CSS:
 .equal { color: #8b949e; }                       /* 0.95 < ratio < 1.05 */
 ```
 
+### Linhagem Git & Evolução do Harness de Benchmarking
+
+A suíte de teste e medição evoluiu no commit:
+
+- **`f6a79ad`**: *feat(fase-1): benchmark scan cold determinístico + per-N no diff report* — Suporte a estatísticas per-N e renderização HTML detalhada.
+
+### Banco de Dados SQLite de Observabilidade & Telemetria
+
+O harness armazena a telemetria contínua das execuções em banco de dados SQLite para análise histórica de regressão:
+
+- Tabela `telemetry_runs` (ID do run, timestamp, ERTS target, tipo de build).
+- Tabela `benchmark_results` (nome do teste, parâmetro N, latência Média, P99, Throughput, CPU Idle %, Memória alocada).
+
 ---
 
 ## 8. Formato do Diff Report

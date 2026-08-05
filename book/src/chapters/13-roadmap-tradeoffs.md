@@ -234,6 +234,21 @@ Não há implementações para `kqueue` (macOS/BSD) ou `IOCP` (Windows). A camad
 
 **Status**: Pendente. A PON-BEAM é Linux-only.
 
+### Linhagem Git do Expansão de Resiliência e Suíte Formal (Fase 8)
+
+A consolidação da validação formal e resiliência foi concluída via os commits:
+
+- **`411738f`**: *feat(formal-expansao): adicionar 3 novos modelos TLA+ (`DistributedNodeSync`, `AtomicLockFree`, `CompilerEquivalence`) e suíte Fase 8 de Resiliência* — Expansão da cobertura formal para concorrência atômica e sync distribuído.
+- **`3084ad5`**: *feat(formal): adicionar script de validação TLC `run_tlc.sh` e propriedades PropEr* — Automação da verificação formal no pipeline.
+- **`c9776e9`**: *feat(formal): commitar especificações essenciais TLA+, Coq, Frama-C, KLEE e PropEr* — Estrutura completa da suíte formal.
+- **`14ba0fc`**: *feat(formal): adiciona e valida suíte formal PON-BEAM (TLA+, Coq, Frama-C/ACSL, PropEr)* — Validação executável de toda a suíte formal.
+
+### Suíte Formal de Resiliência e Concorrência Atômica
+
+1. **`DistributedNodeSync.tla`**: Modelagem de notificações entre nós Erlang em redes com perda e partição.
+2. **`AtomicLockFreeInvariants.tla`**: Verificação formal de invariantes de ausência de trava (*lock-free CAS operations*) em estruturas PON.
+3. **Execução Simbólica KLEE (`formal/klee/run_klee.sh`)**: Teste simbólico cobrindo caminhos críticos de memória sem estouro de buffer.
+
 ---
 
 ## 7. Matriz de Tradeoffs (Pós-Implementação)

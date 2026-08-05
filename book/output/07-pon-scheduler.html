@@ -772,6 +772,51 @@
 </svg></div>
 
 <p>O diagrama acima ilustra o problema crítico do polling: um processo que fica pronto em t=5ms só é descoberto pelo scheduler no próximo ciclo de polling em t=50ms — uma latência de 45ms desperdiçada. Na PON-BEAM, a mesma notificação ocorre em 1μs.</p>
+<h3>Linhagem Git &amp; Evolução do PON-Scheduler</h3>
+<p>A re-arquitetura do scheduler de polling para notificação foi integrada em:</p>
+<ul>
+<li><strong><code>dcab0ec</code></strong>: <em>feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler</em> — Criou a abstração <code>ErtsCondition</code> em <code>pon_condition.c</code> / <code>pon_condition.h</code>, desacoplando o loop do scheduler de busy-wait e integrando <code>eventfd</code>/<code>epoll</code>.</li>
+</ul>
+<h3>Suíte Formal de Validação Executável</h3>
+<p>O subsistema PON-Scheduler foi formalmente especificado e verificado:</p>
+<ol>
+<li><strong>Especificações TLA+ (<code>formal/tla/ConditionNotify.tla</code> &amp; <code>SchedulerWakeup.tla</code>)</strong>:
+   - TLC Model Checker validou a ausência de deadlocks e a ausência de <em>lost wakeups</em>.
+   - Invariante <strong><code>SchedulerSafety</code></strong>: Um scheduler em repouso acorda imediatamente quando um processo entra na <code>ready_list</code>.
+   - Invariante <strong><code>ZeroCpuIdle</code></strong>: Sem tarefas prontas, o scheduler permanece bloqueado no kernel sem chamadas redundantes.</li>
+</ol>
+<h3>Síntese de Relatórios Técnicos (RPT-04)</h3>
+<p>O relatório técnico <code>docs/RPT-04-pon-scheduler.md</code> quantifica a eliminação da redundância temporal:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Métrica de Scheduler</th>
+<th style="text-align: center;">OTP 30 Stock</th>
+<th style="text-align: center;">PON-BEAM (Condition/eventfd)</th>
+<th style="text-align: center;">Ganho Empírico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Consumo CPU Idle</td>
+<td style="text-align: center;">$5.0\% - 30.0\%$</td>
+<td style="text-align: center;"><strong>$0.0\%$</strong></td>
+<td style="text-align: center;"><strong>$100\%$ Redução de overhead</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">Latência Wakeup</td>
+<td style="text-align: center;">$10 - 100\,\mu s$</td>
+<td style="text-align: center;"><strong>$1.0\,\mu s$</strong></td>
+<td style="text-align: center;"><strong>$10\times - 100\times$ menor latência</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">Busy-Wait Loops</td>
+<td style="text-align: center;">Sim (Spin lock)</td>
+<td style="text-align: center;"><strong>Não (Epoll wait)</strong></td>
+<td style="text-align: center;">Zero desperdício de bateria/energia</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2>6. Análise Assintótica</h2>
 <p>A diferença fundamental entre os dois modelos é de complexidade computacional: o polling executa um número fixo de operações por unidade de tempo independentemente da carga; a notificação executa operações proporcionais apenas ao número de eventos.</p>

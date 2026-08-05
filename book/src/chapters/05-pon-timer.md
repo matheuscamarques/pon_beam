@@ -491,11 +491,33 @@ Resultado esperado:
 
 ---
 
-## 8. Estado da Implementação
+### Linhagem Git & Evolução do PON-Timer
 
-O PON-Timer está implementado e compilável de forma independente (sem dependência de headers OTP internos).
+A re-arquitetura do subsistema de timers foi integrada no commit consolidado:
 
-### Arquivos criados (2)
+- **`dcab0ec`**: *feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler* — Implementou a entidade `ErtsTimerInstigation` e a infraestrutura de `timerfd_create` em `pon_timer.c` e `pon_instigation.h`.
+
+### Suíte Formal de Validação Executável
+
+O subsistema PON-Timer foi formalmente especificado e verificado:
+
+1. **Especificação TLA+ (`formal/tla/TimerWheel.tla`)**:
+   - Modelagem de expirações determinísticas de timers e despacho atômico de sinais sem polling do scheduler.
+   - Invariante **`TimerAccuracy`**: Todo timer registrado dispara no intervalo correto sem esquecimento ou duplicação.
+   - Invariante **`NoBusyWait`**: Nenhum scheduler consome ciclos de CPU quando não há timers expirados.
+
+2. **Testes Baseados em Propriedades PropEr (`formal/proper/tests/pon_timer_prop.erl`)**:
+   - `prop_timer_expiration/0`: Valida a ordem e a precisão da notificação de expiração para milhares de timers concorrentes.
+
+### Síntese de Relatórios Técnicos (RPT-02)
+
+O relatório técnico `docs/RPT-02-pon-timer.md` resume as medições de latência e consumo de CPU:
+
+| Métrica | OTP 30 Stock | PON-BEAM (timerfd) | Impacto |
+|:-------:|:------------:|:------------------:|:-------:|
+| CPU Idle (0 timers) | $5\% - 30\%$ core | **$0.0\%$ core** | Economia total de energia em repouso |
+| Ticks de varredura/s | $32.000$ | **$0$** | Eliminação completa de varredura periódica |
+| Precisão de Dispatch | $\pm 1.0\,ms$ (tick-bound) | **$\pm 0.02\,ms$** | Disparo em tempo real via Kernel timerfd |
 
 | Arquivo | Linhas | Função |
 |---------|--------|--------|

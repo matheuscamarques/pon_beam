@@ -255,6 +255,17 @@
 .equal { color: #8b949e; }                       /* 0.95 < ratio < 1.05 */
 </code></pre>
 
+<h3>Linhagem Git &amp; Evolução do Harness de Benchmarking</h3>
+<p>A suíte de teste e medição evoluiu no commit:</p>
+<ul>
+<li><strong><code>f6a79ad</code></strong>: <em>feat(fase-1): benchmark scan cold determinístico + per-N no diff report</em> — Suporte a estatísticas per-N e renderização HTML detalhada.</li>
+</ul>
+<h3>Banco de Dados SQLite de Observabilidade &amp; Telemetria</h3>
+<p>O harness armazena a telemetria contínua das execuções em banco de dados SQLite para análise histórica de regressão:</p>
+<ul>
+<li>Tabela <code>telemetry_runs</code> (ID do run, timestamp, ERTS target, tipo de build).</li>
+<li>Tabela <code>benchmark_results</code> (nome do teste, parâmetro N, latência Média, P99, Throughput, CPU Idle %, Memória alocada).</li>
+</ul>
 <hr />
 <h2>8. Formato do Diff Report</h2>
 <p>O relatório final é um HTML auto-contido em <code>results/TIMESTAMP/diff/index.html</code>:</p>

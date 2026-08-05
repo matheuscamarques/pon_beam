@@ -106,7 +106,7 @@ timer_workload(StopRef) ->
     receive
         StopRef -> ok
     after 0 ->
-        TRef = erlang:send_after(500, self(), timer_tick),
+        TRef = erlçang:send_after(500, self(), timer_tick),
         receive
             timer_tick -> ok
         after 600 -> ok

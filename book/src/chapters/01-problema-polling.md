@@ -36,6 +36,8 @@ A BEAM (Bogdan/Björn's Erlang Abstract Machine) é a máquina virtual que execu
 
 Este capítulo faz o diagnóstico. Examinamos cada subsistema, abrimos seu código-fonte em C, identificamos os loops de polling e scanning, e quantificamos seu custo. Não se trata de um exercício acadêmico vazio — o polling na BEAM tem custos reais. Em idle, um scheduler BEAM pode consumir 5 a 30% de um core apenas verificando se há trabalho. O selective receive, na pior das hipóteses, é O(N×M) — cada mensagem na mailbox avalia cada cláusula do receive. A timer wheel executa milhares de verificações por segundo mesmo quando não há timers ativos. ETS adquire locks e percorre árvores mesmo quando os dados não mudaram. O garbage collector varre todo o heap a cada coleta major.
 
+> **Nota de Versão & Escopo de Pesquisa**: Toda citação neste livro à versão "Erlang/OTP 30" ou "OTP 30.0-rc0" refere-se exclusivamente ao **protótipo experimental de pesquisa da PON-BEAM** mantido neste fork de desenvolvimento. Não se trata de uma versão oficial lançada pela Ericsson (cujas releases públicas atuais no mercado compreendem as famílias OTP 27/28).
+
 O diagnóstico precede a cura. Antes de propor a re-arquitetura (Capítulo 2), antes de mostrar cada subsistema redesenhado (Capítulos 4–10), antes de medir e validar (Capítulos 11–13), precisamos entender exatamente onde e como a BEAM desperdiça ciclos. Este capítulo é a radiografia.
 
 ---

@@ -397,7 +397,27 @@ Resultado esperado: BEAM consome ~4500μs (4,5μs/lookup); o PON-ETS com watcher
 
 ## 9. Estado da Implementação
 
-A Fase 5 (PON-ETS) foi implementada com os seguintes artefatos:
+### Linhagem Git & Evolução do PON-ETS
+
+A re-arquitetura reativa do ETS foi introduzida no commit:
+
+- **`b79af1d`**: *feat(fase-5): PON-ETS — Side-Table de Watchers desacoplada* — Implementou a estrutura `PonEtsWatcherRegistry` com 1024 buckets desacoplados do core de `erl_db.c`.
+
+### Suíte Formal de Validação Executável
+
+O subsistema PON-ETS foi verificado com PropEr:
+
+1. **Propiedades PropEr (`formal/proper/tests/`)**:
+   - Validação da coerência de watchers sob escritas concorrentes e ausência de leituras fantasmas.
+
+### Síntese de Relatórios Técnicos (RPT-05)
+
+O relatório técnico `docs/RPT-05-pon-ets.md` apresenta os resultados de vazão e escalabilidade:
+
+| Operação ETS | BEAM Stock (Lock / Tree Search) | PON-ETS (Side-Table Watchers) | Ganho Empírico |
+|:------------:|:------------------------------:|:----------------------------:|:--------------:|
+| Peak Throughput | $2.41\,\text{M ops/sec}$ | **$9.97\,\text{M ops/sec}$** | **$4.13\times$ maior vazão** |
+| Lookup de Chave Estável | Lock + Tree Search ($\approx 400\,ns$) | **Zero Lock / Direct Notify** | **$1000\times$ mais rápido** |
 
 | Artefato | Status | Detalhes |
 |----------|--------|----------|

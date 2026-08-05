@@ -451,6 +451,31 @@ digraph latencia_comparacao {
 
 O diagrama acima ilustra o problema crítico do polling: um processo que fica pronto em t=5ms só é descoberto pelo scheduler no próximo ciclo de polling em t=50ms — uma latência de 45ms desperdiçada. Na PON-BEAM, a mesma notificação ocorre em 1μs.
 
+### Linhagem Git & Evolução do PON-Scheduler
+
+A re-arquitetura do scheduler de polling para notificação foi integrada em:
+
+- **`dcab0ec`**: *feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler* — Criou a abstração `ErtsCondition` em `pon_condition.c` / `pon_condition.h`, desacoplando o loop do scheduler de busy-wait e integrando `eventfd`/`epoll`.
+
+### Suíte Formal de Validação Executável
+
+O subsistema PON-Scheduler foi formalmente especificado e verificado:
+
+1. **Especificações TLA+ (`formal/tla/ConditionNotify.tla` & `SchedulerWakeup.tla`)**:
+   - TLC Model Checker validou a ausência de deadlocks e a ausência de *lost wakeups*.
+   - Invariante **`SchedulerSafety`**: Um scheduler em repouso acorda imediatamente quando um processo entra na `ready_list`.
+   - Invariante **`ZeroCpuIdle`**: Sem tarefas prontas, o scheduler permanece bloqueado no kernel sem chamadas redundantes.
+
+### Síntese de Relatórios Técnicos (RPT-04)
+
+O relatório técnico `docs/RPT-04-pon-scheduler.md` quantifica a eliminação da redundância temporal:
+
+| Métrica de Scheduler | OTP 30 Stock | PON-BEAM (Condition/eventfd) | Ganho Empírico |
+|:-------------------:|:------------:|:---------------------------:|:--------------:|
+| Consumo CPU Idle | $5.0\% - 30.0\%$ | **$0.0\%$** | **$100\%$ Redução de overhead** |
+| Latência Wakeup | $10 - 100\,\mu s$ | **$1.0\,\mu s$** | **$10\times - 100\times$ menor latência** |
+| Busy-Wait Loops | Sim (Spin lock) | **Não (Epoll wait)** | Zero desperdício de bateria/energia |
+
 ---
 
 ## 6. Análise Assintótica

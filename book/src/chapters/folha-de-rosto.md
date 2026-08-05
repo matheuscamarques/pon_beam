@@ -6,7 +6,7 @@ MATHEUS DE CAMARGO MARQUES
 
 **Uma Máquina Virtual Orientada a Notificações**
 
-Re-arquitetura da BEAM (Erlang/OTP 30.0-rc0) usando o Paradigma Orientado a Notificações (PON) de Jean Marcelo Simão
+Re-arquitetura da BEAM (Erlang/OTP 30.0-rc0 — Protótipo Experimental de Pesquisa Não-Oficial) usando o Paradigma Orientado a Notificações (PON) de Jean Marcelo Simão
 
 <br><br><br><br><br><br><br><br>
 

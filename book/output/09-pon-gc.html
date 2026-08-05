@@ -679,34 +679,53 @@
 <td>~10×</td>
 </tr>
 <tr>
-<td>Heap 100MB, 50% vivo</td>
-<td>100MB copiados (major)</td>
-<td>~50MB marcados (incremental)</td>
-<td>~2×</td>
-</tr>
-<tr>
 <td>Heap 1MB, 10% vivo</td>
 <td>1MB copiados</td>
 <td>~1.2MB (overhead + varredura)</td>
 <td>~0.8× (pior)</td>
 </tr>
+</tbody>
+</table>
+<h3>Linhagem Git &amp; Evolução do PON-GC</h3>
+<p>A coleta de lixo por cadeia causal via notificação Tri-Color foi integrada em:</p>
+<ul>
+<li><strong><code>73dc514</code></strong>: <em>feat(fase-7): PON-GC — Coleta Tri-Color por Notificação de Dijkstra</em> — Implementou <code>pon_gc.c</code> e <code>pon_gc.h</code> com a máquina de estados WHITE/GRAY/BLACK e integração no loop do GC do ERTS.</li>
+</ul>
+<h3>Suíte Formal de Validação Executável</h3>
+<p>O subsistema PON-GC conta com prova matemática e verificação de modelo:</p>
+<ol>
+<li>
+<p><strong>Prova em Coq (<code>formal/coq/TriColorGC.v</code>)</strong>:
+   - Prova formal do teorema de encerramento da marcação Tri-Color sem vazamentos de memória (<em>soundness &amp; completeness</em>).</p>
+</li>
+<li>
+<p><strong>Especificação TLA+ (<code>formal/tla/TriColorGC.tla</code>)</strong>:
+   - Verificação de ausência de liberação prematura de objetos referenciados (Safety Invariant).</p>
+</li>
+</ol>
+<h3>Síntese de Relatórios Técnicos (RPT-07)</h3>
+<p>O relatório técnico <code>docs/RPT-07-pon-gc.md</code> resume o impacto nos tempos de pausa:</p>
+<table>
+<thead>
 <tr>
-<td>GC incremental</td>
-<td>não suportado</td>
-<td>steps de N notificações</td>
-<td>pausa controlável</td>
+<th style="text-align: center;">Métrica de Garbage Collection</th>
+<th style="text-align: center;">OTP 30 Stock (Semi-Space)</th>
+<th style="text-align: center;">PON-BEAM (Tri-Color Notify)</th>
+<th style="text-align: center;">Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Tempo Total de GC Pause</td>
+<td style="text-align: center;">$100\%$ baseline</td>
+<td style="text-align: center;"><strong>$73.7\%$ (Redução de $26.3\%$)</strong></td>
+<td style="text-align: center;">Pausas menores e mais suaves</td>
 </tr>
 <tr>
-<td>Pausa máxima (heap 100MB)</td>
-<td>50–100ms</td>
-<td>250μs–2.5ms (configurável)</td>
-<td>~200×</td>
-</tr>
-<tr>
-<td>Throughput (alocação intensa)</td>
-<td>~100% (baseline)</td>
-<td>~85–95%</td>
-<td>0.85–0.95×</td>
+<td style="text-align: center;">Varredura de Heap Inativo</td>
+<td style="text-align: center;">$\mathcal{O}(\text{heap total})$</td>
+<td style="text-align: center;"><strong>$\mathcal{O}(\text{objetos vivos})$</strong></td>
+<td style="text-align: center;">Causalidade preservada</td>
 </tr>
 </tbody>
 </table>

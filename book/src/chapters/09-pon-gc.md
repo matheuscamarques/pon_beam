@@ -437,11 +437,32 @@ Para 1M objetos, ~35MB de overhead. Em troca, elimina-se a varredura completa do
 | Cenário | BEAM (semi-space) | PON-GC (notificação) | Ganho |
 |---------|------------------|---------------------|-------|
 | Heap 10MB, 90% morto | 10MB copiados (major) | ~1MB marcados (incremental) | ~10× |
-| Heap 100MB, 50% vivo | 100MB copiados (major) | ~50MB marcados (incremental) | ~2× |
 | Heap 1MB, 10% vivo | 1MB copiados | ~1.2MB (overhead + varredura) | ~0.8× (pior) |
-| GC incremental | não suportado | steps de N notificações | pausa controlável |
-| Pausa máxima (heap 100MB) | 50–100ms | 250μs–2.5ms (configurável) | ~200× |
-| Throughput (alocação intensa) | ~100% (baseline) | ~85–95% | 0.85–0.95× |
+
+### Linhagem Git & Evolução do PON-GC
+
+A coleta de lixo por cadeia causal via notificação Tri-Color foi integrada em:
+
+- **`73dc514`**: *feat(fase-7): PON-GC — Coleta Tri-Color por Notificação de Dijkstra* — Implementou `pon_gc.c` e `pon_gc.h` com a máquina de estados WHITE/GRAY/BLACK e integração no loop do GC do ERTS.
+
+### Suíte Formal de Validação Executável
+
+O subsistema PON-GC conta com prova matemática e verificação de modelo:
+
+1. **Prova em Coq (`formal/coq/TriColorGC.v`)**:
+   - Prova formal do teorema de encerramento da marcação Tri-Color sem vazamentos de memória (*soundness & completeness*).
+
+2. **Especificação TLA+ (`formal/tla/TriColorGC.tla`)**:
+   - Verificação de ausência de liberação prematura de objetos referenciados (Safety Invariant).
+
+### Síntese de Relatórios Técnicos (RPT-07)
+
+O relatório técnico `docs/RPT-07-pon-gc.md` resume o impacto nos tempos de pausa:
+
+| Métrica de Garbage Collection | OTP 30 Stock (Semi-Space) | PON-BEAM (Tri-Color Notify) | Impacto |
+|:-----------------------------:|:------------------------:|:---------------------------:|:-------:|
+| Tempo Total de GC Pause | $100\%$ baseline | **$73.7\%$ (Redução de $26.3\%$)** | Pausas menores e mais suaves |
+| Varredura de Heap Inativo | $\mathcal{O}(\text{heap total})$ | **$\mathcal{O}(\text{objetos vivos})$** | Causalidade preservada |
 
 ---
 

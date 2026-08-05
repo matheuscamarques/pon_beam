@@ -719,6 +719,88 @@ $<span class="w"> </span><span class="nv">$CC</span><span class="w"> </span><spa
 </pre></div>
 </pre></div>
 
+<h3>Linhagem Git &amp; Evolução do PON-Receive</h3>
+<p>A implementação do PON-Receive evoluiu na branch <code>pon-beam</code> através da seguinte cadeia de commits:</p>
+<ul>
+<li><strong><code>c548973</code></strong>: <em>feat(fase-1): add <code>pon_in_link</code> for O(1) receive pointer positioning</em> — Introduziu o ponteiro de ponteiro <code>ErtsMessage **pon_in_link</code> e <code>Uint64 pon_seq</code> na macro <code>PON_MESSAGE_REF_FIELDS__</code> em <code>erl_message.h</code>.</li>
+<li><strong><code>73e1d3b</code></strong>: <em>feat(fase-1): advance O(1) por link de entrada (<code>pon_in_link</code>)</em> — Implementou o hook de avanço do save pointer sem scanning linear na fila de mensagens.</li>
+<li><strong><code>f6a79ad</code></strong>: <em>feat(fase-1): benchmark scan cold determinístico + per-N no diff report</em> — Adicionou suporte a telemetria por tamanho de mailbox no relatório de diff.</li>
+<li><strong><code>e6dec79</code></strong>: <em>feat(fase-1): advance O(1) por link de entrada e fetch O(1)</em> — Otimização do fecth direto da fila de entrada.</li>
+<li><strong><code>86c8cf2</code></strong>: <em>feat(fase-1): advance O(1) lazy — células na cadeia + fill amortizado</em> — Introduziu o reposicionamento <em>lazy</em> de ponteiro em tempo amortizado.</li>
+<li><strong><code>dcab0ec</code></strong>: <em>feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler</em> — Consolidação dos 4 subsistemas centrais.</li>
+</ul>
+<h3>Suíte Formal de Validação Executável</h3>
+<p>O PON-Receive foi rigorosamente validado através de três camadas formais no diretório <code>formal/</code>:</p>
+<ol>
+<li>
+<p><strong>Especificação TLA+ (<code>formal/tla/PremiseMatch.tla</code> &amp; <code>MailboxPON.tla</code>)</strong>:
+   - Verificado via <strong>TLC Model Checker</strong> com $100\%$ de cobertura dos estados explorados.
+   - Invariante <strong><code>PremiseSound</code></strong>: Toda mensagem consumida casa estritamente com a <code>ErtsPremise</code> que a notificou.
+   - Invariante <strong><code>NoMessageLoss</code></strong>: Nenhuma mensagem enviada é perdida ou esquecida na mailbox.
+   - Invariante <strong><code>NoDuplicateConsumption</code></strong>: Mensagens consumidas são atomicamente removidas e nunca reprocessadas.</p>
+</li>
+<li>
+<p><strong>Testes Baseados em Propriedades PropEr (<code>formal/proper/tests/pon_receive_prop.erl</code>)</strong>:
+   - <code>prop_premise_sound/0</code>: Gera milhares de sequências aleatórias de mensagens e verifica que o receive PON nunca consome um termo incompatível.
+   - <code>prop_no_message_loss/0</code>: Assegura que mensagens pendentes permanecem intactas na mailbox para futuros <code>receive</code>.
+   - <code>prop_equiv_stock/0</code>: Garante equivalência semântica estrita: para qualquer mailbox e conjunto de cláusulas, o PON-Receive retorna <strong>a mesma mensagem</strong> que o BEAM Stock retornaria.</p>
+</li>
+<li>
+<p><strong>Contratos C ACSL / Frama-C (<code>formal/framac/pon_acsl.h</code>)</strong>:
+   - Especificação de pré/pós-condições C para <code>erts_pon_notify_premises</code>:
+     <div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="w">     </span><span class="cm">/<em>@ requires \valid(p) &amp;&amp; \valid(msg);</span>
+<span class="cm">       @ ensures \result &gt;= 0;</span>
+<span class="cm">       @</em>/</span>
+<span class="w">     </span><span class="kt">int</span><span class="w"> </span><span class="nf">erts_pon_notify_premises</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o"><em></span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="w"> </span><span class="o"></em></span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">term</span><span class="p">);</span>
+<span class="w">     </span>
+</pre></div>
+</pre></div></p>
+</li>
+</ol>
+<h3>Síntese de Relatórios Técnicos (RPT-01 e RPT-10)</h3>
+<p>Os relatórios técnicos <code>docs/RPT-01-pon-receive.md</code> e <code>docs/RPT-10-pon-receive-o1.md</code> comprovam estatisticamente os ganhos de desempenho:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Mailbox ($N$)</th>
+<th style="text-align: center;">Latência OTP Stock ($\mu s$)</th>
+<th style="text-align: center;">Latência PON-BEAM ($\mu s$)</th>
+<th style="text-align: center;">Speedup / Ganho Assintótico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">$10$</td>
+<td style="text-align: center;">$0.8$</td>
+<td style="text-align: center;">$0.1$</td>
+<td style="text-align: center;">$8.0\times$</td>
+</tr>
+<tr>
+<td style="text-align: center;">$100$</td>
+<td style="text-align: center;">$8.2$</td>
+<td style="text-align: center;">$0.1$</td>
+<td style="text-align: center;">$82.0\times$</td>
+</tr>
+<tr>
+<td style="text-align: center;">$1.000$</td>
+<td style="text-align: center;">$85.4$</td>
+<td style="text-align: center;">$0.12$</td>
+<td style="text-align: center;">$711.6\times$</td>
+</tr>
+<tr>
+<td style="text-align: center;">$10.000$</td>
+<td style="text-align: center;">$852.3$</td>
+<td style="text-align: center;">$0.12$</td>
+<td style="text-align: center;">$7.102.5\times$</td>
+</tr>
+<tr>
+<td style="text-align: center;">$100.000$</td>
+<td style="text-align: center;">$8.910.0$</td>
+<td style="text-align: center;">$0.13$</td>
+<td style="text-align: center;"><strong>$68.538\times$ ($\mathcal{O}(1)$)</strong></td>
+</tr>
+</tbody>
+</table>
 <h3>Observações da implementação</h3>
 <p><strong>Inclusão de headers e forward declaration.</strong> <code>ErtsMessage</code> é declarado via <code>typedef struct erl_mesg ErtsMessage;</code> em <code>erl_message.h:63</code>, mas o include de <code>pon_premise.h</code> (que usa <code>ErtsMessage*</code>) precisava vir antes. A solução foi usar forward declaration no <code>pon_premise.h</code>:</p>
 <div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">erl_mesg</span><span class="p">;</span><span class="w">  </span><span class="cm">/* forward — ErtsMessage definido em erl_message.h */</span>

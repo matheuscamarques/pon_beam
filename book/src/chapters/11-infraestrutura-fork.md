@@ -37,7 +37,7 @@ fontes:
 
 ## 1. Introdução
 
-A PON-BEAM não é uma nova VM. É uma re-arquitetura seletiva da BEAM existente — o fork OTP 30.0-rc0 modificado cirurgicamente para substituir polling por notificação em subsistemas específicos. Cada modificação é envolta em `#ifdef PON_BEAM` para preservar o código original intacto. O resultado é um binário `beam.ponbeam.smp` que co-existe com o `beam.smp` stock no mesmo sistema, compartilhando o mesmo formato .beam, a mesma ABI de NIFs, os mesmos protocolos de distribuição, e a mesma semântica observável de Erlang.
+A PON-BEAM não é uma nova VM. É uma re-arquitetura seletiva da BEAM existente — o fork experimental `OTP 30.0-rc0` modificado cirurgicamente para substituir polling por notificação em subsistemas específicos (vale ressaltar que a codificação `30.0-rc0` é a identificação de versão de desenvolvimento usada neste protótipo de pesquisa, não se tratando de um release oficial da Ericsson). Cada modificação é envolta em `#ifdef PON_BEAM` para preservar o código original intacto. O resultado é um binário `beam.ponbeam.smp` que co-existe com o `beam.smp` stock no mesmo sistema, compartilhando o mesmo formato .beam, a mesma ABI de NIFs, os mesmos protocolos de distribuição, e a mesma semântica observável de Erlang.
 
 Este capítulo documenta a infraestrutura do fork: a estratégia de branches, o sistema de compilação condicional, o `configure.ac`, o `Makefile.in`, a árvore completa de arquivos modificados (14 novos + 6 modificados), e as garantias de compatibilidade.
 
@@ -211,6 +211,18 @@ build-pon-debug:
 	    CFLAGS="-DPON_BEAM_DEBUG -g -O0" && \
 	    make -j$(nproc) && make install
 ```
+
+---
+
+## 5.1 Linhagem Git da Infraestrutura do Fork
+
+A infraestrutura de build e fork foi construída e mantida através dos seguintes commits na branch `pon-beam`:
+
+- **`0a3a579`**: *refactor(bench): simplify idle and compile benchmarks using runtime()* — Refatoração inicial dos benchmarks.
+- **`4efb8a6`**: *chore(gitignore): ignore build artifacts, docs output, and formal verification files* — Configuração de exclusão de artefatos temporários.
+- **`c553ee3`**: *chore: remover arquivos .patch legados da raiz e atualizar .gitignore* — Limpeza de patches antigos.
+- **`fcde188`**: *chore(gitignore): ignore session export files* — Suporte a rastreabilidade de conversas.
+- **`50ec36c`**: *chore: ignorar ferramentas temporárias do TLC em formal/tla/tools/* — Manutenção dos validadores formais.
 
 ---
 

@@ -579,6 +579,20 @@
 - <code>epoll</code> (Timer, Scheduler)</p>
 <p>Não há implementações para <code>kqueue</code> (macOS/BSD) ou <code>IOCP</code> (Windows). A camada <code>ErtsWakeup</code> (prevista para abstrair a notificação) não foi implementada.</p>
 <p><strong>Status</strong>: Pendente. A PON-BEAM é Linux-only.</p>
+<h3>Linhagem Git do Expansão de Resiliência e Suíte Formal (Fase 8)</h3>
+<p>A consolidação da validação formal e resiliência foi concluída via os commits:</p>
+<ul>
+<li><strong><code>411738f</code></strong>: <em>feat(formal-expansao): adicionar 3 novos modelos TLA+ (<code>DistributedNodeSync</code>, <code>AtomicLockFree</code>, <code>CompilerEquivalence</code>) e suíte Fase 8 de Resiliência</em> — Expansão da cobertura formal para concorrência atômica e sync distribuído.</li>
+<li><strong><code>3084ad5</code></strong>: <em>feat(formal): adicionar script de validação TLC <code>run_tlc.sh</code> e propriedades PropEr</em> — Automação da verificação formal no pipeline.</li>
+<li><strong><code>c9776e9</code></strong>: <em>feat(formal): commitar especificações essenciais TLA+, Coq, Frama-C, KLEE e PropEr</em> — Estrutura completa da suíte formal.</li>
+<li><strong><code>14ba0fc</code></strong>: <em>feat(formal): adiciona e valida suíte formal PON-BEAM (TLA+, Coq, Frama-C/ACSL, PropEr)</em> — Validação executável de toda a suíte formal.</li>
+</ul>
+<h3>Suíte Formal de Resiliência e Concorrência Atômica</h3>
+<ol>
+<li><strong><code>DistributedNodeSync.tla</code></strong>: Modelagem de notificações entre nós Erlang em redes com perda e partição.</li>
+<li><strong><code>AtomicLockFreeInvariants.tla</code></strong>: Verificação formal de invariantes de ausência de trava (<em>lock-free CAS operations</em>) em estruturas PON.</li>
+<li><strong>Execução Simbólica KLEE (<code>formal/klee/run_klee.sh</code>)</strong>: Teste simbólico cobrindo caminhos críticos de memória sem estouro de buffer.</li>
+</ol>
 <hr />
 <h2>7. Matriz de Tradeoffs (Pós-Implementação)</h2>
 <p>A tabela abaixo reflete o estado real após a implementação, comparando ganho estimado, risco real, e se o desvio alterou significativamente o resultado:</p>
