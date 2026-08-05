@@ -456,7 +456,7 @@ A implementação do PON-Receive evoluiu na branch `pon-beam` através da seguin
 - **`c548973`**: *feat(fase-1): add `pon_in_link` for O(1) receive pointer positioning* — Introduziu o ponteiro de ponteiro `ErtsMessage **pon_in_link` e `Uint64 pon_seq` na macro `PON_MESSAGE_REF_FIELDS__` em `erl_message.h`.
 - **`73e1d3b`**: *feat(fase-1): advance O(1) por link de entrada (`pon_in_link`)* — Implementou o hook de avanço do save pointer sem scanning linear na fila de mensagens.
 - **`f6a79ad`**: *feat(fase-1): benchmark scan cold determinístico + per-N no diff report* — Adicionou suporte a telemetria por tamanho de mailbox no relatório de diff.
-- **`e6dec79`**: *feat(fase-1): advance O(1) por link de entrada e fetch O(1)* — Otimização do fecth direto da fila de entrada.
+- **`e6dec79`**: *feat(fase-1): advance O(1) por link de entrada e fetch O(1)* — Otimização do fetch direto da fila de entrada.
 - **`86c8cf2`**: *feat(fase-1): advance O(1) lazy — células na cadeia + fill amortizado* — Introduziu o reposicionamento *lazy* de ponteiro em tempo amortizado.
 - **`dcab0ec`**: *feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler* — Consolidação dos 4 subsistemas centrais.
 
@@ -628,7 +628,7 @@ Assim como no Capítulo 2, aplicamos as quatro lentes para compreender o PON-Rec
 
 ## 4.12 Ver Também
 
-- [Capítulo 1 — Diagnóstico do scanning linear na mailbox](01-diagnostico-scamming-mailbox.html)
+- [Capítulo 1 — Diagnóstico do scanning linear na mailbox](01-problema-polling.html)
 - [Capítulo 2 — Paradigma Orientado a Notificações](02-paradigma-pon.html)
 - [Capítulo 3 — Visão geral da PON-BEAM](03-visao-geral.html)
 - [Capítulo 5 — PON-Timer](05-pon-timer.html)

@@ -8,6 +8,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
 <link rel="stylesheet" href="theme/pygments.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 <aside id="sidebar" class="fixed top-0 left-0 w-72 h-screen bg-[#1a0f0f] border-r border-[#8B6914] flex flex-col z-50 transition-transform duration-200">
@@ -74,7 +75,7 @@
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<h1 class="text-2xl max-md:text-xl font-bold mb-6 pb-4 border-b border-[#8B6914]">Visão Geral da PON-BEAM</h1>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">Visão Geral da PON-BEAM</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
 <article>
 <h1>Visão Geral da PON-BEAM</h1>
 <blockquote>
@@ -902,6 +903,22 @@ window.addEventListener("resize",syncSidebar);
         }
     });
 })();
+
+function exportPDF() {
+    if (typeof html2pdf !== 'undefined') {
+        var element = document.getElementById("main");
+        var opt = {
+            margin:       [0.4, 0.4, 0.4, 0.4],
+            filename:     (document.title || 'PON-BEAM-Livro').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0d0a0a' },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    } else {
+        window.print();
+    }
+}
 </script>
 </body>
 </html>

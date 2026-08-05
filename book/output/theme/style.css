@@ -116,3 +116,41 @@ article img[src*="capa.svg"] {
     margin: 1.5rem auto;
     display: block;
 }
+
+/* @media print styles for PDF generation & printing */
+@media print {
+    #sidebar, #floatBtn, #overlay, footer, .pdf-btn-container, .no-print {
+        display: none !important;
+    }
+    #main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    article h2, article h3, article h1, header h1, header h2 {
+        color: #000000 !important;
+        page-break-after: avoid;
+    }
+    pre, blockquote, table, div.my-4 {
+        page-break-inside: avoid;
+        border-color: #ccc !important;
+    }
+    blockquote {
+        background: #f9f9f9 !important;
+        color: #333 !important;
+        border-left-color: #8B6914 !important;
+    }
+    :not(pre) > code {
+        background: #f0f0f0 !important;
+        color: #c7254e !important;
+    }
+    a {
+        color: #000000 !important;
+        text-decoration: underline !important;
+    }
+}

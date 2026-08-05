@@ -193,6 +193,22 @@ window.addEventListener("resize",syncSidebar);
         }
     });
 })();
+
+function exportPDF() {
+    if (typeof html2pdf !== 'undefined') {
+        var element = document.getElementById("main");
+        var opt = {
+            margin:       [0.4, 0.4, 0.4, 0.4],
+            filename:     (document.title || 'PON-BEAM-Livro').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0d0a0a' },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    } else {
+        window.print();
+    }
+}
 </script>'''
 
 
@@ -200,7 +216,13 @@ def render_page(ch, body_html, config):
     chapters = config["chapters"]
     sidebar = make_sidebar(chapters, ch["id"])
     hide_hdr = ch["id"] in ("capa","folha-de-rosto","contra-capa")
-    ch_hdr = f'<h1 class="text-2xl max-md:text-xl font-bold mb-6 pb-4 border-b border-[#8B6914]">{ch["title"]}</h1>' if not hide_hdr else ''
+    
+    pdf_btn = '<button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button>'
+    
+    if not hide_hdr:
+        ch_hdr = f'<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">{ch["title"]}</h1>{pdf_btn}</div>'
+    else:
+        ch_hdr = f'<div class="flex justify-end mb-4 no-print">{pdf_btn}</div>'
 
     prev_ch = next_ch = None
     for i,c in enumerate(chapters):
@@ -225,6 +247,7 @@ def render_page(ch, body_html, config):
 {TW}
 <link rel="stylesheet" href="theme/style.css">
 <link rel="stylesheet" href="theme/pygments.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
@@ -266,12 +289,19 @@ def render_index(config):
 <title>PON-BEAM — Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</title>
 {TW}
 <link rel="stylesheet" href="theme/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200">
-<header class="text-center py-8 md:py-12 border-b border-[#8B6914] mb-6 md:mb-8">
+<header class="text-center py-8 md:py-12 border-b border-[#8B6914] mb-6 md:mb-8 relative">
+<div class="flex justify-end mb-4 no-print">
+  <button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+    Exportar PDF do Livro
+  </button>
+</div>
 <h1 class="text-3xl md:text-4xl font-extrabold text-[#FFD700] mb-2">PON-BEAM</h1>
 <p class="text-lg md:text-xl text-[#b8a88a] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>
 <p class="text-sm text-[#b8a88a]">{config["author"]}</p>
