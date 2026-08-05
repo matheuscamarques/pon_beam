@@ -340,4 +340,4 @@ Cada contribuição individual é inédita. O conjunto — uma VM inteira re-arq
 - EX-36: Hipátia — Arquitetura Cruzada de Auto-Otimização.
 - EX-37: PON-BEAM — Tese completa.
 - EX-38: Plano de Engenharia da PON-BEAM.
-- [docs/RPT-FINAL-pon-beam.md](../../docs/RPT-FINAL-pon-beam.md) — Relatório final do projeto
+- [docs/RPT-FINAL-pon-beam.md](../../../docs/RPT-FINAL-pon-beam.md) — Relatório final do projeto

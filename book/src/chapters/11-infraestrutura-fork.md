@@ -471,10 +471,10 @@ digraph fork_structure {
 - Capítulo 3 — Visão geral da PON-BEAM (mapa arquitetural)
 - Capítulo 12 — O Harness de Benchmarking (validação empírica)
 - Capítulo 13 — Roadmap e Tradeoffs (priorização das fases)
-- [Makefile](../../Makefile) — Comandos de build na raiz do repositório
-- [otp/erts/emulator/Makefile.in](../../otp/erts/emulator/Makefile.in) — Integração do TYPE=ponbeam
-- [otp/erts/configure.ac](../../otp/erts/configure.ac) — Opção --enable-pon-beam
-- [otp/erts/include/internal/pon_premise.h](../../otp/erts/include/internal/pon_premise.h) — Definição de ErtsPremise
-- [otp/erts/include/internal/pon_stats.h](../../otp/erts/include/internal/pon_stats.h) — Contadores de instrumentação
-- [otp/erts/emulator/beam/pon_premise.c](../../otp/erts/emulator/beam/pon_premise.c) — Implementação
-- [AGENTS.md](../../AGENTS.md) — Regras de ouro do desenvolvimento
+- [Makefile](../../../Makefile) — Comandos de build na raiz do repositório
+- [otp/erts/emulator/Makefile.in](../../../otp/erts/emulator/Makefile.in) — Integração do TYPE=ponbeam
+- [otp/erts/configure.ac](../../../otp/erts/configure.ac) — Opção --enable-pon-beam
+- [otp/erts/include/internal/pon_premise.h](../../../otp/erts/include/internal/pon_premise.h) — Definição de ErtsPremise
+- [otp/erts/include/internal/pon_stats.h](../../../otp/erts/include/internal/pon_stats.h) — Contadores de instrumentação
+- [otp/erts/emulator/beam/pon_premise.c](../../../otp/erts/emulator/beam/pon_premise.c) — Implementação
+- [AGENTS.md](../../../AGENTS.md) — Regras de ouro do desenvolvimento

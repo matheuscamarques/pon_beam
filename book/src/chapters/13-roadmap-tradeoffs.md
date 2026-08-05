@@ -364,8 +364,8 @@ A conclusão pós-implementação confirma a matriz original: **PON-Receive e PO
 - Capítulo 3 — Visão geral da PON-BEAM (mapa de subsistemas)
 - Capítulo 11 — A Infraestrutura do Fork (build system)
 - Capítulo 12 — O Harness de Benchmarking (validação empírica)
-- [docs/RPT-FINAL-pon-beam.md](../../docs/RPT-FINAL-pon-beam.md) — Relatório final do projeto
-- [AGENTS.md](../../AGENTS.md) — Regras de ouro, fases, critérios de aceite
-- [docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md](../../docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md) — Tese PON-BEAM
-- [docs/extras/EX-38-pon-beam-plano-de-engenharia.md](../../docs/extras/EX-38-pon-beam-plano-de-engenharia.md) — Plano de engenharia detalhado
+- [docs/RPT-FINAL-pon-beam.md](../../../docs/RPT-FINAL-pon-beam.md) — Relatório final do projeto
+- [AGENTS.md](../../../AGENTS.md) — Regras de ouro, fases, critérios de aceite
+- [docs/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md](../../../docs/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md) — Tese PON-BEAM
+- [docs/EX-38-pon-beam-plano-de-engenharia.md](../../../docs/EX-38-pon-beam-plano-de-engenharia.md) — Plano de engenharia detalhado
 - Simão, J. M.; Stadzisz, P. C. "Paradigma Orientado a Notificações." (2008–2009)

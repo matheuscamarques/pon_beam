@@ -271,7 +271,7 @@ O paradigma orientado a notificações provou seu valor em teoria (Simão), em l
 - Capítulo 3 — Visão Geral (mapa arquitetural expandido)
 - Capítulo 14 — Casos de Estudo (projeções que validam o impacto)
 - Capítulo 15 — Trabalhos Relacionados (posicionamento e originalidade)
-- [docs/RPT-FINAL-pon-beam.md](../../docs/RPT-FINAL-pon-beam.md) — Relatório final do projeto
+- [docs/RPT-FINAL-pon-beam.md](../../../docs/RPT-FINAL-pon-beam.md) — Relatório final do projeto
 - EX-37 — Tese completa da PON-BEAM
 - EX-38 — Plano de Engenharia (milestones, riscos, cronograma)
 - EX-36 — Hipátia: arquitetura de auto-otimização

@@ -515,11 +515,11 @@ digraph harness_flow {
 
 - Capítulo 11 — A Infraestrutura do Fork (build system, compilação condicional)
 - Capítulo 13 — Roadmap e Tradeoffs (priorização das fases)
-- [harness/run.sh](../../harness/run.sh) — Script principal do harness
-- [harness/benchmarks/lib/pon_harness.erl](../../harness/benchmarks/lib/pon_harness.erl) — Módulo base de execução
-- [harness/benchmarks/lib/pon_compiler.erl](../../harness/benchmarks/lib/pon_compiler.erl) — Parse transform PON
-- [harness/benchmarks/lib/pon_runtime.erl](../../harness/benchmarks/lib/pon_runtime.erl) — Runtime PON
-- [harness/benchmarks/lib/pon_diff.erl](../../harness/benchmarks/lib/pon_diff.erl) — Geração do diff report
-- [harness/benchmarks/lib/pon_stats_reader.erl](../../harness/benchmarks/lib/pon_stats_reader.erl) — Leitura de contadores PON
-- [otp/erts/include/internal/pon_stats.h](../../otp/erts/include/internal/pon_stats.h) — Definição dos contadores C
-- [AGENTS.md](../../AGENTS.md) — Regra "toda fase entrega um diff"
+- [harness/run.sh](../../../harness/run.sh) — Script principal do harness
+- [harness/benchmarks/lib/pon_harness.erl](../../../harness/benchmarks/lib/pon_harness.erl) — Módulo base de execução
+- [harness/benchmarks/lib/pon_compiler.erl](../../../harness/benchmarks/lib/pon_compiler.erl) — Parse transform PON
+- [harness/benchmarks/lib/pon_runtime.erl](../../../harness/benchmarks/lib/pon_runtime.erl) — Runtime PON
+- [harness/benchmarks/lib/pon_diff.erl](../../../harness/benchmarks/lib/pon_diff.erl) — Geração do diff report
+- [harness/benchmarks/lib/pon_stats_reader.erl](../../../harness/benchmarks/lib/pon_stats_reader.erl) — Leitura de contadores PON
+- [otp/erts/include/internal/pon_stats.h](../../../otp/erts/include/internal/pon_stats.h) — Definição dos contadores C
+- [AGENTS.md](../../../AGENTS.md) — Regra "toda fase entrega um diff"
