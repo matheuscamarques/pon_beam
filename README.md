@@ -18,19 +18,19 @@ PON-BEAM fundamentally inverts this control flow: **Entities register Premises a
 
 ```mermaid
 flowchart LR
-    subgraph Traditional ["Stock BEAM (OTP 30) — Polling & Linear Scan"]
+    subgraph Traditional ["Stock BEAM (OTP 30) - Polling and Linear Scan"]
         direction TB
         P_Scan["Selective Receive: Linear Scan Mailbox O(N)"]
         T_Poll["Timer Wheel: Periodic Polling Ticks"]
-        S_Spin["Scheduler: Idle Busy-Spin Loop (5-30% CPU)"]
+        S_Spin["Scheduler: Idle Busy-Spin Loop (5-30 CPU)"]
     end
 
-    subgraph PON_BEAM ["PON-BEAM — Reactive Push Graphs"]
+    subgraph PON_BEAM ["PON-BEAM - Reactive Push Graphs"]
         direction TB
-        Cond["PON Condition<br/>(State Change / Message Arrival)"]
-        Premise["PON Premise<br/>(Pattern Match Slot)"]
-        Instig["PON Instigation<br/>(Direct O(1) Execution Jump)"]
-        
+        Cond["PON Condition (State Change / Message Arrival)"]
+        Premise["PON Premise (Pattern Match Slot)"]
+        Instig["PON Instigation (Direct O(1) Execution Jump)"]
+
         Cond -->|Pushes Event| Premise
         Premise -->|Satisfies| Instig
     end
@@ -149,9 +149,9 @@ To guarantee that replacing linear scanning with reactive callbacks preserves ex
 
 ```mermaid
 graph TD
-    P1["Pillar 1: Model Checking (TLA+/TLC)"] --> |Verifies| V1["Scheduler Wakeup & Mailbox Invariants"]
-    P2["Pillar 2: Theorem Proving (Coq)"] --> |Proves| V2["Tri-Color GC Safety & O(1) Asymptotic Bound"]
-    P3["Pillar 3: Static & Symbolic (Frama-C / KLEE)"] --> |Proves| V3["ACSL C Memory Safety & LLVM Path Coverage"]
+    P1["Pillar 1: Model Checking (TLA+/TLC)"] --> |Verifies| V1["Scheduler Wakeup and Mailbox Invariants"]
+    P2["Pillar 2: Theorem Proving (Coq)"] --> |Proves| V2["Tri-Color GC Safety and O(1) Asymptotic Bound"]
+    P3["Pillar 3: Static and Symbolic (Frama-C / KLEE)"] --> |Proves| V3["ACSL C Memory Safety and LLVM Path Coverage"]
     P4["Pillar 4: Property Testing (PropEr)"] --> |Verifies| V4["Stateful Model Equivalence (Stock vs PON)"]
 ```
 

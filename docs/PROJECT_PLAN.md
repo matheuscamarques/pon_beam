@@ -32,7 +32,7 @@ flowchart TD
     end
 
     subgraph ERTS_Original["Traditional BEAM (OTP 30 Stock)"]
-        Receive_Stock["Receive: Linear Scanning O(N × M)"]
+        Receive_Stock["Receive: Linear Scanning O(N x M)"]
         Timer_Stock["Timer Wheel: 1ms Polling Ticks"]
         Sched_Stock["Scheduler: Spinning / CPU Idle 5-30%"]
         ETS_Stock["ETS: Table Lock Lookup"]
@@ -84,13 +84,13 @@ gantt
     title PON-BEAM Engineering Roadmap
     dateFormat  YYYY-MM-DD
     section Infrastructure
-    Phase 0: Fork & Build System           :done, f0, 2026-06-01, 2026-06-15
+    Phase 0: Fork and Build System        :done, f0, 2026-06-01, 2026-06-15
     section VM Core
     Phase 1: PON-Receive O(1) Direct Jump  :done, f1, 2026-06-16, 2026-07-15
     Phase 2: PON-Timer via timerfd         :done, f2, 2026-07-16, 2026-07-31
     Phase 3: PON-Spawn Notification        :done, f3, 2026-08-01, 2026-08-07
     Phase 4: PON-Scheduler eventfd/epoll   :done, f4, 2026-08-08, 2026-09-15
-    section Storage & Compiler
+    section Storage and Compiler
     Phase 5: PON-ETS Watchers              :done, f5, 2026-09-16, 2026-10-31
     Phase 6: PON-Compiler SSA Integration  :done, f6, 2026-11-01, 2026-11-30
     section Memory Management
