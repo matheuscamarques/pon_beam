@@ -1,41 +1,39 @@
-# PON-BEAM — O Livro
+# PON-BEAM — The Book
 
-Este diretório contém a documentação completa da **PON-BEAM**, a re-arquitetura
-da máquina virtual BEAM usando o Paradigma Orientado a Notificações (PON).
+This directory contains the complete technical book documenting **PON-BEAM**: the re-architecture of the BEAM Virtual Machine using the Notification-Oriented Paradigm (PON / NOP).
 
-## Estrutura
+## Structure
 
 ```
 book/
 ├── src/
-│   ├── chapters/        # 16 capítulos em Markdown
-│   └── (índice gerado automaticamente)
-├── theme/               # CSS, JS, assets do site
-├── output/              # Site HTML gerado (não versionar)
-├── build.py             # Script de build Python
-├── book.json            # Configuração (metadados, ordem dos capítulos)
-└── README.md            # Este arquivo
+│   ├── chapters/        # 21 chapters in Markdown
+│   └── (automatically indexed)
+├── theme/               # CSS, JS, site assets, search engine
+├── output/              # Generated HTML site (build destination)
+├── build.py             # Python HTML build engine script
+├── book.json            # Configuration metadata and chapter sequence
+└── README.md            # This file
 ```
 
-## Como construir
+## How to Build
 
 ```bash
-make book-build    # Gera o site HTML em book/output/
-make book-open     # Abre no navegador
-make book-clean    # Limpa book/output/
+make book-build    # Generates HTML site in book/output/
+make book-open     # Opens book/output/index.html in browser
+make book-clean    # Cleans book/output/ directory
 ```
 
-## Partes do livro
+## Book Organization
 
-| Parte | Capítulos | Tema |
-|-------|-----------|------|
-| I     | 1–3       | Fundamentos: polling, PON, visão geral |
-| II    | 4–10      | Subsistemas PON: Receive, Timer, Spawn, Scheduler, ETS, GC, Compiler |
-| III   | 11–13     | Engenharia: fork, harness, roadmap |
-| IV    | 14–16     | Síntese: casos de estudo, trabalhos relacionados, conclusão |
+| Part | Chapters | Theme |
+| :---: | :---: | :--- |
+| **I** | 1–3 | **Foundations**: Polling Diagnosis, Notification Paradigm, Architectural Overview |
+| **II** | 4–10 | **PON Subsystems**: PON-Receive, PON-Timer, PON-Spawn, PON-Scheduler, PON-ETS, PON-GC, PON-Compiler |
+| **III** | 11–13 | **Engineering & Validation**: Fork Infrastructure, Benchmark Harness, Roadmap & Tradeoffs |
+| **IV** | 14–16 | **Synthesis**: Case Studies, Related Works, Master Conclusions & Future Work |
 
-## Formato
+## Format & Rendering Features
 
-- Markdown fonte em `src/chapters/`
-- Site HTML interativo em `output/` (navegação lateral, busca, diagramas Graphviz, syntax highlighting)
-- ~7.975 linhas de conteúdo, ~458K caracteres
+- Source text written in GitHub-Flavored Markdown (`src/chapters/*.md`).
+- Responsive HTML interface in `output/` with collapsible sidebar, real-time client-side search, embedded diagrams, syntax highlighting, and 1-click PDF export.
