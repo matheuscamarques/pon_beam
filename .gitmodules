@@ -1,0 +1,3 @@
+[submodule "formal/proper/deps/proper"]
+	path = formal/proper/deps/proper
+	url = https://github.com/proper-testing/proper.git
