@@ -13,7 +13,7 @@ OUTPUT = ROOT / "output"
 THEME = ROOT / "theme"
 BOOK_JSON = ROOT / "book.json"
 
-TWC = '<script>tailwind.config={theme:{extend:{colors:{\'iron-bg\':\'#0d0a0a\',\'iron-surface\':\'#1a0f0f\',\'iron-hover\':\'#2d1515\',\'iron-gold\':\'#FFD700\',\'iron-gold-dim\':\'#8B6914\',\'iron-text\':\'#b8a88a\'}}}}}</script>'
+TWC = '<script>tailwind.config={theme:{extend:{colors:{\'iron-bg\':\'#0d0a0a\',\'iron-surface\':\'#1a0f0f\',\'iron-hover\':\'#2d1515\',\'iron-gold\':\'#FFD700\',\'iron-gold-dim\':\'#8B6914\',\'iron-text\':\'#b8a88a\'}}}}</script>'
 TWD = '<script src="https://cdn.tailwindcss.com"></script>'
 TW = TWC + '\n' + TWD
 
@@ -131,9 +131,12 @@ def make_sidebar(chapters, current_id=None):
     return html
 
 
-def make_shared_js():
-    return '''<script>
-function closeSidebar() {
+def make_shared_js(chapter_ids=None):
+    ids = json.dumps(chapter_ids or [])
+    head = '''<script>
+var BOOK_IDS = "__BOOK_IDS__";
+'''.replace('"__BOOK_IDS__"', ids)
+    return head + '''function closeSidebar() {
     var b=document.body,s=document.getElementById("sidebar"),f=document.getElementById("floatBtn"),o=document.getElementById("overlay");
     b.classList.add("sidebar-closed"); b.classList.remove("sidebar-open");
     s.style.transform="translateX(-100%)";
@@ -216,6 +219,106 @@ function exportPDF() {
         window.print();
     }
 }
+
+function showPdfStatus(msg) {
+    var el = document.getElementById("pdfStatus");
+    if (!el) {
+        el = document.createElement("div");
+        el.id = "pdfStatus";
+        el.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(13,10,10,0.94)";
+        el.innerHTML = '<div style="text-align:center;color:#FFD700;font-family:ui-monospace,SFMono-Regular,monospace;font-size:13px;padding:26px 32px;background:#1a0f0f;border:1px solid #8B6914;border-radius:10px;max-width:80vw;box-shadow:0 0 40px rgba(255,215,0,0.15)"><div style="font-size:15px;font-weight:bold">PON-BEAM</div><div style="margin-top:10px;color:#b8a88a" id="pdfMsg">Preparing PDF...</div></div>';
+        document.body.appendChild(el);
+    }
+    var m = document.getElementById("pdfMsg");
+    if (m) m.textContent = msg;
+}
+function hidePdfStatus() {
+    var el = document.getElementById("pdfStatus");
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+}
+
+function exportFullBookPDF() {
+    if (typeof jspdf === 'undefined' || typeof html2canvas === 'undefined') {
+        exportPDF();
+        return;
+    }
+    var container = document.getElementById("fullbook");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "fullbook";
+        container.setAttribute("aria-hidden", "true");
+        container.style.cssText = "position:absolute;left:-10000px;top:0;width:820px;background:#0d0a0a";
+        document.body.appendChild(container);
+    }
+    container.innerHTML = "";
+    showPdfStatus("Loading book chapters...");
+    var pending = BOOK_IDS.length;
+    if (pending === 0) { hidePdfStatus(); return; }
+    BOOK_IDS.forEach(function(id) {
+        fetch(id + ".html").then(function(r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.text();
+        }).then(function(html) {
+            var doc = new DOMParser().parseFromString(html, "text/html");
+            var article = doc.querySelector("article");
+            if (article) {
+                var holder = document.createElement("div");
+                holder.innerHTML = article.innerHTML;
+                container.appendChild(holder);
+            }
+        }).catch(function() {}).finally(function() {
+            pending--;
+            if (pending === 0) setTimeout(function() { buildFullBookPdf(container); }, 400);
+        });
+    });
+}
+
+function buildFullBookPdf(container) {
+    var divs = Array.prototype.slice.call(container.children);
+    if (divs.length === 0 || divs.length !== BOOK_IDS.length) {
+        hidePdfStatus();
+        alert("Incomplete book content - could not load all chapters.");
+        return;
+    }
+    var doc = new jspdf.jsPDF({ unit: "in", format: "letter", orientation: "portrait" });
+    var pw = doc.internal.pageSize.getWidth();
+    var ph = doc.internal.pageSize.getHeight();
+    var margin = 0.4;
+    var usableW = pw - 2 * margin;
+    var usableH = ph - 2 * margin;
+    var pos = 0;
+    var first = true;
+    function next() {
+        if (pos >= divs.length) {
+            doc.setProperties({ title: "PON-BEAM - A Notification-Oriented Virtual Machine" });
+            doc.save("pon_beam_livro.pdf");
+            hidePdfStatus();
+            return;
+        }
+        var div = divs[pos];
+        pos++;
+        showPdfStatus("Rendering chapter " + pos + " / " + divs.length + " ...");
+        html2canvas(div, { scale: 1.3, useCORS: true, backgroundColor: "#0d0a0a", logging: false, windowWidth: 820 })
+            .then(function(canvas) {
+                var img = canvas.toDataURL("image/jpeg", 0.92);
+                var totalH = canvas.height * (usableW / canvas.width);
+                var slices = Math.ceil(totalH / usableH);
+                for (var i = 0; i < slices; i++) {
+                    if (!first) doc.addPage();
+                    first = false;
+                    doc.addImage(img, "JPEG", margin, margin - i * usableH, usableW, totalH);
+                }
+                next();
+            })
+            .catch(function(e) {
+                doc.setProperties({ title: "PON-BEAM" });
+                doc.save("pon_beam_livro.pdf");
+                hidePdfStatus();
+                alert("Failed to generate full PDF: " + e.message);
+            });
+    }
+    next();
+}
 </script>'''
 
 
@@ -224,7 +327,7 @@ def render_page(ch, body_html, config):
     sidebar = make_sidebar(chapters, ch["id"])
     hide_hdr = ch["id"] in ("capa","folha-de-rosto","contra-capa")
     
-    pdf_btn = '<button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button>'
+    pdf_btn = '<button onclick="exportFullBookPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export Book PDF</button>'
     
     if not hide_hdr:
         ch_hdr = f'<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">{ch["title"]}</h1>{pdf_btn}</div>'
@@ -255,6 +358,8 @@ def render_page(ch, body_html, config):
 <link rel="stylesheet" href="theme/style.css">
 <link rel="stylesheet" href="theme/pygments.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
@@ -269,7 +374,7 @@ def render_page(ch, body_html, config):
 {next_s}
 </footer>
 </main>
-{make_shared_js()}
+{make_shared_js([c["id"] for c in chapters])}
 </body>
 </html>'''
 
@@ -297,6 +402,8 @@ def render_index(config):
 {TW}
 <link rel="stylesheet" href="theme/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-[#0d0a0a] text-[#e6edf3]">
 {sidebar}
@@ -304,7 +411,7 @@ def render_index(config):
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200">
 <header class="text-center py-8 md:py-12 border-b border-[#8B6914] mb-6 md:mb-8 relative">
 <div class="flex justify-end mb-4 no-print">
-  <button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded">
+  <button onclick="exportFullBookPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
     Export Book PDF
   </button>
@@ -323,7 +430,7 @@ def render_index(config):
 </footer>
 </main>
 <script src="theme/search.js"></script>
-{make_shared_js()}
+{make_shared_js([c["id"] for c in config["chapters"]])}
 </body>
 </html>'''
 

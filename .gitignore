@@ -44,6 +44,10 @@ otp/lib/*/config.h.in
 harness/db/*.db
 *.patch
 
+# Python caches
+__pycache__/
+*.pyc
+
 # Session exports
 opencode-session-export.json
 *.jsonl
