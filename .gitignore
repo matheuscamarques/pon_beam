@@ -30,7 +30,8 @@ otp/erts/etc/unix/werl
 
 # Generated docs & formal verification
 book/output/
-formal/
+formal/tla/*_TTrace_*
+
 
 # Generated OTP lib Makefiles & DB
 otp/lib/*/Makefile
