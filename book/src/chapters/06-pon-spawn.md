@@ -329,6 +329,8 @@ erts_pon_schedule_notify(Process *p)
 - [x] Benchmark `spawn_latency.erl` com 1000 workers, média/min/max/P99
 - [x] Compilação sem erros (Fase 1 já verificou `erl_process.c` com `-DPON_BEAM`)
 
+![Gráfico 6: Distribuição da Latência de Spawn (BEAM Stock vs PON-BEAM)](assets/charts/chart_6_spawn_latency_distribution.png)
+
 ---
 
 ## 8. A Lente Multidisciplinar

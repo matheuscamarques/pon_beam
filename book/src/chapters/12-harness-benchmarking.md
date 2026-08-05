@@ -253,6 +253,12 @@ O harness armazena a telemetria contínua das execuções em banco de dados SQLi
 - Tabela `telemetry_runs` (ID do run, timestamp, ERTS target, tipo de build).
 - Tabela `benchmark_results` (nome do teste, parâmetro N, latência Média, P99, Throughput, CPU Idle %, Memória alocada).
 
+![Gráfico 4: Série Temporal da Maratona de Telemetria (10 Minutos com 100K Entidades)](assets/charts/chart_4_marathon_timeseries.png)
+
+![Gráfico 5: Telemetria Dual Axis (Throughput vs Consumo de CPU)](assets/charts/chart_5_marathon_dual_axis.png)
+
+![Gráfico 9: Linha de Tendência de Trocas de Contexto voluntárias/involuntárias (Context Switches)](assets/charts/chart_9_context_switches_trendline.png)
+
 ---
 
 ## 8. Formato do Diff Report

@@ -419,6 +419,8 @@ O relatório técnico `docs/RPT-05-pon-ets.md` apresenta os resultados de vazão
 | Peak Throughput | $2.41\,\text{M ops/sec}$ | **$9.97\,\text{M ops/sec}$** | **$4.13\times$ maior vazão** |
 | Lookup de Chave Estável | Lock + Tree Search ($\approx 400\,ns$) | **Zero Lock / Direct Notify** | **$1000\times$ mais rápido** |
 
+![Gráfico 3: Vazão Comparativa do ETS (BEAM Stock vs PON-BEAM 9.97M ops/sec)](assets/charts/chart_3_ets_throughput.png)
+
 | Artefato | Status | Detalhes |
 |----------|--------|----------|
 | `pon_ets.h` | ✅ Criado (92 linhas) | Definição de `PonEtsWatcher`, `PonEtsWatcherRegistry`, API (5 funções) |

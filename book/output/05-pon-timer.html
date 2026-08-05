@@ -625,6 +625,8 @@
 </tr>
 </tbody>
 </table>
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_7_timer_scale_degradation.png" alt="Gráfico 7: Degradação de Escala na Timer Wheel (BEAM Stock vs PON-BEAM timerfd)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 7: Degradação de Escala na Timer Wheel (BEAM Stock vs PON-BEAM timerfd)</figcaption></figure>
+
 <p><strong>Nota sobre o cenário 0 timers:</strong> Na BEAM, mesmo sem timers, <code>erts_bump_timers()</code> é chamada e executa o caminho <code>tiw-&gt;nto == 0 → empty_wheel</code>. Este caminho custa ~200ns. Com 32 schedulers a 1000 ticks/s, são 32.000 chamadas × 200ns = 6,4ms/s de CPU. Na PON-BEAM, sem timers, o epoll contém apenas eventfds de Condições. Se nenhum processo está executando, o epoll_wait bloqueia até que um processo fique pronto — nenhuma CPU é consumida para timers.</p>
 <p><strong>Nota sobre o cenário 50K timers:</strong> A timer wheel da BEAM insere timers em O(1) mas, com muitos timers expirando no mesmo slot, o custo de processamento da lista encadeada do slot se torna O(K) onde K é o número de timers no slot. A PON-BEAM não tem este problema — cada timer é um fd independente, e o kernel notifica individualmente.</p>
 <hr />

@@ -476,6 +476,10 @@ O relatório técnico `docs/RPT-04-pon-scheduler.md` quantifica a eliminação d
 | Latência Wakeup | $10 - 100\,\mu s$ | **$1.0\,\mu s$** | **$10\times - 100\times$ menor latência** |
 | Busy-Wait Loops | Sim (Spin lock) | **Não (Epoll wait)** | Zero desperdício de bateria/energia |
 
+![Gráfico 2A: Consumo de CPU Idle (BEAM Stock vs PON-BEAM 0.0%)](assets/charts/chart_2_cpu_idle.png)
+
+![Gráfico 2B: Eficiência Energética e Redução de Watts em Idle (0.0% CPU)](assets/charts/chart_2_energy_cpu_idle.png)
+
 ---
 
 ## 6. Análise Assintótica

@@ -66,6 +66,10 @@ A tabela a seguir estabelece a correspondência entre as sete entidades fundamen
 | Action | BIFs, send, spawn | Efeitos colaterais |
 | Instigation | Timer, preempção | Disparo temporal, ativação |
 
+![Gráfico 10: Matriz Assintótica Comparativa de Complexidade (BEAM Stock vs PON-BEAM)](assets/charts/chart_10_asymptotic_matrix_heatmap.png)
+
+![Gráfico 8: Radar de Desempenho Holístico e Eficiência da PON-BEAM](assets/charts/chart_8_radar_holistic_performance.png)
+
 Cada linha da tabela merece uma discussão detalhada.
 
 **FBE → Processo OTP.** No PON, o FBE (Fact Base Entity) é a entidade que mantém estado e comportamento. Na BEAM, o processo OTP é exatamente isso: ele tem um estado (heap, mailbox, registradores, pilha) e um comportamento (execução de opcodes, chamadas de BIFs, tratamento de mensagens). O mapeamento é direto: cada processo Erlang torna-se um FBE. A diferença está em *como* esse FBE se relaciona com o resto do sistema. Na BEAM atual, o processo é passivo — ele espera que o scheduler o escalone para executar. Na PON-BEAM, o processo (como FBE) contém Premises e Conditions que o tornam ativamente notificável.

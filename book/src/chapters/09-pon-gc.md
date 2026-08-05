@@ -464,6 +464,10 @@ O relatório técnico `docs/RPT-07-pon-gc.md` resume o impacto nos tempos de pau
 | Tempo Total de GC Pause | $100\%$ baseline | **$73.7\%$ (Redução de $26.3\%$)** | Pausas menores e mais suaves |
 | Varredura de Heap Inativo | $\mathcal{O}(\text{heap total})$ | **$\mathcal{O}(\text{objetos vivos})$** | Causalidade preservada |
 
+![Gráfico 1: Tempo de Varredura do GC em Função do Tamanho do Heap](assets/charts/chart_1_gc_scan_time.png)
+
+![Gráfico 4: Distribuição e Boxplot da Latência de GC Pause (BEAM Stock vs PON-BEAM)](assets/charts/chart_4_gc_latency_boxplot.png)
+
 ---
 
 ## 7. Benchmarks

@@ -371,6 +371,16 @@ digraph timer_scalability {
 | 50K Timers (5 exp/s) | CPU | ~10ms/s | ~0μs/s | **∞ (idle)** |
 | 50K Timers (1M timers) | Escalabilidade | Degradação O(N) | O(expirações) | **Ilimitado** |
 
+### Visualização dos Casos de Estudo de Mundo Real
+
+![Gráfico 11: Caso de Estudo 1 — Ingestão de Mensagens Kafka com GenServer](assets/charts/chart_11_realworld_kafka_ingestion.png)
+
+![Gráfico 12: Caso de Estudo 2 — PubSub Fanout Distribuído (Latência & Throughput)](assets/charts/chart_12_realworld_pubsub_fanout.png)
+
+![Gráfico 13: Caso de Estudo 3 — C10M WebSockets Concorrentes (Consumo de Memória & CPU Idle)](assets/charts/chart_13_realworld_c10m_websockets.png)
+
+![Gráfico 14: Tendência Histórica do Banco de Observabilidade SQLite em Maratonas](assets/charts/chart_14_realworld_db_observability_trend.png)
+
 ---
 
 ## 14.5 Discussão

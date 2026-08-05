@@ -748,6 +748,15 @@
 </tr>
 </tbody>
 </table>
+<h3>Visualização dos Casos de Estudo de Mundo Real</h3>
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_11_realworld_kafka_ingestion.png" alt="Gráfico 11: Caso de Estudo 1 — Ingestão de Mensagens Kafka com GenServer" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 11: Caso de Estudo 1 — Ingestão de Mensagens Kafka com GenServer</figcaption></figure>
+
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_12_realworld_pubsub_fanout.png" alt="Gráfico 12: Caso de Estudo 2 — PubSub Fanout Distribuído (Latência & Throughput)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 12: Caso de Estudo 2 — PubSub Fanout Distribuído (Latência & Throughput)</figcaption></figure>
+
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_13_realworld_c10m_websockets.png" alt="Gráfico 13: Caso de Estudo 3 — C10M WebSockets Concorrentes (Consumo de Memória & CPU Idle)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 13: Caso de Estudo 3 — C10M WebSockets Concorrentes (Consumo de Memória & CPU Idle)</figcaption></figure>
+
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_14_realworld_db_observability_trend.png" alt="Gráfico 14: Tendência Histórica do Banco de Observabilidade SQLite em Maratonas" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 14: Tendência Histórica do Banco de Observabilidade SQLite em Maratonas</figcaption></figure>
+
 <hr />
 <h2>14.5 Discussão</h2>
 <p>Os casos de estudo revelam um padrão: os maiores ganhos ocorrem onde o polling/scanner é mais intenso e menos justificado — mailbox cheia de mensagens que não casam (GenServer), processos efêmeros cujo GC varre tudo para nada (Stream), e timers de longa duração verificados a cada tick (Timer Wheel).</p>
