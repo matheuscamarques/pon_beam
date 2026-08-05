@@ -1,8 +1,5 @@
 ---- MODULE AtomicLockFreeInvariants ----
 \* AtomicLockFreeInvariants.tla — Modelo TLA+ de Ausência de Data Races em C11 Atômicos
-\*
-\* Modela a inserção de Premises e side-table watchers usando atômicos C11 (ethread.h).
-\* Prova que operações concorrentes de lock-free compare-and-swap nunca causam data races.
 
 EXTENDS Integers, FiniteSets
 
@@ -25,9 +22,13 @@ CAS(t, s, oldVal, newVal) ==
         /\ Memory' = Memory
         /\ State' = [State EXCEPT ![t] = "retry"]
 
+IdleStep ==
+    /\ \E t \in Threads : State[t] # "idle"
+    /\ UNCHANGED <<Memory, State>>
+
 Next ==
-    \E t \in Threads, s \in Slots :
-        CAS(t, s, 0, 1)
+    \/ \E t \in Threads, s \in Slots : CAS(t, s, 0, 1)
+    \/ IdleStep
 
 Spec == Init /\ [][Next]_vars
 

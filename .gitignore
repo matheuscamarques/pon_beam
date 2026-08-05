@@ -32,6 +32,9 @@ otp/erts/etc/unix/werl
 book/output/
 formal/tla/*_TTrace_*
 formal/tla/tools/
+formal/tla/states/
+formal/tla/*.bin
+
 
 
 

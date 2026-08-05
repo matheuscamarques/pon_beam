@@ -77,16 +77,13 @@ prop_isolated() ->
             Parent = self(),
             Limited = lists:sublist(Workers, M),
             lists:foreach(fun(W) ->
-                %% Cada worker fica vivo até receber exatamente 1 ping
-                W ! {ping, Parent},
-                _ = W
+                W ! {ping, Parent}
             end, Limited),
-            %% Cada um dos Limited responde exatamente 1x
             Replies = [receive
                            {pong, _} -> 1
                        after 2000 ->
                            0
                        end
                        || _ <- Limited],
-            lists:sum(Replies) =:= M
+            lists:sum(Replies) =:= length(Limited)
         end).

@@ -24,7 +24,7 @@ PREFIX_PON   = /opt/erlang-30-pon
 BUILD_OPTS = --without-javac --without-odbc --without-wx
 MAKE_OPTS  = -j$$(nproc)
 
-.PHONY: all build-stock build-pon build-all benchmark benchmark-list report status clean emulator-stock emulator-pon docker-build bench-docker bench-docker-run bench-docker-copy
+.PHONY: all build-stock build-pon build-all benchmark benchmark-list report status clean emulator-stock emulator-pon docker-build bench-docker bench-docker-run bench-docker-copy verify-tla verify-proper verify-c verify-all
 
 all: build-stock build-pon
 
@@ -124,6 +124,23 @@ status:
 	@echo ""
 	@echo "=== OTP version ==="
 	cat $(OTP_DIR)/OTP_VERSION
+
+## === Verificação Formal ===
+
+verify-tla:
+	@echo "=== [Pilar 1] Verificação de Modelos TLA+ ==="
+	./formal/tla/run_tlc.sh
+
+verify-proper:
+	@echo "=== [Pilar 4] Property-Based Testing (PropEr) ==="
+	./formal/proper/run_proper.sh
+
+verify-c:
+	@echo "=== [Pilar 3] Análise Estática de Código C (Frama-C / ACSL) ==="
+	./formal/framac/run_framac.sh
+
+verify-all: verify-tla verify-proper verify-c
+	@echo "=== Toda a suíte de verificação formal concluída com sucesso! ==="
 
 clean:
 	cd $(OTP_DIR) && git checkout . && git clean -fd

@@ -37,7 +37,7 @@ run_model() {
     local out="$WORKDIR/$name.out"
 
     echo "=== [TLC] $name ==="
-    if ! java -cp "$TLC" tlc2.TLC -config "$cfg" -cleanup "$model" > "$out" 2>&1; then
+    if ! java -cp "$TLC" tlc2.TLC -config "$cfg" -metadir "$WORKDIR" -cleanup "$model" > "$out" 2>&1; then
         echo "  FALHA: $name"
         tail -30 "$out" | sed 's/^/    /'
         FAILED=1

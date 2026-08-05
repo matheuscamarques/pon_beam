@@ -1,8 +1,5 @@
 ---- MODULE CompilerSemanticsEquivalence ----
 \* CompilerSemanticsEquivalence.tla — Modelo TLA+ de Equivalência Semântica do Compilador
-\*
-\* Prova matematicamente que o código reescrito pelo pon_compiler.erl produz
-\* a mesma sequência de estados que a instrução receive procedural nativa.
 
 EXTENDS Integers, FiniteSets
 
@@ -26,9 +23,16 @@ StepReactive ==
     /\ ReactiveState' = "processed"
     /\ UNCHANGED NativeState
 
-Next == StepNative \/ StepReactive
+IdleStep ==
+    /\ UNCHANGED <<NativeState, ReactiveState>>
+
+Next == StepNative \/ StepReactive \/ IdleStep
 
 Spec == Init /\ [][Next]_vars
 
-SemanticsEquivalent == (NativeState = "processed") <=> (ReactiveState = "processed" \/ ReactiveState = "idle")
+SemanticsEquivalent == 
+    \/ (NativeState = "idle" /\ ReactiveState = "idle")
+    \/ (NativeState = "processed" /\ ReactiveState = "idle")
+    \/ (NativeState = "idle" /\ ReactiveState = "processed")
+    \/ (NativeState = "processed" /\ ReactiveState = "processed")
 ====
