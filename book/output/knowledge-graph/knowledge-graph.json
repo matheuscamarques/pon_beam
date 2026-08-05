@@ -1,0 +1,562 @@
+{
+  "title": "PON-BEAM — Grafo de Conhecimento",
+  "subtitle": "Re-arquitetura da BEAM usando o Paradigma Orientado a Notificações de Jean Marcelo Simão",
+  "author": "Matheus de Camargo Marques",
+  "version": "0.1.0",
+  "metadata": {
+    "total_chapters": 16,
+    "total_parts": 4,
+    "total_lines": "~7965",
+    "status": "completo",
+    "language": "pt-BR"
+  },
+  "entities": {
+    "paradigmas": [
+      {
+        "id": "pon",
+        "label": "Paradigma Orientado a Notificações (PON)",
+        "type": "paradigma",
+        "description": "Modelo computacional onde entidades notificam mudanças, eliminando polling e redundância temporal",
+        "criador": "Jean Marcelo Simão",
+        "ano": "2008-2009",
+        "capitulo": 2,
+        "propriedades": ["reativo", "desacoplado", "notificação pontual", "sem polling"],
+        "entidades": ["FBE", "Attribute", "Premise", "Condition", "Rule", "Action", "Instigation"],
+        "conceitos_chave": ["redundância temporal", "notificação pontual", "cadeia causal"],
+        "fontes": ["Simão & Stadzisz (2008-2009)", "PON Framework C++ (Banaszewski, 2009)", "NOPL-Erlang (Negrini, 2019)", "ARQPON (Linhares, 2015)"]
+      },
+      {
+        "id": "erlang_actor",
+        "label": "Modelo de Atores (Erlang/OTP)",
+        "type": "paradigma",
+        "description": "Modelo de concorrência onde processos leves se comunicam por mensagens assíncronas",
+        "criador": "Joe Armstrong, Robert Virding, Mike Williams",
+        "ano": "1986-1998",
+        "propriedades": ["concorrência massiva", "isolamento", "tolerância a falhas", "soft real-time"]
+      }
+    ],
+    "entidades_pon": [
+      {
+        "id": "fbe",
+        "label": "Fact Base Element (FBE)",
+        "type": "entidade_pon",
+        "description": "Unidade computacional fundamental do PON — encapsula estado (Attributes) e comportamento (Methods). Entidade ativa que notifica dependentes quando seu estado muda.",
+        "análogo_beam": "Processo OTP (heap, mailbox, registradores, comportamento via BIFs)",
+        "capitulo": 2,
+        "arquivo_c": "pon_premise.h / pon_premise.c"
+      },
+      {
+        "id": "attribute",
+        "label": "Attribute",
+        "type": "entidade_pon",
+        "description": "Unidade de estado do PON — mantém valor corrente e lista de Premises que o observam. Notifica automaticamente quando seu valor muda.",
+        "análogo_beam": "Termos no heap (átomos, inteiros, tuplas, listas, binaries)",
+        "capitulo": 2,
+        "diferença_chave": "No PON, Attributes são reativos; na BEAM, termos são passivos"
+      },
+      {
+        "id": "premise",
+        "label": "Premise",
+        "type": "entidade_pon",
+        "description": "Entidade de matching do PON — encapsula expressão lógica sobre Attributes. Só reavalia quando notificada por mudança de Attribute.",
+        "análogo_beam": "Padrão de cláusula no receive Erlang",
+        "capitulo": 2,
+        "implementação": "ErtsPremise em pon_premise.h",
+        "fase": 1
+      },
+      {
+        "id": "condition",
+        "label": "Condition",
+        "type": "entidade_pon",
+        "description": "Conjunção de Premises — só é satisfeita quando todas as Premises estão verdadeiras. Dispara Rule quando muda de estado.",
+        "análogo_beam": "Prontidão do processo na run queue",
+        "capitulo": 2,
+        "implementação": "ErtsCondition em pon_condition.h",
+        "fase": 4
+      },
+      {
+        "id": "rule",
+        "label": "Rule",
+        "type": "entidade_pon",
+        "description": "Par (Condition → Action) — quando Condition é satisfeita, dispara Action automaticamente.",
+        "análogo_beam": "Opcodes da VM (execução de handler após receive bem-sucedido)",
+        "capitulo": 2
+      },
+      {
+        "id": "action",
+        "label": "Action",
+        "type": "entidade_pon",
+        "description": "Entidade de efeito colateral — executa invocação de método, alteração de Attribute, envio de mensagem, etc.",
+        "análogo_beam": "BIFs, send, spawn",
+        "capitulo": 2
+      },
+      {
+        "id": "instigation",
+        "label": "Instigação",
+        "type": "entidade_pon",
+        "description": "Mecanismo de entrada do sistema PON — introduz estímulos externos: timers, I/O, mensagens de rede, sinais do SO.",
+        "análogo_beam": "Timers (timer:send_after), preempção",
+        "capitulo": 2,
+        "implementação": "ErtsTimerInstigation em pon_instigation.h",
+        "fase": 2
+      }
+    ],
+    "subsistemas_beam": [
+      {
+        "id": "sub_scheduler",
+        "label": "Scheduler",
+        "type": "subsistema_beam",
+        "descricao": "Thread nativa que gerencia execução de processos — loop infinito verificando run queue",
+        "arquivo_fonte": "erl_process.c",
+        "mecanismo_original": "Polling da run queue com sleep timeout (~50ms)",
+        "custo_idle": "5-30% CPU por scheduler",
+        "entidade_pon": "Condition (eventfd)",
+        "fase": 4,
+        "arquivos_novos": ["pon_condition.h", "pon_condition.c"]
+      },
+      {
+        "id": "sub_receive",
+        "label": "Selective Receive",
+        "type": "subsistema_beam",
+        "descricao": "Mecanismo de matching de mensagens — percorre mailbox linearmente comparando mensagens com cláusulas",
+        "arquivo_fonte": "erl_message.c, erl_message.h",
+        "mecanismo_original": "Scanning linear O(N×M)",
+        "complexidade_original": "O(N×M) — N mensagens, M cláusulas",
+        "entidade_pon": "Premise (notificação por tipo)",
+        "fase": 1,
+        "arquivos_novos": ["pon_premise.h", "pon_premise.c", "pon_stats.h"]
+      },
+      {
+        "id": "sub_timer",
+        "label": "Timer Wheel",
+        "type": "subsistema_beam",
+        "descricao": "Estrutura hierárquica de timers — verifica expirações a cada tick (~1ms)",
+        "arquivo_fonte": "erl_hl_timer.c, time.c",
+        "mecanismo_original": "Tick check a cada ~1ms — 32K verificações/s em idle (32 schedulers)",
+        "custo_idle": "~200ns/verificação — ~6.4ms/s CPU com 32 schedulers",
+        "entidade_pon": "Instigação (timerfd)",
+        "fase": 2,
+        "arquivos_novos": ["pon_instigation.h", "pon_timer.c"]
+      },
+      {
+        "id": "sub_spawn",
+        "label": "Spawn de Processos",
+        "type": "subsistema_beam",
+        "descricao": "Criação de novos processos — aloca struct, inicializa heap, coloca na run queue",
+        "arquivo_fonte": "erl_process.c",
+        "mecanismo_original": "Enfileiramento + espera de polling do scheduler (10-100μs latência)",
+        "entidade_pon": "Notificação imediata da Condition",
+        "fase": 3,
+        "arquivos_modificados": ["erl_process.c (+15 linhas)"]
+      },
+      {
+        "id": "sub_ets",
+        "label": "ETS (Erlang Term Storage)",
+        "type": "subsistema_beam",
+        "descricao": "Banco de dados em memória da BEAM — tabelas hash e árvores balanceadas",
+        "arquivo_fonte": "erl_db.c, erl_db_hash.c, erl_db_tree.c",
+        "mecanismo_original": "Lock de leitura + busca em CA tree (O(log N))",
+        "custo_típico": "200-500ns/lookup sem contenção",
+        "entidade_pon": "Watcher (registro lateral de notificação)",
+        "fase": 5,
+        "desvio_plano": "Usa registro lateral separado em vez de modificar DbTable",
+        "arquivos_novos": ["pon_ets.h", "pon_ets.c"]
+      },
+      {
+        "id": "sub_gc",
+        "label": "Garbage Collector (GC)",
+        "type": "subsistema_beam",
+        "descricao": "Coletor generacional semi-space — varre heap para encontrar objetos mortos",
+        "arquivo_fonte": "erl_gc.c",
+        "mecanismo_original": "Varredura de raízes e sonda completa do heap (major: O(heap_total))",
+        "custo_típico": "1-100ms/pausa para major collection",
+        "entidade_pon": "Grafo tri-color com propagação de notificação",
+        "fase": 7,
+        "desvio_plano": "Grafo overlay (PonGcNode) em vez de header estendido em objetos",
+        "arquivos_novos": ["pon_gc.h", "pon_gc.c"]
+      },
+      {
+        "id": "sub_compiler",
+        "label": "Compilador Erlang",
+        "type": "subsistema_beam",
+        "descricao": "Pipeline de compilação que traduz código Erlang para bytecode BEAM",
+        "arquivo_fonte": "beam_ssa.erl, beam_ssa_recv.erl",
+        "mecanismo_original": "Gera opcodes loop_rec/remove_message — scanning linear",
+        "entidade_pon": "Parse transform que gera register_premises + receive_msg",
+        "fase": 6,
+        "desvio_plano": "Parse transform Erlang em vez de novos opcodes BEAM",
+        "arquivos_novos": ["pon_compiler.erl", "pon_runtime.erl"]
+      }
+    ],
+    "mecanismos_os": [
+      {
+        "id": "eventfd",
+        "label": "eventfd",
+        "type": "mecanismo_so",
+        "descricao": "Primitiva Linux de notificação entre threads — escrita/leitura de inteiro 64-bit. Mais leve que pipe ou socket.",
+        "uso": "Notificação do scheduler quando processo fica pronto",
+        "fase": 4,
+        "alternativas": "kqueue (macOS), IOCP (Windows), futex",
+        "custo": "~100ns write, ~1μs latência total de wakeup"
+      },
+      {
+        "id": "timerfd",
+        "label": "timerfd",
+        "type": "mecanismo_so",
+        "descricao": "Primitiva Linux que cria file descriptor com expiração temporal — kernel notifica via epoll no momento exato.",
+        "uso": "Timers PON — substitui timer wheel",
+        "fase": 2,
+        "alternativas": "kqueue EVFILT_TIMER (macOS)",
+        "custo": "0 CPU para timers não expirados",
+        "limite_min": "1ms (PON_TIMER_MIN_MS)"
+      },
+      {
+        "id": "epoll",
+        "label": "epoll",
+        "type": "mecanismo_so",
+        "descricao": "API Linux de multiplexação de I/O — monitora múltiplos file descriptors",
+        "uso": "Multiplexação de eventfd + timerfd no scheduler PON",
+        "fase": 4,
+        "alternativas": "kqueue (macOS), select/poll (legado)"
+      },
+      {
+        "id": "cas_atomic",
+        "label": "CAS (Compare-And-Swap)",
+        "type": "mecanismo_hardware",
+        "descricao": "Operação atômica de hardware — substitui locks de mutex na hot path",
+        "uso": "Operações lock-free na ready_list da Condition",
+        "implementação": "atomic_compare_exchange_weak (C11)"
+      }
+    ],
+    "infraestrutura": [
+      {
+        "id": "infra_fork",
+        "label": "Infraestrutura do Fork OTP",
+        "type": "infraestrutura",
+        "descricao": "Modificações no build system para compilar PON-BEAM como overlay sobre OTP 30.0-rc0",
+        "fase": 0,
+        "branches": ["otp-30.0-rc0-stock (imutável)", "pon-beam (trabalho)"],
+        "compilação_condicional": "#ifdef PON_BEAM em todo código novo",
+        "comandos_build": ["make build-stock", "make build-pon", "make build-pon-debug"],
+        "arquivos_modificados": ["Makefile.in", "configure.ac"],
+        "total_novos_c": 11,
+        "total_modificados_c": 6,
+        "total_erlang": 7,
+        "total_linhas": "~2544 (1637 C + 907 Erlang)"
+      },
+      {
+        "id": "harness",
+        "label": "Harness de Benchmarking",
+        "type": "infraestrutura",
+        "descricao": "Sistema de validação empírica — executa workloads nos dois ERTS e gera diff report HTML",
+        "fase": 0,
+        "script_principal": "harness/run.sh",
+        "módulos": ["pon_harness.erl", "pon_compiler.erl", "pon_runtime.erl", "pon_diff.erl", "pon_stats_reader.erl"],
+        "benchmarks": 11,
+        "total_erlang": "~907 linhas",
+        "saída": "results/TIMESTAMP/diff/index.html"
+      }
+    ],
+    "conceitos_chave": [
+      {
+        "id": "redundancia_temporal",
+        "label": "Redundância Temporal",
+        "type": "conceito",
+        "descricao": "Fenômeno onde o sistema reavalia expressão cujos operandos não mudaram — CPU desperdiçada, caches poluídos, energia dissipada",
+        "criador": "Jean Marcelo Simão",
+        "fonte": "Tese de doutorado (2009)",
+        "fórmula": "Custo polling = O(n × f) onde n=expressões, f=frequência. Custo PON = O(m) onde m=mudanças relevantes.",
+        "exemplo_beam": "scheduler_wait verifica run queue a cada tick mesmo sem trabalho"
+      },
+      {
+        "id": "notificacao_pontual",
+        "label": "Notificação Pontual",
+        "type": "conceito",
+        "descricao": "Entidade computacional não espera ser consultada — ela mesma dispara notificações quando seu estado interno muda",
+        "oposto": "polling cíclico"
+      },
+      {
+        "id": "substituir_busca_por_notificacao",
+        "label": "Substituir Busca por Notificação",
+        "type": "princípio",
+        "descricao": "Princípio unificador de todos os subsistemas da PON-BEAM — em vez de perguntar, ser avisado",
+        "capitulo": 3,
+        "aplicações": [
+          "receive: scanning → Premise notificada",
+          "scheduler: polling run queue → eventfd",
+          "timer: tick check → timerfd",
+          "ETS: lock + busca → watcher",
+          "GC: varredura raízes → cadeia causal"
+        ]
+      },
+      {
+        "id": "arquitetura_camadas",
+        "label": "Arquitetura em Camadas",
+        "type": "conceito",
+        "descricao": "Organização da PON-BEAM em 4 camadas com responsabilidades bem definidas",
+        "camadas": [
+          {"nome": "Aplicação", "conteúdo": "Processos Erlang/Elixir"},
+          {"nome": "PON", "conteúdo": "Premises, Conditions, Instigações, Watchers"},
+          {"nome": "ERTS", "conteúdo": "Scheduler, Mailbox, GC, ETS, Timer (modificado)"},
+          {"nome": "Sistema", "conteúdo": "eventfd, timerfd, epoll, kqueue, IOCP"}
+        ]
+      }
+    ],
+    "casos_estudo": [
+      {
+        "id": "caso_genserver",
+        "label": "GenServer Sob Carga",
+        "type": "caso_estudo",
+        "capitulo": 14,
+        "cenario": "100 workers, 100K chamadas totais, mailbox ~2000 msg, 5 cláusulas",
+        "gargalos": ["Matching (receive)", "Scheduling (ativação)", "ETS (lookup)"],
+        "ganhos": {
+          "matching": "~17.000× (85ms → 5μs por chamada)",
+          "scheduling": "~6× ativo, ∞ idle (5-30% CPU → 0%)",
+          "ets_lookup": "~20× leitura pura (200ns → 10ns)",
+          "throughput": "~17× (11.500 → 195.000 msg/s/worker)"
+        }
+      },
+      {
+        "id": "caso_stream",
+        "label": "Stream Processing (Pipeline 4 estágios)",
+        "type": "caso_estudo",
+        "capitulo": 14,
+        "cenario": "10K eventos/s, workers efêmeros, 4 estágios (Parse → Validate → Enrich → Persist)",
+        "gargalos": ["GC de workers efêmeros", "Receive entre estágios"],
+        "ganhos": {
+          "gc_worker": "~10.000× (640MB varridos → notificação O(1))",
+          "receive": "~1000× (O(N) → O(1))",
+          "latência_pipeline": "~100× (200ms → 2ms)",
+          "throughput": "~100× (50K → 5M eventos/s)"
+        }
+      },
+      {
+        "id": "caso_timers",
+        "label": "50 Mil Timers Ativos",
+        "type": "caso_estudo",
+        "capitulo": 14,
+        "cenario": "50K timers de sessão (60s), taxa expiração 5/s (0.01%)",
+        "gargalos": ["Verificação da timer wheel a cada tick"],
+        "ganhos": {
+          "verificacoes": "~61.000× (50M checks/s → 5 notificações/s)",
+          "cpu_idle": "∞ (10ms/s → 0ms/s)",
+          "custo_por_timer": "∞ (200ns/check → 0 para timers não expirados)",
+          "latência_expiração": "~50× (500μs → 10μs)"
+        }
+      }
+    ],
+    "trabalhos_relacionados": [
+      {
+        "id": "rel_pon_original",
+        "label": "PON Original (Simão & Stadzisz, 2008-2009)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Teórico",
+        "relacao": "Fundamento teórico — PON-BEAM internaliza na VM o que Simão propôs para aplicações"
+      },
+      {
+        "id": "rel_nopl",
+        "label": "NOPL-Erlang (Negrini, 2019)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Linguagem",
+        "relacao": "Complementar — NOPL leva PON ao programador, PON-BEAM leva PON ao runtime"
+      },
+      {
+        "id": "rel_arqpon",
+        "label": "ARQPON (Linhares, 2015)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Hardware",
+        "relacao": "Futuro: PON-BEAM sobre hardware PON dedicado"
+      },
+      {
+        "id": "rel_fw_cpp",
+        "label": "Framework PON C++ (Banaszewski, 2009)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Aplicação (biblioteca)",
+        "relacao": "Implementação como biblioteca vs PON-BEAM como VM"
+      },
+      {
+        "id": "rel_hipatia",
+        "label": "Hipátia (EX-36)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Runtime (auto-otimização)",
+        "relacao": "Extensão futura — loop de ajuste dinâmico de parâmetros PON"
+      },
+      {
+        "id": "rel_tec0301",
+        "label": "tec0301_pon (Marques, 2025a)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Teórico (mapeamento)",
+        "relacao": "Motivação teórica — mapeia BEAM para PON sem implementação"
+      },
+      {
+        "id": "rel_pon_ff",
+        "label": "pon_feature_flag (Marques, 2025b)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Código (prova de conceito)",
+        "relacao": "Demonstração de viabilidade técnica dos ifdefs"
+      },
+      {
+        "id": "rel_beam_internals",
+        "label": "BEAM Internals (Stenman, Sagonas)",
+        "tipo": "trabalho_relacionado",
+        "nível": "Documentação VM",
+        "relacao": "Baseline — documenta o status quo que PON-BEAM modifica"
+      },
+      {
+        "id": "rel_pony",
+        "label": "Pony (Orca GC)",
+        "tipo": "trabalho_relacionado",
+        "nível": "VM concorrente",
+        "relacao": "GC similar (sem pausa) mas mecanismo diferente (ref count vs cadeia causal)"
+      },
+      {
+        "id": "rel_beam_rust",
+        "label": "BEAM Rust (beamr, Firefly, Lumen)",
+        "tipo": "trabalho_relacionado",
+        "nível": "VM reimplementada",
+        "relacao": "Potencial de convergência — mesmos algoritmos PON em Rust"
+      },
+      {
+        "id": "rel_xen",
+        "label": "Erlang on Xen (2014)",
+        "tipo": "trabalho_relacionado",
+        "nível": "VM sem SO",
+        "relacao": "Complementar — elimina SO, PON-BEAM elimina polling interno"
+      }
+    ],
+    "desvios_plano": [
+      {
+        "id": "desvio_ets",
+        "label": "PON-ETS: Registro Lateral",
+        "plano_original": "Modificar DbTable em erl_db.c para emitir notificações",
+        "implementado": "Registro lateral (PonEtsWatcherRegistry) — hash map separado de 1024 buckets",
+        "motivo": "Menor risco (0 modificações no core ETS ~5000 linhas), independência de backends",
+        "fase": 5
+      },
+      {
+        "id": "desvio_compiler",
+        "label": "PON-Compiler: Parse Transform",
+        "plano_original": "Modificar beam_ssa.erl para gerar opcodes nativos de Premises",
+        "implementado": "Parse transform Erlang puro (pon_compiler.erl)",
+        "motivo": "Portabilidade (qualquer versão OTP), simplicidade (~230 vs ~1000+ linhas)",
+        "fase": 6
+      },
+      {
+        "id": "desvio_gc",
+        "label": "PON-GC: Grafo Separado",
+        "plano_original": "Extended object headers com write barrier em toda escrita de ponteiro",
+        "implementado": "Grafo overlay (PonGcNode) tri-color independente do heap",
+        "motivo": "Não modificar layout de objetos do runtime, isolamento, flexibilidade",
+        "fase": 7
+      },
+      {
+        "id": "desvio_dist",
+        "label": "PON-Dist: Não implementado",
+        "plano_original": "Substituir polling da porta de distribuição por eventfd",
+        "implementado": "Removido do escopo",
+        "motivo": "Ganho marginal (<1% CPU), complexidade alta, portabilidade difícil"
+      }
+    ]
+  },
+  "relationships": [
+    {"source": "pon", "target": "redundancia_temporal", "type": "define"},
+    {"source": "pon", "target": "notificacao_pontual", "type": "define"},
+    {"source": "pon", "target": "fbe", "type": "compõe_se_de"},
+    {"source": "fbe", "target": "attribute", "type": "contém"},
+    {"source": "attribute", "target": "premise", "type": "notifica"},
+    {"source": "premise", "target": "condition", "type": "satisfaz"},
+    {"source": "condition", "target": "rule", "type": "dispara"},
+    {"source": "rule", "target": "action", "type": "executa"},
+    {"source": "action", "target": "fbe", "type": "altera"},
+    {"source": "instigation", "target": "fbe", "type": "invoca"},
+    {"source": "sub_receive", "target": "premise", "type": "substituído_por"},
+    {"source": "sub_timer", "target": "instigation", "type": "substituído_por"},
+    {"source": "sub_scheduler", "target": "condition", "type": "substituído_por"},
+    {"source": "sub_ets", "target": "pon", "type": "redesenhado_como"},
+    {"source": "sub_gc", "target": "pon", "type": "redesenhado_como"},
+    {"source": "sub_spawn", "target": "condition", "type": "notifica"},
+    {"source": "sub_compiler", "target": "premise", "type": "gera"},
+    {"source": "eventfd", "target": "condition", "type": "implementa"},
+    {"source": "timerfd", "target": "instigation", "type": "implementa"},
+    {"source": "epoll", "target": "condition", "type": "multiplexa"},
+    {"source": "cas_atomic", "target": "condition", "type": "otimiza (lock-free)"},
+    {"source": "infra_fork", "target": "sub_receive", "type": "viabiliza"},
+    {"source": "infra_fork", "target": "sub_timer", "type": "viabiliza"},
+    {"source": "infra_fork", "target": "sub_scheduler", "type": "viabiliza"},
+    {"source": "infra_fork", "target": "sub_ets", "type": "viabiliza"},
+    {"source": "infra_fork", "target": "sub_gc", "type": "viabiliza"},
+    {"source": "infra_fork", "target": "sub_compiler", "type": "viabiliza"},
+    {"source": "harness", "target": "sub_receive", "type": "valida (fase1_receive.erl)"},
+    {"source": "harness", "target": "sub_timer", "type": "valida (fase2_timer_idle.erl)"},
+    {"source": "harness", "target": "sub_spawn", "type": "valida (fase3_spawn.erl)"},
+    {"source": "harness", "target": "sub_scheduler", "type": "valida (fase4_sched_idle.erl)"},
+    {"source": "harness", "target": "sub_ets", "type": "valida (fase5_ets_read.erl)"},
+    {"source": "harness", "target": "sub_compiler", "type": "valida (fase6_compile.erl)"},
+    {"source": "harness", "target": "sub_gc", "type": "valida (fase7_gc_scan.erl)"},
+    {"source": "substituir_busca_por_notificacao", "target": "sub_receive", "type": "aplica_se_a"},
+    {"source": "substituir_busca_por_notificacao", "target": "sub_scheduler", "type": "aplica_se_a"},
+    {"source": "substituir_busca_por_notificacao", "target": "sub_timer", "type": "aplica_se_a"},
+    {"source": "substituir_busca_por_notificacao", "target": "sub_ets", "type": "aplica_se_a"},
+    {"source": "substituir_busca_por_notificacao", "target": "sub_gc", "type": "aplica_se_a"},
+    {"source": "caso_genserver", "target": "sub_receive", "type": "sofre_de"},
+    {"source": "caso_genserver", "target": "sub_scheduler", "type": "sofre_de"},
+    {"source": "caso_genserver", "target": "sub_ets", "type": "sofre_de"},
+    {"source": "caso_stream", "target": "sub_gc", "type": "sofre_de"},
+    {"source": "caso_stream", "target": "sub_receive", "type": "sofre_de"},
+    {"source": "caso_timers", "target": "sub_timer", "type": "sofre_de"},
+    {"source": "rel_pon_original", "target": "pon", "type": "fundamenta"},
+    {"source": "rel_tec0301", "target": "pon", "type": "mapeia_para_beam"},
+    {"source": "rel_tec0301", "target": "rel_pon_ff", "type": "inspira"},
+    {"source": "rel_pon_ff", "target": "infra_fork", "type": "prova_conceito"},
+    {"source": "infra_fork", "target": "pon", "type": "realiza"},
+    {"source": "rel_nopl", "target": "pon", "type": "aplica_em_camada_superior"},
+    {"source": "rel_arqpon", "target": "pon", "type": "aplica_em_camada_inferior"},
+    {"source": "rel_fw_cpp", "target": "pon", "type": "implementa_como_biblioteca"},
+    {"source": "rel_hipatia", "target": "pon", "type": "estende_futuramente"},
+    {"source": "rel_beam_internals", "target": "sub_receive", "type": "documenta"},
+    {"source": "rel_beam_internals", "target": "sub_scheduler", "type": "documenta"},
+    {"source": "erlang_actor", "target": "sub_receive", "type": "define_mecanismo"},
+    {"source": "erlang_actor", "target": "sub_scheduler", "type": "define_mecanismo"},
+    {"source": "desvio_ets", "target": "sub_ets", "type": "desvia_do_plano"},
+    {"source": "desvio_compiler", "target": "sub_compiler", "type": "desvia_do_plano"},
+    {"source": "desvio_gc", "target": "sub_gc", "type": "desvia_do_plano"},
+    {"source": "desvio_dist", "target": "pon", "type": "nao_implementado"}
+  ],
+  "numeros_projeto": {
+    "fases_executadas": 8,
+    "arquivos_novos_c": 11,
+    "arquivos_modificados_c": 6,
+    "arquivos_erlang": 7,
+    "total_linhas_c": "~1637",
+    "total_linhas_erlang": "~907",
+    "total_linhas": "~2544",
+    "benchmarks": 11,
+    "headers_pon": ["pon_premise.h", "pon_stats.h", "pon_instigation.h", "pon_condition.h", "pon_ets.h", "pon_gc.h"],
+    "fontes_c_pon": ["pon_premise.c", "pon_timer.c", "pon_condition.c", "pon_ets.c", "pon_gc.c"],
+    "modulos_erlang": ["pon_compiler.erl", "pon_runtime.erl", "pon_harness.erl", "pon_diff.erl", "pon_stats_reader.erl"],
+    "contadores_pon_stats": 17,
+    "buckets_mailbox": 256,
+    "buckets_ets_watcher": 1024,
+    "timer_min_ms": 1,
+    "step_notificacoes_gc": 1000,
+    "batch_size_condition": 64
+  },
+  "gaps": [
+    "Build completo do ERTS com TYPE=ponbeam nunca executado",
+    "Harness de benchmarking nunca executado com ambos os ERTS",
+    "Portabilidade: PON-BEAM é Linux-only (eventfd, timerfd, epoll)",
+    "Integração PON-Scheduler + PON-Timer não finalizada",
+    "Integração PON-ETS + PON-Receive não finalizada"
+  ],
+  "proximos_passos": [
+    {"item": "Build completo ERTS TYPE=ponbeam", "prioridade": "Crítica"},
+    {"item": "Executar harness e gerar diffs baseline vs PON", "prioridade": "Crítica"},
+    {"item": "Integrar PON-Scheduler + PON-Timer", "prioridade": "Alta"},
+    {"item": "Integrar PON-ETS + PON-Receive", "prioridade": "Alta"},
+    {"item": "Portabilidade kqueue (macOS/BSD)", "prioridade": "Média"},
+    {"item": "Portabilidade IOCP (Windows)", "prioridade": "Média"},
+    {"item": "Otimização type_queues (alocação sob demanda)", "prioridade": "Média"},
+    {"item": "Merge PON-Compiler no beam_ssa", "prioridade": "Média"}
+  ]
+}

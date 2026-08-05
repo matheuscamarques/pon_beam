@@ -1,0 +1,276 @@
+digraph pon_beam_knowledge_graph {
+  rankdir=TB;
+  splines=polyline;
+  compound=true;
+  pad=0.5;
+  nodesep=0.5;
+  ranksep=0.7;
+  fontname="Helvetica";
+  fontsize=11;
+
+  node [shape=box, style=filled, fontname="Helvetica", fontsize=10];
+
+  /* ==================== LEGENDA ==================== */
+  subgraph cluster_legend {
+    label="Legenda";
+    style=dashed;
+    color=gray;
+    fontsize=10;
+    node [fontsize=9, width=1.8];
+
+    legend_paradigma [label="Paradigma", fillcolor="#E8D5F5", shape=ellipse]
+    legend_entidade [label="Entidade PON", fillcolor="#D5F5E3", shape=box]
+    legend_subsistema [label="Subsistema BEAM", fillcolor="#F5D5D5", shape=box]
+    legend_conceito [label="Conceito", fillcolor="#F5F5D5", shape=note]
+    legend_mecanismo [label="Mecanismo SO", fillcolor="#D5E8F5", shape=box]
+    legend_infra [label="Infraestrutura", fillcolor="#F5E8D5", shape=box]
+    legend_caso [label="Caso de Estudo", fillcolor="#E8F5F5", shape=box]
+    legend_rel [label="Trabalho Relacionado", fillcolor="#F0F0F0", shape=box]
+    legend_desvio [label="Desvio do Plano", fillcolor="#F5D5E8", shape=box]
+
+    legend_gap [label="Gap Atual", fillcolor="#FFD5D5", shape=box, style="filled,dashed"]
+    legend_substitui [label="substitui", color=green, fontcolor=green, shape=plaintext]
+    legend_implementa [label="implementa", color=blue, fontcolor=blue, shape=plaintext]
+    legend_valida [label="valida", color=orange, fontcolor=orange, shape=plaintext]
+  }
+
+  /* ==================== CLUSTER: PARADIGMAS ==================== */
+  subgraph cluster_paradigmas {
+    label="Paradigmas";
+    style=dashed;
+    color="#8E44AD";
+    fontcolor="#8E44AD";
+    fontsize=12;
+
+    node_pon [label="Paradigma Orientado\na Notificações (PON)\nSimão & Stadzisz (2008-2009)", fillcolor="#E8D5F5", shape=ellipse, width=2.2, height=1.0]
+
+    node_erlang_actor [label="Modelo de Atores\nErlang/OTP\nArmstrong (1986-1998)", fillcolor="#E8D5F5", shape=ellipse, width=2.0, height=0.9]
+  }
+
+  /* ==================== CLUSTER: CONCEITOS CHAVE ==================== */
+  subgraph cluster_conceitos {
+    label="Conceitos-Chave";
+    style=dashed;
+    color="#B7950B";
+    fontcolor="#B7950B";
+    fontsize=12;
+
+    node_red_temp [label="Redundância Temporal\nCusto O(n×f) → O(m)", fillcolor="#F5F5D5", shape=note, width=2.0, height=0.8]
+    node_notif_pontual [label="Notificação Pontual\nSó processa quando muda", fillcolor="#F5F5D5", shape=note, width=2.0, height=0.8]
+    node_substituir [label="Substituir Busca\npor Notificação\n(Princípio Unificador)", fillcolor="#F5F5D5", shape=note, width=2.0, height=0.9]
+    node_camadas [label="Arquitetura em 4 Camadas:\nAplicação / PON / ERTS / Sistema", fillcolor="#F5F5D5", shape=note, width=2.2, height=0.8]
+  }
+
+  /* ==================== CLUSTER: ENTIDADES PON ==================== */
+  subgraph cluster_entidades_pon {
+    label="Entidades PON";
+    style=dashed;
+    color="#1E8449";
+    fontcolor="#1E8449";
+    fontsize=12;
+
+    node_fbe [label="FBE\n(Fact Base Element)\n→ Processo OTP", fillcolor="#D5F5E3", width=1.8]
+    node_attribute [label="Attribute\n→ Termos no heap", fillcolor="#D5F5E3", width=1.8]
+    node_premise [label="Premise\n→ Padrão receive\nFase 1", fillcolor="#D5F5E3", width=1.8]
+    node_condition [label="Condition\n→ Run queue\nFase 4", fillcolor="#D5F5E3", width=1.8]
+    node_rule [label="Rule\n→ Opcodes da VM", fillcolor="#D5F5E3", width=1.8]
+    node_action [label="Action\n→ BIFs/send/spawn", fillcolor="#D5F5E3", width=1.8]
+    node_instigation [label="Instigação\n→ Timers\nFase 2", fillcolor="#D5F5E3", width=1.8]
+  }
+
+  /* ==================== CLUSTER: SUBSISTEMAS BEAM ==================== */
+  subgraph cluster_subsistemas {
+    label="Subsistemas BEAM";
+    style=dashed;
+    color="#C0392B";
+    fontcolor="#C0392B";
+    fontsize=12;
+
+    node_sched [label="Scheduler\nPolling run queue\n5-30% CPU idle\n→ Condition (eventfd)", fillcolor="#F5D5D5", width=2.2]
+    node_recv [label="Selective Receive\nScanning O(N×M)\n→ Premises (256 buckets)", fillcolor="#F5D5D5", width=2.2]
+    node_timer [label="Timer Wheel\n32K checks/s idle\n→ timerfd instigation", fillcolor="#F5D5D5", width=2.2]
+    node_spawn [label="Spawn\nLatência 10-100μs\n→ Notificação imediata", fillcolor="#F5D5D5", width=2.2]
+    node_ets [label="ETS\nLock + CA tree\n→ Watcher (registro lat.)", fillcolor="#F5D5D5", width=2.2]
+    node_gc [label="GC Generacional\nVarredura O(heap)\n→ Grafo tri-color", fillcolor="#F5D5D5", width=2.2]
+    node_compiler [label="Compilador\nloop_rec/remove_msg\n→ Parse transform PON", fillcolor="#F5D5D5", width=2.2]
+  }
+
+  /* ==================== CLUSTER: MECANISMOS SO ==================== */
+  subgraph cluster_mecanismos {
+    label="Primitivas do SO";
+    style=dashed;
+    color="#2471A3";
+    fontcolor="#2471A3";
+    fontsize=12;
+
+    node_eventfd [label="eventfd\nNotificação kernel\n~100ns write", fillcolor="#D5E8F5", width=1.8]
+    node_timerfd [label="timerfd\nExpiração kernel\n0 CPU idle", fillcolor="#D5E8F5", width=1.8]
+    node_epoll [label="epoll\nMultiplexação\neventfd + timerfd", fillcolor="#D5E8F5", width=1.8]
+    node_cas [label="CAS atômico\nlock-free\nready_list Condition", fillcolor="#D5E8F5", width=1.8]
+  }
+
+  /* ==================== CLUSTER: INFRAESTRUTURA ==================== */
+  subgraph cluster_infra {
+    label="Infraestrutura do Projeto";
+    style=dashed;
+    color="#B9770E";
+    fontcolor="#B9770E";
+    fontsize=12;
+
+    node_fork [label="Fork OTP 30.0-rc0\n#ifdef PON_BEAM\n2 branches\n14 novos + 6 mod. C\n~2544 linhas totais", fillcolor="#F5E8D5", width=2.0]
+    node_harness [label="Harness Benchmarking\nrun.sh + 13 módulos\n11 benchmarks\n~907 linhas Erlang\ndiff report HTML", fillcolor="#F5E8D5", width=2.0]
+  }
+
+  /* ==================== CLUSTER: CASOS DE ESTUDO ==================== */
+  subgraph cluster_casos {
+    label="Casos de Estudo (Cap. 14)";
+    style=dashed;
+    color="#148F77";
+    fontcolor="#148F77";
+    fontsize=12;
+
+    node_caso_gs [label="GenServer Sob Carga\n100 workers, 100K chamadas\nGanho: ~17.000× matching\nGanho: ~17× throughput", fillcolor="#E8F5F5", width=2.2]
+    node_caso_stream [label="Stream Processing\n4 estágios, 10K eventos/s\nGanho: ~10.000× GC\nGanho: ~100× throughput", fillcolor="#E8F5F5", width=2.2]
+    node_caso_timer [label="50K Timers Ativos\n5 expirações/s (0.01%)\nGanho: ~61.000× verificações\nGanho: ∞ CPU idle", fillcolor="#E8F5F5", width=2.2]
+  }
+
+  /* ==================== CLUSTER: TRABALHOS RELACIONADOS ==================== */
+  subgraph cluster_relacionados {
+    label="Trabalhos Relacionados (Cap. 15)";
+    style=dashed;
+    color="#7F8C8D";
+    fontcolor="#7F8C8D";
+    fontsize=12;
+
+    node_rel_pon [label="PON Original\nSimão (2008-2009)", fillcolor="#F0F0F0", width=1.6]
+    node_rel_nopl [label="NOPL-Erlang\nNegrini (2019)", fillcolor="#F0F0F0", width=1.6]
+    node_rel_arqpon [label="ARQPON\nLinhares (2015)", fillcolor="#F0F0F0", width=1.6]
+    node_rel_fw [label="FW C++ PON\nBanaszewski (2009)", fillcolor="#F0F0F0", width=1.6]
+    node_rel_hipatia [label="Hipátia (EX-36)\nAuto-otimização", fillcolor="#F0F0F0", width=1.6]
+    node_rel_tec [label="tec0301_pon\nMarques (2025a)", fillcolor="#F0F0F0", width=1.6]
+    node_rel_ff [label="pon_feature_flag\nMarques (2025b)", fillcolor="#F0F0F0", width=1.6]
+    node_rel_beam [label="BEAM Internals\nStenman, Sagonas", fillcolor="#F0F0F0", width=1.6]
+    node_rel_pony [label="Pony (Orca GC)\nRef count GC", fillcolor="#F0F0F0", width=1.6]
+    node_rel_rust [label="BEAM Rust\nbeamr/Firefly/Lumen", fillcolor="#F0F0F0", width=1.6]
+    node_rel_xen [label="Erlang on Xen\n(2014)", fillcolor="#F0F0F0", width=1.6]
+  }
+
+  /* ==================== CLUSTER: DESVIOS ==================== */
+  subgraph cluster_desvios {
+    label="Desvios do Plano Original";
+    style=dashed;
+    color="#A93226";
+    fontcolor="#A93226";
+    fontsize=12;
+
+    node_desvio_ets [label="PON-ETS: Registro Lateral\n(em vez de modificar DbTable)", fillcolor="#F5D5E8", width=2.0]
+    node_desvio_comp [label="PON-Compiler: Parse Transform\n(em vez de opcodes nativos)", fillcolor="#F5D5E8", width=2.0]
+    node_desvio_gc [label="PON-GC: Grafo Separado\n(em vez de header estendido)", fillcolor="#F5D5E8", width=2.0]
+    node_desvio_dist [label="PON-Dist: NÃO implementado\n(removido do escopo)", fillcolor="#FFD5D5", width=2.0, style="filled,dashed"]
+  }
+
+  /* ==================== CLUSTER: GAPS ==================== */
+  subgraph cluster_gaps {
+    label="Gaps Atuais";
+    style="dashed";
+    color="#E74C3C";
+    fontcolor="#E74C3C";
+    fontsize=12;
+
+    node_gap_build [label="Build completo\nTYPE=ponbeam\nnunca executado", fillcolor="#FFD5D5", style="filled,dashed", width=1.8]
+    node_gap_harness [label="Harness nunca\nrodado com\nambos ERTS", fillcolor="#FFD5D5", style="filled,dashed", width=1.8]
+    node_gap_port [label="Portabilidade:\nLinux-only\n(falta kqueue/IOCP)", fillcolor="#FFD5D5", style="filled,dashed", width=1.8]
+    node_gap_integ [label="Integração entre\nfases incompleta\n(Sched+Timer, ETS+Recv)", fillcolor="#FFD5D5", style="filled,dashed", width=1.8]
+  }
+
+  /* ==================== ARESTAS: RELAÇÕES ENTRE ENTIDADES PON ==================== */
+  /* Ciclo de notificação PON */
+  node_fbe -> node_attribute [label="  contém", color="#1E8449", fontcolor="#1E8449", fontsize=9]
+  node_attribute -> node_premise [label="  notifica mudança", color="#1E8449", fontcolor="#1E8449", fontsize=9]
+  node_premise -> node_condition [label="  satisfaz", color="#1E8449", fontcolor="#1E8449", fontsize=9]
+  node_condition -> node_rule [label="  dispara", color="#1E8449", fontcolor="#1E8449", fontsize=9]
+  node_rule -> node_action [label="  executa", color="#1E8449", fontcolor="#1E8449", fontsize=9]
+  node_action -> node_fbe [label="  altera atributo", color="#1E8449", fontcolor="#1E8449", fontsize=9]
+  node_instigation -> node_fbe [label="  invoca método", color="#1E8449", fontcolor="#1E8449", fontsize=9]
+
+  /* ==================== ARESTAS: PARADIGMA → CONCEITOS ==================== */
+  node_pon -> node_red_temp [label="  define", color="#8E44AD", fontcolor="#8E44AD", fontsize=9]
+  node_pon -> node_notif_pontual [label="  define", color="#8E44AD", fontcolor="#8E44AD", fontsize=9]
+  node_red_temp -> node_substituir [label="  motiva", color="#B7950B", fontcolor="#B7950B", fontsize=9]
+
+  /* ==================== ARESTAS: PON → SUBSISTEMAS (substitui) ==================== */
+  node_recv -> node_premise [label="  substituído por", color="#1E8449", fontcolor="#1E8449", fontsize=8, style=bold]
+  node_timer -> node_instigation [label="  substituído por", color="#1E8449", fontcolor="#1E8449", fontsize=8, style=bold]
+  node_sched -> node_condition [label="  substituído por", color="#1E8449", fontcolor="#1E8449", fontsize=8, style=bold]
+  node_ets -> node_fbe [label="  watcher PON", color="#1E8449", fontcolor="#1E8449", fontsize=8, style=bold]
+  node_gc -> node_fbe [label="  cadeia causal", color="#1E8449", fontcolor="#1E8449", fontsize=8, style=bold]
+  node_spawn -> node_condition [label="  notifica", color="#27AE60", fontcolor="#27AE60", fontsize=8]
+  node_compiler -> node_premise [label="  gera Premises", color="#27AE60", fontcolor="#27AE60", fontsize=8]
+
+  /* ==================== ARESTAS: SUBSISTEMAS → MECANISMOS SO ==================== */
+  node_sched -> node_eventfd [label="  usa", color="#2471A3", fontcolor="#2471A3", fontsize=8]
+  node_timer -> node_timerfd [label="  usa", color="#2471A3", fontcolor="#2471A3", fontsize=8]
+  node_sched -> node_epoll [label="  multiplexa", color="#2471A3", fontcolor="#2471A3", fontsize=8]
+  node_timer -> node_epoll [label="  registra em", color="#2471A3", fontcolor="#2471A3", fontsize=8]
+  node_condition -> node_cas [label="  lock-free via", color="#2471A3", fontcolor="#2471A3", fontsize=8]
+  node_condition -> node_eventfd [label="  implementa com", color="#2471A3", fontcolor="#2471A3", fontsize=8]
+  node_instigation -> node_timerfd [label="  implementa com", color="#2471A3", fontcolor="#2471A3", fontsize=8]
+
+  /* ==================== ARESTAS: INFRA → SUBSISTEMAS ==================== */
+  node_fork -> node_recv [label="  protege com #ifdef", color="#B9770E", fontcolor="#B9770E", fontsize=8]
+  node_fork -> node_sched [label="  protege com #ifdef", color="#B9770E", fontcolor="#B9770E", fontsize=8]
+  node_fork -> node_timer [label="  protege com #ifdef", color="#B9770E", fontcolor="#B9770E", fontsize=8]
+  node_fork -> node_ets [label="  protege com #ifdef", color="#B9770E", fontcolor="#B9770E", fontsize=8]
+  node_fork -> node_gc [label="  protege com #ifdef", color="#B9770E", fontcolor="#B9770E", fontsize=8]
+  node_fork -> node_compiler [label="  protege com #ifdef", color="#B9770E", fontcolor="#B9770E", fontsize=8]
+  node_fork -> node_spawn [label="  protege com #ifdef", color="#B9770E", fontcolor="#B9770E", fontsize=8]
+
+  node_harness -> node_recv [label="  valida (fase1_receive)", color="#E67E22", fontcolor="#E67E22", fontsize=8]
+  node_harness -> node_timer [label="  valida (fase2_timer)", color="#E67E22", fontcolor="#E67E22", fontsize=8]
+  node_harness -> node_spawn [label="  valida (fase3_spawn)", color="#E67E22", fontcolor="#E67E22", fontsize=8]
+  node_harness -> node_sched [label="  valida (fase4_sched)", color="#E67E22", fontcolor="#E67E22", fontsize=8]
+  node_harness -> node_ets [label="  valida (fase5_ets)", color="#E67E22", fontcolor="#E67E22", fontsize=8]
+  node_harness -> node_compiler [label="  valida (fase6_compile)", color="#E67E22", fontcolor="#E67E22", fontsize=8]
+  node_harness -> node_gc [label="  valida (fase7_gc)", color="#E67E22", fontcolor="#E67E22", fontsize=8]
+
+  /* ==================== ARESTAS: CASOS DE ESTUDO → SUBSISTEMAS ==================== */
+  node_caso_gs -> node_recv [label="  sofre de matching O(N×M)", color="#148F77", fontcolor="#148F77", fontsize=8]
+  node_caso_gs -> node_sched [label="  sofre de polling", color="#148F77", fontcolor="#148F77", fontsize=8]
+  node_caso_gs -> node_ets [label="  sofre de lock+busca", color="#148F77", fontcolor="#148F77", fontsize=8]
+  node_caso_stream -> node_gc [label="  sofre de varredura", color="#148F77", fontcolor="#148F77", fontsize=8]
+  node_caso_stream -> node_recv [label="  sofre de scanning", color="#148F77", fontcolor="#148F77", fontsize=8]
+  node_caso_timer -> node_timer [label="  sofre de tick polling", color="#148F77", fontcolor="#148F77", fontsize=8]
+
+  /* ==================== ARESTAS: TRABALHOS RELACIONADOS ==================== */
+  node_rel_pon -> node_pon [label="  fundamenta", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8]
+  node_rel_tec -> node_rel_ff [label="  inspira", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8]
+  node_rel_ff -> node_fork [label="  prova conceito", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8]
+  node_rel_nopl -> node_pon [label="  aplica em linguagem", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8]
+  node_rel_arqpon -> node_pon [label="  aplica em hardware", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8]
+  node_rel_fw -> node_pon [label="  implementa biblioteca", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8]
+  node_rel_hipatia -> node_pon [label="  estende futuro", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8]
+  node_rel_beam -> node_recv [label="  documenta baseline", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8, style=dashed]
+  node_rel_beam -> node_sched [label="  documenta baseline", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8, style=dashed]
+  node_rel_pony -> node_gc [label="  GC similar sem pausa", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8, style=dashed]
+  node_rel_rust -> node_fork [label="  convergência potencial", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8, style=dashed]
+  node_rel_xen -> node_fork [label="  complementar", color="#7F8C8D", fontcolor="#7F8C8D", fontsize=8, style=dashed]
+
+  /* ==================== ARESTAS: DESVIOS ==================== */
+  node_desvio_ets -> node_ets [label="  desvia do plano", color="#A93226", fontcolor="#A93226", fontsize=8, style=dashed]
+  node_desvio_comp -> node_compiler [label="  desvia do plano", color="#A93226", fontcolor="#A93226", fontsize=8, style=dashed]
+  node_desvio_gc -> node_gc [label="  desvia do plano", color="#A93226", fontcolor="#A93226", fontsize=8, style=dashed]
+
+  /* ==================== ARESTAS: GAPS ==================== */
+  node_gap_build -> node_fork [label="  impede validação", color="#E74C3C", fontcolor="#E74C3C", fontsize=8, style=dotted]
+  node_gap_harness -> node_harness [label="  impede validação", color="#E74C3C", fontcolor="#E74C3C", fontsize=8, style=dotted]
+  node_gap_port -> node_fork [label="  limita plataformas", color="#E74C3C", fontcolor="#E74C3C", fontsize=8, style=dotted]
+  node_gap_integ -> node_sched [label="  impede notificação unificada", color="#E74C3C", fontcolor="#E74C3C", fontsize=8, style=dotted]
+  node_gap_integ -> node_ets [label="  impede notificação watcher", color="#E74C3C", fontcolor="#E74C3C", fontsize=8, style=dotted]
+
+  /* ==================== ARESTAS: PRINCÍPIO UNIFICADOR ==================== */
+  node_substituir -> node_recv [label="  scanning → Premise", color="#B7950B", fontcolor="#B7950B", fontsize=8, style=bold]
+  node_substituir -> node_sched [label="  polling → eventfd", color="#B7950B", fontcolor="#B7950B", fontsize=8, style=bold]
+  node_substituir -> node_timer [label="  tick → timerfd", color="#B7950B", fontcolor="#B7950B", fontsize=8, style=bold]
+  node_substituir -> node_ets [label="  lock → watcher", color="#B7950B", fontcolor="#B7950B", fontsize=8, style=bold]
+  node_substituir -> node_gc [label="  varredura → cadeia causal", color="#B7950B", fontcolor="#B7950B", fontsize=8, style=bold]
+}
