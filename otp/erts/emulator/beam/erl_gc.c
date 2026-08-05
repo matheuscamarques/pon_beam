@@ -45,6 +45,11 @@
 #include "beam_common.h"
 #include "beam_bp.h"
 
+#ifdef PON_BEAM
+#include "pon_gc.h"
+#include "pon_stats.h"
+#endif
+
 #define ERTS_INACT_WR_PB_LEAVE_MUCH_LIMIT 1
 #define ERTS_INACT_WR_PB_LEAVE_MUCH_PERCENTAGE 20
 #define ERTS_INACT_WR_PB_LEAVE_LIMIT 10
@@ -802,6 +807,14 @@ garbage_collect(Process* p, ErlHeapFragment *live_hf_end,
     set_proc_state_gc(p, true);
     if (erts_system_monitor_long_gc)
 	start_time = erts_get_monotonic_time(esdp);
+
+#ifdef PON_BEAM
+    /* PON-BEAM: roda o mark por notificacao sobre o grafo PON-GC do
+     * processo e acumula nas pon_stats quantos objetos sobreviveram
+     * sem varredura e quantas notificacoes foram enviadas. Nao altera
+     * a semantica do GC: o sweep real continua acontecendo. */
+    erts_pon_gc_process_gc(p);
+#endif
 
     ERTS_CHK_OFFHEAP(p);
 
