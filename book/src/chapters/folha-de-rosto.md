@@ -4,9 +4,9 @@ MATHEUS DE CAMARGO MARQUES
 
 # PON-BEAM
 
-**Uma Máquina Virtual Orientada a Notificações**
+**A Notification-Oriented Virtual Machine**
 
-Re-arquitetura da BEAM (Erlang/OTP 30.0-rc0 — Protótipo Experimental de Pesquisa Não-Oficial) usando o Paradigma Orientado a Notificações (PON) de Jean Marcelo Simão
+Re-architecting the BEAM (Erlang/OTP 30.0-rc0 — Unofficial Experimental Research Prototype) using Jean Marcelo Simão's Notification-Oriented Paradigm (NOP)
 
 <br><br><br><br><br><br><br><br>
 

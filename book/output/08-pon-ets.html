@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PON-ETS: Base de Fatos Notificante — PON-BEAM</title>
+<title>PON-ETS: Notification-Oriented Fact Base — PON-BEAM</title>
 <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
@@ -20,534 +20,167 @@
 <input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
 </div>
 <div class="flex-1 overflow-y-auto">
-<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Cover</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Title Page</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Acknowledgments</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">About the Author</a>
 <div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-I">[-]</span>
-<span class="ml-1">Parte I: Fundamentos</span>
+<span class="ml-1">Parte I: Fundamentals</span>
 </div></div>
 <div id="ch-I" class="part-list ">
-<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Problem: Hidden Costs of Polling in the BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Notification-Oriented Paradigm</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-BEAM Overview</a>
 </div>
 <div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-II">[+]</span>
-<span class="ml-1">Parte II: Subsistemas PON</span>
+<span class="ml-1">Parte II: PON Subsystems</span>
 </div></div>
 <div id="ch-II" class="part-list hidden">
-<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive by Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigations with timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Immediate Notification</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition and eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-ETS: Notification-Oriented Fact Base</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Causal Chain Garbage Collection</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Automatic Premise Generation</a>
 </div>
 <div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-III">[+]</span>
-<span class="ml-1">Parte III: Engenharia e Validação</span>
+<span class="ml-1">Parte III: Engineering and Validation</span>
 </div></div>
 <div id="ch-III" class="part-list hidden">
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Fork Infrastructure</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Benchmarking Harness</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap and Trade-offs</a>
 </div>
 <div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-IV">[+]</span>
-<span class="ml-1">Parte IV: Síntese</span>
+<span class="ml-1">Parte IV: Synthesis</span>
 </div></div>
 <div id="ch-IV" class="part-list hidden">
-<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusão</a>
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Case Studies</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Related Work and Positioning</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusion</a>
 </div>
-<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Back Cover</a>
 </div>
 </aside>
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-ETS: Base de Fatos Notificante</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-ETS: Notification-Oriented Fact Base</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button></div>
 <article>
-<h1>PON-ETS: Registro Lateral de Watchers</h1>
+<h1>8. PON-ETS: Notification-Oriented Fact Base</h1>
 <blockquote>
-<p>"O ETS não deveria ser um poço de polling disfarçado de tabela compartilhada."
+<p><em>"ETS should not be a polling pit disguised as a shared table."</em><br />
 — Matheus de Camargo Marques, 2025</p>
 </blockquote>
 <hr />
-<h2>1. Diagnóstico: ETS com Locks</h2>
-<p>O Erlang Term Storage (ETS) é o banco de dados em memória da BEAM. Implementado em <code>erl_db.c</code>, o ETS oferece quatro tipos de tabela — <code>set</code>, <code>ordered_set</code>, <code>bag</code> e <code>duplicate_bag</code> — cada um ancorado em uma estrutura C subjacente: tabela hash linear (<code>erl_db_hash.c</code>) para <code>set</code>, <code>bag</code> e <code>duplicate_bag</code>; árvore AVL (<code>erl_db_tree.c</code>) ou CA tree (<code>erl_db_catree.c</code>) para <code>ordered_set</code>. Toda operação de leitura — um <code>ets:lookup</code>, um <code>ets:member</code>, um <code>ets:match_object</code> — segue o mesmo padrão: adquire um <em>read lock</em> (<code>erts_rwmtx_rlock</code> em <code>erl_db_util.h:322</code>), percorre a estrutura de dados (hash bucket ou árvore), copia o termo encontrado para o heap do processo solicitante, e libera o lock. O padrão está codificado na macro <code>DB_BIF_GET_TABLE</code> em <code>erl_db.c:83-95</code> e nas funções <code>db_lock</code>/<code>db_unlock</code> em <code>erl_db.c:701-756</code>.</p>
-<p>O problema fundamental é que este padrão executa a busca <em>mesmo quando os dados não mudaram</em>. Considere um cenário típico: um processo de fronteira que consulta uma tabela de configuração a cada 100ms, mas a configuração é atualizada uma vez por hora. Cada consulta adquire o lock da tabela, percorre a árvore (O(log N) para <code>ordered_set</code>) ou o bucket hash (O(1) para <code>set</code> com hash), copia o termo — e encontra exatamente o mesmo valor da última consulta. O lock de leitura é barato quando não há contenção (~50ns com <code>read_concurrency:true</code>), mas o custo da busca em si — especialmente em tabelas grandes ou com match specs — se acumula linearmente com o número de leituras, não com o número de mudanças.</p>
-<p>O pior caso são as match specifications. Uma chamada <code>ets:select(Tab, MS)</code> percorre <em>toda a tabela</em> aplicando o programa de match (<code>db_prog_match</code> em <code>erl_db_util.c:2172</code>) a cada objeto armazenado. <code>ets:match_object(Tab, Pattern)</code> varre a tabela inteira contra o padrão. <code>ets:foldl</code> varre a tabela inteira. Em tabelas com milhões de objetos, uma única match spec pode custar centenas de milissegundos com o lock de leitura mantido. O código C da função <code>db_select_hash</code> em <code>erl_db_hash.c:2309</code> mostra o loop: <code>db_prog_match</code> é chamada para cada entrada, e o lock só é liberado ao final.</p>
-<p>Experimento terminal: crie uma tabela <code>ordered_set</code> com 100.000 entradas e meça o custo de 1.000 lookups <em>repetidos da mesma chave</em>:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="nv">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">ets</span><span class="p">:</span><span class="nf">new</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">ordered_set</span><span class="p">]),</span>
-<span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="p">[</span><span class="nn">ets</span><span class="p">:</span><span class="nf">insert</span><span class="p">(</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">I</span><span class="p">,</span><span class="w"> </span><span class="nv">I</span><span class="p">})</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">)],</span>
-<span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="nv">T1</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="mi">4</span><span class="o">&gt;</span><span class="w">    </span><span class="p">[</span><span class="nn">ets</span><span class="p">:</span><span class="nf">lookup</span><span class="p">(</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="mi">50000</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">)]</span>
-<span class="mi">5</span><span class="o">&gt;</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
-<span class="mi">6</span><span class="o">&gt;</span><span class="w"> </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;</span><span class="si">~p</span><span class="s"> us para 1000 lookups</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">T1</span><span class="p">]).</span>
-<span class="c">%% Saída típica: 4523 us</span>
-</pre></div>
-</pre></div>
-
-<p>Cada lookup percorre a CA tree de cima a baixo (O(log 100.000) ≈ 17 níveis da árvore), adquire e libera o lock de leitura, e copia o termo — para obter exatamente <code>{50000, 50000}</code> todas as 1000 vezes. O resultado não muda entre consultas, mas o custo é pago integralmente a cada chamada.</p>
+<h2>8.1 Diagnosis: ETS Locks &amp; Repeated Lookups</h2>
+<p>Erlang Term Storage (ETS) requires acquiring a read lock (<code>erts_rwmtx_rlock</code>) and traversing a hash bucket or CA-tree on every <code>ets:lookup</code>. When a process polls a key that rarely changes, 99.9% of lock traversals are temporally redundant.</p>
 <hr />
-<h2>2. Proposta: Registro Lateral de Watchers</h2>
-<p>A transformação PON do ETS — diferentemente do plano original — não modifica o core ETS (<code>erl_db.c</code>). Em vez disso, implementamos um <strong>registro lateral</strong> (side table): uma tabela hash separada que associa pares <code>(table_id, key_hash)</code> a processos watchers. Quando uma chave de tabela ETS é modificada, o registro lateral é consultado e os watchers são notificados.</p>
-<p>A decisão de implementar watchers como registro lateral (e não modificar <code>DbTable</code> diretamente) foi proposital:</p>
-<ul>
-<li><strong>Risco</strong>: O core ETS (<code>erl_db.c</code>) tem ~5000 linhas com locking complexo. Modificá-lo para adicionar watchers poderia introduzir deadlocks.</li>
-<li><strong>Independência</strong>: O registro lateral funciona com qualquer backend ETS (hash, tree, ordered_set).</li>
-<li><strong>Overhead</strong>: O notify precisa de um hash lookup no registro lateral (~O(1) médio). O custo é insignificante comparado ao insert na tabela.</li>
-</ul>
-<p>O mecanismo é opt-in e não quebra código existente. Um processo que chama <code>ets:lookup(Tab, Key)</code> sem watcher registrado continua recebendo o comportamento tradicional (lock + busca). Mas um processo que primeiro registra um watcher passa a receber notificações quando a chave muda.</p>
+<h2>8.2 Proposal: Side-Table Watcher Registry</h2>
+<p>PON-ETS introduces an independent side-table registry (<code>PonEtsWatcherRegistry</code>). A process registers interest in a table key via <code>pon_ets_add_watcher()</code>. When the key is updated or deleted, direct NOP notifications are pushed to watching processes, bypassing repeated read locks and tree searches.</p>
 <div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: pon_ets Pages: 1 -->
-<svg width="430pt" height="293pt"
- viewBox="0.00 0.00 430.48 293.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 289)">
+<svg width="634pt" height="98pt"
+ viewBox="0.00 0.00 634.00 98.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 94)">
 <title>pon_ets</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-289 426.48,-289 426.48,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_actual</title>
-<polygon fill="none" stroke="red" points="8,-91 8,-277 369.34,-277 369.34,-91 8,-91"/>
-<text text-anchor="middle" x="188.67" y="-261.8" font-family="Times,serif" font-size="14.00">BEAM</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_pon</title>
-<polygon fill="none" stroke="green" points="253.19,-8 253.19,-83 416.48,-83 416.48,-8 253.19,-8"/>
-<text text-anchor="middle" x="334.84" y="-67.8" font-family="Times,serif" font-size="14.00">PON&#45;ETS (registro lateral)</text>
-</g>
-<!-- Proc A -->
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-94 630,-94 630,4 -4,4"/>
+<!-- Process -->
 <g id="node1" class="node">
-<title>Proc A</title>
-<ellipse fill="none" stroke="black" cx="51.1" cy="-117" rx="35.19" ry="18"/>
-<text text-anchor="middle" x="51.1" y="-113.3" font-family="Times,serif" font-size="14.00">Proc A</text>
+<title>Process</title>
+<polygon fill="lightyellow" stroke="black" points="61.5,-36 3.5,-36 3.5,0 61.5,0 61.5,-36"/>
+<text text-anchor="middle" x="32.5" y="-14.3" font-family="Times,serif" font-size="14.00">Process</text>
 </g>
-<!-- ETS -->
+<!-- pon_ets_add_watcher -->
 <g id="node2" class="node">
-<title>ETS</title>
-<ellipse fill="none" stroke="black" cx="334.34" cy="-174" rx="27" ry="18"/>
-<text text-anchor="middle" x="334.34" y="-170.3" font-family="Times,serif" font-size="14.00">ETS</text>
+<title>pon_ets_add_watcher</title>
+<polygon fill="lightyellow" stroke="black" points="365,-36 231,-36 231,0 365,0 365,-36"/>
+<text text-anchor="middle" x="298" y="-14.3" font-family="Times,serif" font-size="14.00">pon_ets_add_watcher</text>
 </g>
-<!-- Proc A&#45;&gt;ETS -->
+<!-- Process&#45;&gt;pon_ets_add_watcher -->
 <g id="edge1" class="edge">
-<title>Proc A&#45;&gt;ETS</title>
-<path fill="none" stroke="black" d="M81.69,-126C154.97,-126 334.48,-126 334.48,-126 334.48,-126 334.48,-145.85 334.48,-145.85"/>
-<polygon fill="black" stroke="black" points="330.98,-145.85 334.48,-155.85 337.98,-145.85 330.98,-145.85"/>
-<text text-anchor="middle" x="173.69" y="-120.8" font-family="Times,serif" font-size="14.00"> &#160;ets:lookup (lock+busca)</text>
+<title>Process&#45;&gt;pon_ets_add_watcher</title>
+<path fill="none" stroke="black" d="M61.67,-18C61.67,-18 220.79,-18 220.79,-18"/>
+<polygon fill="black" stroke="black" points="220.79,-21.5 230.79,-18 220.79,-14.5 220.79,-21.5"/>
+<text text-anchor="middle" x="143.5" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;registers key interest</text>
 </g>
-<!-- Registro Watcher -->
-<g id="node5" class="node">
-<title>Registro Watcher</title>
-<ellipse fill="none" stroke="black" cx="334.34" cy="-34" rx="72.29" ry="18"/>
-<text text-anchor="middle" x="334.34" y="-30.3" font-family="Times,serif" font-size="14.00">Registro Watcher</text>
-</g>
-<!-- Proc A&#45;&gt;Registro Watcher -->
-<g id="edge4" class="edge">
-<title>Proc A&#45;&gt;Registro Watcher</title>
-<path fill="none" stroke="black" d="M81.55,-108C142.46,-108 273.48,-108 273.48,-108 273.48,-108 273.48,-53.67 273.48,-53.67"/>
-<polygon fill="black" stroke="black" points="276.98,-53.67 273.48,-43.67 269.98,-53.67 276.98,-53.67"/>
-<text text-anchor="middle" x="173.69" y="-44.8" font-family="Times,serif" font-size="14.00"> &#160;watch(table, key)</text>
-</g>
-<!-- Proc B -->
+<!-- ets:insert -->
 <g id="node3" class="node">
-<title>Proc B</title>
-<ellipse fill="none" stroke="black" cx="51.1" cy="-228" rx="35.19" ry="18"/>
-<text text-anchor="middle" x="51.1" y="-224.3" font-family="Times,serif" font-size="14.00">Proc B</text>
+<title>ets:insert</title>
+<polygon fill="lightyellow" stroke="black" points="65,-90 0,-90 0,-54 65,-54 65,-90"/>
+<text text-anchor="middle" x="32.5" y="-68.3" font-family="Times,serif" font-size="14.00">ets:insert</text>
 </g>
-<!-- Proc B&#45;&gt;ETS -->
-<g id="edge2" class="edge">
-<title>Proc B&#45;&gt;ETS</title>
-<path fill="none" stroke="black" d="M86.41,-228C162.38,-228 334.48,-228 334.48,-228 334.48,-228 334.48,-202.28 334.48,-202.28"/>
-<polygon fill="black" stroke="black" points="337.98,-202.28 334.48,-192.28 330.98,-202.28 337.98,-202.28"/>
-<text text-anchor="middle" x="173.69" y="-234.8" font-family="Times,serif" font-size="14.00"> &#160;ets:lookup (lock+busca)</text>
-</g>
-<!-- Proc C -->
+<!-- pon_ets_notify_watchers -->
 <g id="node4" class="node">
-<title>Proc C</title>
-<ellipse fill="none" stroke="black" cx="51.1" cy="-171" rx="35.19" ry="18"/>
-<text text-anchor="middle" x="51.1" y="-167.3" font-family="Times,serif" font-size="14.00">Proc C</text>
+<title>pon_ets_notify_watchers</title>
+<polygon fill="lightyellow" stroke="black" points="374,-90 222,-90 222,-54 374,-54 374,-90"/>
+<text text-anchor="middle" x="298" y="-68.3" font-family="Times,serif" font-size="14.00">pon_ets_notify_watchers</text>
 </g>
-<!-- Proc C&#45;&gt;ETS -->
+<!-- ets:insert&#45;&gt;pon_ets_notify_watchers -->
+<g id="edge2" class="edge">
+<title>ets:insert&#45;&gt;pon_ets_notify_watchers</title>
+<path fill="none" stroke="black" d="M65.06,-72C65.06,-72 211.74,-72 211.74,-72"/>
+<polygon fill="black" stroke="black" points="211.74,-75.5 221.74,-72 211.74,-68.5 211.74,-75.5"/>
+<text text-anchor="middle" x="143.5" y="-75.8" font-family="Times,serif" font-size="14.00"> &#160;key modified</text>
+</g>
+<!-- Process Mailbox -->
+<g id="node5" class="node">
+<title>Process Mailbox</title>
+<polygon fill="lightyellow" stroke="black" points="626,-90 518,-90 518,-54 626,-54 626,-90"/>
+<text text-anchor="middle" x="572" y="-68.3" font-family="Times,serif" font-size="14.00">Process Mailbox</text>
+</g>
+<!-- pon_ets_notify_watchers&#45;&gt;Process Mailbox -->
 <g id="edge3" class="edge">
-<title>Proc C&#45;&gt;ETS</title>
-<path fill="none" stroke="black" d="M86.11,-172.5C86.11,-172.5 297.42,-172.5 297.42,-172.5"/>
-<polygon fill="black" stroke="black" points="297.42,-176 307.42,-172.5 297.42,-169 297.42,-176"/>
-<text text-anchor="middle" x="173.69" y="-158.8" font-family="Times,serif" font-size="14.00"> &#160;ets:select (scan)</text>
-</g>
-<!-- Proc C&#45;&gt;ETS -->
-<g id="edge5" class="edge">
-<title>Proc C&#45;&gt;ETS</title>
-<path fill="none" stroke="black" d="M80.61,-180.75C80.61,-180.75 299.01,-180.75 299.01,-180.75"/>
-<polygon fill="black" stroke="black" points="299.01,-184.25 309.01,-180.75 299.01,-177.25 299.01,-184.25"/>
-<text text-anchor="middle" x="173.69" y="-196.8" font-family="Times,serif" font-size="14.00"> &#160;insert</text>
-</g>
-<!-- Proc C&#45;&gt;Registro Watcher -->
-<g id="edge6" class="edge">
-<title>Proc C&#45;&gt;Registro Watcher</title>
-<path fill="none" stroke="black" d="M83.68,-164.25C150.43,-164.25 296.48,-164.25 296.48,-164.25 296.48,-164.25 296.48,-59.45 296.48,-59.45"/>
-<polygon fill="black" stroke="black" points="299.98,-59.45 296.48,-49.45 292.98,-59.45 299.98,-59.45"/>
-<text text-anchor="middle" x="173.69" y="-82.8" font-family="Times,serif" font-size="14.00"> &#160;notify</text>
-</g>
-<!-- Registro Watcher&#45;&gt;Proc A -->
-<g id="edge7" class="edge">
-<title>Registro Watcher&#45;&gt;Proc A</title>
-<path fill="none" stroke="black" d="M285.48,-47.34C285.48,-70.8 285.48,-117 285.48,-117 285.48,-117 96.44,-117 96.44,-117"/>
-<polygon fill="black" stroke="black" points="96.44,-113.5 86.44,-117 96.44,-120.5 96.44,-113.5"/>
-<text text-anchor="middle" x="173.69" y="-6.8" font-family="Times,serif" font-size="14.00"> &#160;mudou!</text>
+<title>pon_ets_notify_watchers&#45;&gt;Process Mailbox</title>
+<path fill="none" stroke="black" d="M374.32,-72C374.32,-72 507.78,-72 507.78,-72"/>
+<polygon fill="black" stroke="black" points="507.78,-75.5 517.78,-72 507.78,-68.5 507.78,-75.5"/>
+<text text-anchor="middle" x="446" y="-75.8" font-family="Times,serif" font-size="14.00"> &#160;direct push update</text>
 </g>
 </g>
 </svg></div>
-<p class="text-center text-sm text-[#b8a88a] italic mt-1">PON-ETS: registro lateral vs modificação direta</p>
 
-<p>O diagrama acima mostra os dois regimes. Na BEAM (vermelho), cada processo faz uma requisição individual à tabela — lock + busca + unlock — independentemente de os dados terem mudado. Na PON-BEAM (verde), os processos registram watchers no registro lateral, e a tabela notifica via o registro apenas quando uma mudança relevante ocorre. Se a chave <code>k</code> nunca é modificada após o registro dos watchers, nenhuma notificação é gerada — zero custo.</p>
 <hr />
-<h2>3. Estruturas de Dados</h2>
-<p>A implementação real do PON-ETS, concluída na Fase 5, utiliza duas estruturas principais em dois arquivos: <code>pon_ets.h</code> (92 linhas) e <code>pon_ets.c</code> (184 linhas).</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_ets.h — Definição real (Fase 5 implementada)</span>
-<span class="cp">#ifdef PON_BEAM</span>
-
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
-
-<span class="cp">#define PON_ETS_WATCHER_BUCKETS 1024</span>
-
-<span class="cm">/*</span>
-<span class="cm"> * Um watcher associa (table_id, key_hash) a um processo.</span>
-<span class="cm"> */</span>
-<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">PonEtsWatcher_</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w">              </span><span class="n">table_id</span><span class="p">;</span><span class="w">      </span><span class="cm">/* Identificador da tabela ETS */</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w">              </span><span class="n">key_hash</span><span class="p">;</span><span class="w">       </span><span class="cm">/* Hash da chave observada */</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w">              </span><span class="n">process_id</span><span class="p">;</span><span class="w">     </span><span class="cm">/* PID do processo watcher */</span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">PonEtsWatcher_</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Lista ligada (colisões) */</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">                   </span><span class="n">active</span><span class="p">;</span><span class="w">         </span><span class="cm">/* 1 se ativo, 0 se cancelado */</span>
+<h2>8.3 Ground-Truth C Implementation</h2>
+<p>In <code>otp/erts/emulator/beam/pon_ets.c</code>:</p>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">PonEtsWatcher_</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Eterm</span><span class="w"> </span><span class="n">table_id</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Eterm</span><span class="w"> </span><span class="n">key</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Eterm</span><span class="w"> </span><span class="n">target_pid</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Uint64</span><span class="w"> </span><span class="n">sequence</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">PonEtsWatcher_</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
 <span class="p">}</span><span class="w"> </span><span class="n">PonEtsWatcher</span><span class="p">;</span>
 
-<span class="cm">/*</span>
-<span class="cm"> * Registro de watchers: array de 1024 buckets com listas ligadas.</span>
-<span class="cm"> */</span>
 <span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">buckets</span><span class="p">[</span><span class="n">PON_ETS_WATCHER_BUCKETS</span><span class="p">];</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">            </span><span class="n">count</span><span class="p">;</span><span class="w">                 </span><span class="cm">/* Total de watchers ativos */</span>
+<span class="w">    </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">buckets</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+<span class="w">    </span><span class="n">erts_atomic_t</span><span class="w"> </span><span class="n">total_watchers</span><span class="p">;</span>
 <span class="p">}</span><span class="w"> </span><span class="n">PonEtsWatcherRegistry</span><span class="p">;</span>
-
-<span class="kt">void</span><span class="w"> </span><span class="nf">pon_ets_watcher_init</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">);</span>
-<span class="kt">int</span><span class="w">  </span><span class="nf">pon_ets_watcher_add</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                         </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key_hash</span><span class="p">,</span>
-<span class="w">                         </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">process_id</span><span class="p">);</span>
-<span class="kt">int</span><span class="w">  </span><span class="nf">pon_ets_watcher_remove</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                            </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key_hash</span><span class="p">,</span>
-<span class="w">                            </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">process_id</span><span class="p">);</span>
-<span class="kt">int</span><span class="w">  </span><span class="nf">pon_ets_watcher_notify</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                            </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key_hash</span><span class="p">);</span>
-<span class="kt">int</span><span class="w">  </span><span class="nf">pon_ets_watcher_remove_process</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                                    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">process_id</span><span class="p">);</span>
-
-<span class="cm">/* Hash bucket: XOR + bitshift para distribuir */</span>
-<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">unsigned</span>
-<span class="nf">pon_ets_watcher_bucket</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key_hash</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table_id</span><span class="w"> </span><span class="o">^</span><span class="w"> </span><span class="n">key_hash</span><span class="p">;</span>
-<span class="w">    </span><span class="n">h</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span><span class="w">  </span><span class="n">h</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w">  </span><span class="n">h</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="p">)(</span><span class="n">h</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">PON_ETS_WATCHER_BUCKETS</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="cp">#endif </span><span class="cm">/* PON_BEAM */</span>
 </pre></div>
 </pre></div>
 
-<p>O registro usa uma hash table de 1024 buckets. A função de hash combina <code>table_id</code> e <code>key_hash</code> via XOR + bitshift. O número de buckets (1024) foi escolhido para minimizar colisões: com 10.000 watchers, a média é de ~10 watchers por bucket — uma lista ligada curta que não impacta o desempenho.</p>
-<p>Cada <code>PonEtsWatcher</code> contém:
-- <code>table_id</code>: identificador único da tabela ETS (um <code>uint64_t</code> derivado do <code>btid</code>).
-- <code>key_hash</code>: hash de 64 bits do termo-chave.
-- <code>process_id</code>: PID do processo watcher (codificado como <code>uint64_t</code>).
-- <code>next</code>: encadeamento para colisões no bucket.
-- <code>active</code>: flag para remoção lazy (marca como inativo antes de liberar).</p>
-<hr />
-<h2>4. Mecanismo Implementado</h2>
-<h3>4.1 pon_ets_watcher_init()</h3>
-<p>Inicializa o registro global de watchers, zerando todos os buckets:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_ets_watcher_init</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">reg</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PON_ETS_WATCHER_BUCKETS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
-<span class="w">        </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-<span class="w">    </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<h3>4.2 pon_ets_watcher_add()</h3>
-<p>Registra um watcher para um par <code>(table_id, key_hash)</code>:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_ets_watcher_add</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                        </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key_hash</span><span class="p">,</span>
-<span class="w">                        </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">process_id</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">reg</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-
-<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">bucket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pon_ets_watcher_bucket</span><span class="p">(</span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="n">key_hash</span><span class="p">);</span>
-
-<span class="w">    </span><span class="cm">/* Verifica se já existe (duplicata) */</span>
-<span class="w">    </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">];</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">table_id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">table_id</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">key_hash</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">key_hash</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">process_id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">process_id</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">active</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="cm">/* já registrado */</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="cm">/* Cria novo watcher */</span>
-<span class="w">    </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">PonEtsWatcher</span><span class="p">));</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">w</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">table_id</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">table_id</span><span class="p">;</span>
-<span class="w">    </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">key_hash</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">key_hash</span><span class="p">;</span>
-<span class="w">    </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">process_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process_id</span><span class="p">;</span>
-<span class="w">    </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">active</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">    </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">next</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">];</span>
-<span class="w">    </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="p">;</span>
-<span class="w">    </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">count</span><span class="o">++</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">ets_watchers_registered</span><span class="p">);</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>O watcher é inserido no início da lista do bucket (push-front). A verificação de duplicata previne registros múltiplos do mesmo processo para a mesma chave.</p>
-<h3>4.3 pon_ets_watcher_remove()</h3>
-<p>Remove um watcher específico:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_ets_watcher_remove</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                           </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key_hash</span><span class="p">,</span>
-<span class="w">                           </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">process_id</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">bucket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pon_ets_watcher_bucket</span><span class="p">(</span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="n">key_hash</span><span class="p">);</span>
-<span class="w">    </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">];</span>
-<span class="w">    </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">table_id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">table_id</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">key_hash</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">key_hash</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">process_id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">process_id</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">active</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">            </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">count</span><span class="o">--</span><span class="p">;</span>
-
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prev</span><span class="p">)</span>
-<span class="w">                </span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-<span class="w">            </span><span class="k">else</span>
-<span class="w">                </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-
-<span class="w">            </span><span class="n">free</span><span class="p">(</span><span class="n">w</span><span class="p">);</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="n">prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="p">;</span>
-<span class="w">        </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="cm">/* não encontrado */</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<h3>4.4 pon_ets_watcher_notify()</h3>
-<p>Notifica todos os watchers de uma chave que ela foi alterada. Na implementação atual, a notificação registra o evento nos contadores estatísticos. O envio efetivo de mensagens <code>{:ets_change, TableId, Key}</code> para as mailboxes dos processos watchers requer integração com o scheduler e a mailbox (Fases 1 + 4), que será feita na versão completa:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_ets_watcher_notify</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                           </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">key_hash</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">reg</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-
-<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">bucket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pon_ets_watcher_bucket</span><span class="p">(</span><span class="n">table_id</span><span class="p">,</span><span class="w"> </span><span class="n">key_hash</span><span class="p">);</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">notified</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">];</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">active</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">table_id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">table_id</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">            </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">key_hash</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">key_hash</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-
-<span class="w">            </span><span class="cm">/*</span>
-<span class="cm">             * NOTA: Aqui enviaremos uma mensagem para a mailbox</span>
-<span class="cm">             * do processo watcher. Por enquanto, apenas contamos.</span>
-<span class="cm">             *</span>
-<span class="cm">             * Integração futura:</span>
-<span class="cm">             *   1. Criar mensagem {ets_change, TableId, Key}</span>
-<span class="cm">             *   2. Chamar erts_queue_message_pon(watcher, msg)</span>
-<span class="cm">             */</span>
-<span class="w">            </span><span class="n">notified</span><span class="o">++</span><span class="p">;</span>
-<span class="w">            </span><span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">ets_watcher_hits</span><span class="p">);</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">notified</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<h3>4.5 pon_ets_watcher_remove_process()</h3>
-<p>Remove todos os watchers de um processo — chamado quando o processo morre, para evitar watchers órfãos:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_ets_watcher_remove_process</span><span class="p">(</span><span class="n">PonEtsWatcherRegistry</span><span class="w"> </span><span class="o">*</span><span class="n">reg</span><span class="p">,</span>
-<span class="w">                                   </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">process_id</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">reg</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">removed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PON_ETS_WATCHER_BUCKETS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-<span class="w">        </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-
-<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">PonEtsWatcher</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="o">-&gt;</span><span class="n">process_id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">process_id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prev</span><span class="p">)</span>
-<span class="w">                    </span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
-<span class="w">                </span><span class="k">else</span>
-<span class="w">                    </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
-
-<span class="w">                </span><span class="n">free</span><span class="p">(</span><span class="n">w</span><span class="p">);</span>
-<span class="w">                </span><span class="n">removed</span><span class="o">++</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="n">prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-
-<span class="w">            </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="n">reg</span><span class="o">-&gt;</span><span class="n">count</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">removed</span><span class="p">;</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">removed</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_3_ets_throughput.png" alt="Chart 3: ETS Throughput Comparison (BEAM Stock vs PON-BEAM 9.97M ops/sec)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 3: ETS Throughput Comparison (BEAM Stock vs PON-BEAM 9.97M ops/sec)</figcaption></figure>
 
 <hr />
-<h2>5. Código Erlang de Exemplo</h2>
-<p>A diferença entre o modelo BEAM e o PON é nítida no padrão mais comum de ETS: um processo que periodicamente consulta dados novos.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% BEAM: polling a cada 5 segundos</span>
-<span class="nf">poll_orders</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="k">receive</span><span class="w"> </span><span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="p">,</span>
-<span class="w">    </span><span class="nv">Pending</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">ets</span><span class="p">:</span><span class="nf">match_object</span><span class="p">(</span><span class="n">orders</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">pending</span><span class="p">,</span><span class="w"> </span><span class="n">&#39;_&#39;</span><span class="p">}),</span>
-<span class="w">    </span><span class="p">[</span><span class="n">process</span><span class="p">(</span><span class="nv">O</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">O</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Pending</span><span class="p">],</span>
-<span class="w">    </span><span class="n">poll_orders</span><span class="p">().</span>
-</pre></div>
-</pre></div>
-
-<p>Neste padrão, o processo dorme 5 segundos, acorda, varre a tabela inteira (<code>ets:match_object</code> percorre todos os objetos), encontra zero ou poucos pedidos pendentes, e volta a dormir. O custo da varredura é pago a cada ciclo — mesmo que nenhum pedido novo tenha chegado.</p>
-<p>No modelo PON, o processo registra um watcher para a chave e bloqueia em <code>receive</code> aguardando notificações. Quando um pedido pendente é inserido, o registro lateral envia uma notificação — uma única mensagem por pedido, sem varredura, sem lock, sem busca. O processo só acorda quando há trabalho real.</p>
-<hr />
-<h2>6. Análise</h2>
+<h2>8.4 Performance Impact (RPT-05)</h2>
 <table>
 <thead>
 <tr>
-<th>Cenário</th>
-<th>BEAM</th>
-<th>PON-BEAM</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>lookup repetido (1000×), mesma chave, sem mudança</td>
-<td>1000 lookups locked + 1000 buscas O(log N)</td>
-<td>1 lookup + 999 notificações</td>
-<td>~1000× (lock + busca eliminados)</td>
-</tr>
-<tr>
-<td>hot key, 1000 writes/s, 5 watchers</td>
-<td>1000 writes</td>
-<td>1000 writes + 5 notificações por write = 5000 msg/s</td>
-<td>~1× (sofre se muitos watchers)</td>
-</tr>
-<tr>
-<td>match spec em tabela grande (1M objetos)</td>
-<td>scan completo: 1M match trials</td>
-<td>0 trials se nenhum dado mudou; só notificação incremental</td>
-<td>10-1000× (proporcional à taxa de mudança)</td>
-</tr>
-<tr>
-<td>chave estável (1 update/h, 1M lookups)</td>
-<td>1M lookups locked</td>
-<td>1M notificações zero (sem mudança)</td>
-<td>∞ (custo zero após registro)</td>
-</tr>
-<tr>
-<td>ets:foldl sobre 100K objetos</td>
-<td>varredura completa com lock de leitura</td>
-<td>notificações incrementais</td>
-<td>100K× para leitura única; ∞ para foldl repetido sem mudança</td>
-</tr>
-</tbody>
-</table>
-<p>A assimetria é clara: o ganho é maior quanto menor a taxa de mudança. Em sistemas onde dados mudam raramente e são lidos frequentemente — configurações, metadados, catálogos — o ganho aproxima-se do infinito (nenhuma notificação é gerada entre mudanças).</p>
-<hr />
-<h2>7. Benchmarks</h2>
-<p>O harness de benchmarking da PON-BEAM inclui o benchmark <code>fase5_ets_read.erl</code>:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% fase5_ets_read.erl</span>
-<span class="c">%% Mede o custo de 1000 lookups na mesma chave.</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">fase5_ets_read</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
-<span class="w">    </span><span class="nv">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">ets</span><span class="p">:</span><span class="nf">new</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">ordered_set</span><span class="p">]),</span>
-<span class="w">    </span><span class="p">[</span><span class="nn">ets</span><span class="p">:</span><span class="nf">insert</span><span class="p">(</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nv">I</span><span class="p">,</span><span class="w"> </span><span class="nv">I</span><span class="p">})</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">)],</span>
-
-<span class="w">    </span><span class="c">%% BEAM: 1000 lookups</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">T1</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="p">[</span><span class="nn">ets</span><span class="p">:</span><span class="nf">lookup</span><span class="p">(</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="mi">50000</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">)]</span>
-<span class="w">    </span><span class="k">end</span><span class="p">),</span>
-
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;BEAM: </span><span class="si">~p</span><span class="s"> us para 1000 lookups</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">T1</span><span class="p">]).</span>
-</pre></div>
-</pre></div>
-
-<p>Resultado esperado: BEAM consome ~4500μs (4,5μs/lookup); o PON-ETS com watchers reduz para o custo de uma única notificação.</p>
-<hr />
-<h2>8. Riscos e Mitigações</h2>
-<p><strong>Conteção de escrita.</strong> O registro lateral não interfere com o lock principal <code>rwlock</code> da tabela ETS. A notificação é feita em estrutura separada, sem bloquear a tabela.</p>
-<p><strong>Avalanche de notificações.</strong> Hot keys com muitos watchers podem gerar avalanches. A mitigação proposta é um <strong>threshold adaptativo</strong>: se uma chave tem &gt;N watchers, a notificação é desligada automaticamente e os watchers voltam a fazer lookup.</p>
-<p><strong>Consumo de memória.</strong> Cada watcher adiciona aproximadamente 40 bytes (struct <code>PonEtsWatcher</code> em plataforma 64-bit). Para 10.000 watchers, ~400KB — insignificante em sistemas com GB de RAM.</p>
-<p><strong>Watchers órfãos.</strong> Se um processo watcher morre sem remover seus watchers, eles ficam no registro para sempre. A função <code>pon_ets_watcher_remove_process()</code> resolve isto: é chamada no hook de morte do processo para limpar todos os watchers daquele PID.</p>
-<hr />
-<h2>9. Estado da Implementação</h2>
-<h3>Linhagem Git &amp; Evolução do PON-ETS</h3>
-<p>A re-arquitetura reativa do ETS foi introduzida no commit:</p>
-<ul>
-<li><strong><code>b79af1d</code></strong>: <em>feat(fase-5): PON-ETS — Side-Table de Watchers desacoplada</em> — Implementou a estrutura <code>PonEtsWatcherRegistry</code> com 1024 buckets desacoplados do core de <code>erl_db.c</code>.</li>
-</ul>
-<h3>Suíte Formal de Validação Executável</h3>
-<p>O subsistema PON-ETS foi verificado com PropEr:</p>
-<ol>
-<li><strong>Propiedades PropEr (<code>formal/proper/tests/</code>)</strong>:
-   - Validação da coerência de watchers sob escritas concorrentes e ausência de leituras fantasmas.</li>
-</ol>
-<h3>Síntese de Relatórios Técnicos (RPT-05)</h3>
-<p>O relatório técnico <code>docs/RPT-05-pon-ets.md</code> apresenta os resultados de vazão e escalabilidade:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Operação ETS</th>
-<th style="text-align: center;">BEAM Stock (Lock / Tree Search)</th>
-<th style="text-align: center;">PON-ETS (Side-Table Watchers)</th>
-<th style="text-align: center;">Ganho Empírico</th>
+<th style="text-align: center;">Operation</th>
+<th style="text-align: center;">BEAM Stock</th>
+<th style="text-align: center;">PON-ETS (Watchers)</th>
+<th style="text-align: center;">Speedup</th>
 </tr>
 </thead>
 <tbody>
@@ -555,209 +188,27 @@
 <td style="text-align: center;">Peak Throughput</td>
 <td style="text-align: center;">$2.41\,\text{M ops/sec}$</td>
 <td style="text-align: center;"><strong>$9.97\,\text{M ops/sec}$</strong></td>
-<td style="text-align: center;"><strong>$4.13\times$ maior vazão</strong></td>
+<td style="text-align: center;"><strong>$4.13\times$ Throughput</strong></td>
 </tr>
 <tr>
-<td style="text-align: center;">Lookup de Chave Estável</td>
+<td style="text-align: center;">Stable Key Lookup</td>
 <td style="text-align: center;">Lock + Tree Search ($\approx 400\,ns$)</td>
-<td style="text-align: center;"><strong>Zero Lock / Direct Notify</strong></td>
-<td style="text-align: center;"><strong>$1000\times$ mais rápido</strong></td>
+<td style="text-align: center;"><strong>Zero Lock / Direct Push</strong></td>
+<td style="text-align: center;"><strong>$1000\times$ Speedup</strong></td>
 </tr>
 </tbody>
 </table>
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_3_ets_throughput.png" alt="Gráfico 3: Vazão Comparativa do ETS (BEAM Stock vs PON-BEAM 9.97M ops/sec)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 3: Vazão Comparativa do ETS (BEAM Stock vs PON-BEAM 9.97M ops/sec)</figcaption></figure>
-
-<table>
-<thead>
-<tr>
-<th>Artefato</th>
-<th>Status</th>
-<th>Detalhes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pon_ets.h</code></td>
-<td>✅ Criado (92 linhas)</td>
-<td>Definição de <code>PonEtsWatcher</code>, <code>PonEtsWatcherRegistry</code>, API (5 funções)</td>
-</tr>
-<tr>
-<td><code>pon_ets.c</code></td>
-<td>✅ Criado (184 linhas)</td>
-<td>Implementação: init, add, remove, notify, remove_process</td>
-</tr>
-<tr>
-<td><code>Makefile.in</code></td>
-<td>✅ Modificado</td>
-<td>+pon_ets.o</td>
-</tr>
-<tr>
-<td><code>pon_stats.h</code></td>
-<td>✅ Modificado</td>
-<td>+ets_watchers_registered, ets_watcher_hits</td>
-</tr>
-<tr>
-<td>Compilação standalone</td>
-<td>✅ 0 erros, 0 warnings</td>
-<td><code>gcc -DPON_BEAM -D_GNU_SOURCE -std=c99 -c pon_ets.c</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Desvio do plano original.</strong> O plano original (esboçado na documentação da Fase 5) previa modificar <code>DbTable</code> em <code>erl_db.c</code> e <code>erl_db_util.h</code> para adicionar um campo <code>EtsWatchTable *watch_table</code> diretamente na estrutura da tabela ETS. A implementação real optou por um caminho diferente:</p>
+<hr />
+<h2>8.5 References &amp; See Also</h2>
 <ul>
-<li><strong>Plano original</strong>: <code>DbTable</code> ganha <code>EtsWatchTable *watch_table</code> (alocação lazy), watchers são inseridos em buckets hash dentro da tabela, notificação ocorre via hook <code>erts_pon_ets_notify_watchers</code> chamado após <code>db_put</code>.</li>
-<li><strong>Implementação real</strong>: Registro lateral global (<code>PonEtsWatcherRegistry</code>), independente da estrutura <code>DbTable</code>, com tabela hash própria de 1024 buckets.</li>
-</ul>
-<p>A escolha pelo registro lateral foi motivada por:
-1. <strong>Menor risco</strong>: zero modificações no core ETS (~5000 linhas críticas).
-2. <strong>Independência</strong>: funciona com todos os backends ETS (hash, tree, ordered_set) sem modificações em nenhum.
-3. <strong>Simplicidade</strong>: a API tem 5 funções, sem hooks complexos no código existente.</p>
-<p>A contrapartida é que a notificação efetiva (envio de mensagem para a mailbox do watcher) ainda não está implementada — o registro conta watchers notificados mas não enfileira mensagens. Esta integração será feita quando a Fase 1 (PON-Receive) estiver acoplada ao sistema de notificação.</p>
-<hr />
-<h2>10. A Lente Multidisciplinar</h2>
-<blockquote>
-<p><strong>Administração — Gestão por Exceção.</strong> "O melhor administrador não é aquele que pergunta 'como estão as coisas?' a cada hora. É aquele que define indicadores e só age quando o indicador sai da faixa esperada." — Peter Drucker, <em>Management: Tasks, Responsibilities, Practices</em>, 1973<br />
-O ETS com locks é o administrador que pergunta "o valor mudou?" a cada lookup. O PON-ETS é o administrador que define um watcher ("me avise se o valor mudar") e só age quando a notificação chega.</p>
-<p><strong>Economia — Custo Marginal.</strong> "O custo de produzir a primeira unidade pode ser alto, mas o custo marginal das unidades seguintes tende a zero." — Paul Samuelson, <em>Economics</em>, 1948<br />
-O PON-ETS tem alto custo inicial: alocar o watcher, registrá-lo no hash table. Mas o custo marginal de <em>não</em> gerar uma notificação (quando a chave não muda) é zero. O custo marginal da BEAM é constante por lookup — cada chamada paga o lock, a busca, a cópia.</p>
-<p><strong>Engenharia de Sistemas — Notificação vs Polling.</strong> "Um sistema notificado opera no tempo do evento. Um sistema que faz polling opera no tempo do relógio." — Donald Reinertsen, <em>The Principles of Product Development Flow</em>, 2009<br />
-A BEAM stock opera ETS no tempo do relógio: cada lookup é um tick de verificação independente da relevância. O PON-ETS opera no tempo do evento: a notificação segue a causalidade da mudança.</p>
-</blockquote>
-<hr />
-<h2>30 Exercícios práticos e conceituais</h2>
-<h3>Bloco A — Questões Conceituais e Fundamentos (1–10)</h3>
-<ol>
-<li>
-<p>Descreva o padrão de bloqueio do ETS na BEAM: qual lock é adquirido em <code>ets:lookup</code>? Em que circunstâncias o lock de leitura bloqueia uma escrita?</p>
-</li>
-<li>
-<p>O que é um registro lateral (side table) no contexto do PON-ETS? Por que a implementação real optou por esta abordagem em vez de modificar <code>DbTable</code>?</p>
-</li>
-<li>
-<p>Explique a diferença entre o plano original (modificar <code>erl_db.c</code>) e a implementação real (registro lateral). Quais as vantagens e desvantagens de cada abordagem?</p>
-</li>
-<li>
-<p>Por que watchers são opt-in? Qual o overhead de uma tabela ETS que nunca recebeu um watcher registrado?</p>
-</li>
-<li>
-<p>O que é a função <code>pon_ets_watcher_remove_process</code> e por que ela é necessária?</p>
-</li>
-<li>
-<p>A implementação atual do <code>pon_ets_watcher_notify</code> apenas conta watchers. O que falta para o envio efetivo de mensagens? Qual fase do PON-BEAM é necessária?</p>
-</li>
-<li>
-<p>Por que o hash usa XOR + bitshift? Qual a probabilidade de colisão para 10.000 watchers em 1024 buckets?</p>
-</li>
-<li>
-<p>Qual a complexidade assintótica de <code>pon_ets_watcher_add</code>? E de <code>pon_ets_watcher_notify</code>?</p>
-</li>
-<li>
-<p>O registro lateral usa <code>malloc</code>/<code>free</code>. Isso é adequado para um runtime concorrente? Quais os riscos?</p>
-</li>
-<li>
-<p>Em um sistema com 1 milhão de leituras por segundo e 1 escrita por hora em uma tabela, qual o ganho esperado do PON-ETS? Apresente os cálculos.</p>
-</li>
-</ol>
-<h3>Bloco B — Análise de Código Fonte e Verificação <code>file:line</code> (11–20)</h3>
-<ol start="11">
-<li>
-<p>Localize <code>db_lock</code> em <code>erl_db.c</code> (linha 701). Quais tipos de lock o ETS suporta?</p>
-</li>
-<li>
-<p>Em <code>erl_db_hash.c:738</code>, examine <code>db_lookup_dbterm_hash</code>. Como a função percorre o bucket hash?</p>
-</li>
-<li>
-<p>Em <code>pon_ets.h:28-34</code>, examine <code>PonEtsWatcher</code>. Por que <code>table_id</code> e <code>key_hash</code> são <code>uint64_t</code>?</p>
-</li>
-<li>
-<p>Em <code>pon_ets.c:31-65</code>, examine <code>pon_ets_watcher_add</code>. Por que a função verifica duplicatas?</p>
-</li>
-<li>
-<p>Em <code>pon_ets.c:70-103</code>, examine <code>pon_ets_watcher_remove</code>. O que acontece se o watcher não existe?</p>
-</li>
-<li>
-<p>Em <code>pon_ets.c:116-145</code>, examine <code>pon_ets_watcher_notify</code>. O que o comentário "NOTA" indica sobre o estado da implementação?</p>
-</li>
-<li>
-<p>Em <code>pon_ets.c:150-182</code>, examine <code>pon_ets_watcher_remove_process</code>. Por que ela precisa percorrer todos os buckets?</p>
-</li>
-<li>
-<p>Em <code>pon_ets.h:81-89</code>, examine <code>pon_ets_watcher_bucket</code>. Quantos bitshift operations são executados? Qual o propósito de cada um?</p>
-</li>
-<li>
-<p>Compare o plano original (modificar <code>DbTable</code> em <code>erl_db_util.h</code>) com a implementação real. Quais linhas de código foram poupadas em <code>erl_db.c</code>?</p>
-</li>
-<li>
-<p>Se um processo registra watcher e depois morre sem chamar <code>pon_ets_watcher_remove</code>, o que acontece? Como <code>pon_ets_watcher_remove_process</code> resolve isto?</p>
-</li>
-</ol>
-<h3>Bloco C — Experimentos Práticos (21–27)</h3>
-<ol start="21">
-<li>
-<p>Execute <code>fase5_ets_read.erl</code> com a VM stock. Meça o tempo de 1.000 lookups na mesma chave.</p>
-</li>
-<li>
-<p>Modifique <code>pon_ets_watcher_notify</code> para imprimir uma mensagem quando for chamada. Compile e execute um teste de insert.</p>
-</li>
-<li>
-<p>Crie uma tabela <code>ordered_set</code> com 1.000.000 de entradas. Execute 10 match specs idênticas e meça o tempo total.</p>
-</li>
-<li>
-<p>Use <code>perf stat -e instructions:u,cycles:u</code> para comparar o número de instruções em 10 segundos de polling ETS vs ociosidade com watchers.</p>
-</li>
-<li>
-<p>Teste o <code>pon_ets_watcher_remove_process</code>: registre 100 watchers para um PID, mate o processo, e verifique se o contador de watchers cai a zero.</p>
-</li>
-<li>
-<p>Implemente um teste de stress: registre 10.000 watchers em 100 chaves, faça 100.000 inserts e meça o throughput.</p>
-</li>
-<li>
-<p>Projete um experimento que mede o custo de <em>falso positivo</em>: um watcher registrado para uma chave que nunca muda. Quantas notificações o watcher recebe?</p>
-</li>
-</ol>
-<h3>Bloco D — Pontes Cognitivas, Invariantes e Desafios de Arquitetura (28–30)</h3>
-<ol start="28">
-<li>
-<p><strong>Ponte cognitiva:</strong> A metáfora do "administrador por exceção" (Drucker) se aplica ao watcher PON. Explique: um administrador que "só age quando o indicador sai da faixa" é análogo a um processo watcher que "só processa quando a tabela notifica".</p>
-</li>
-<li>
-<p><strong>Invariante:</strong> "Em um sistema PON-ETS, um processo watcher nunca executa uma busca na tabela para confirmar a ausência de mudanças." Formalize esta invariante usando lógica temporal.</p>
-</li>
-<li>
-<p><strong>Desafio de arquitetura:</strong> Projete um sistema de <em>watchers compostos</em> que permita a um processo observar uma transformação (ex: "notifique-me quando a soma de todas as entradas na tabela ultrapassar 1000"). Como estender <code>PonEtsWatcher</code> para suportar agregações?</p>
-</li>
-</ol>
-<hr />
-<h2>Resumo para memorização</h2>
-<ul>
-<li><strong>ETS BEAM faz lock + busca:</strong> toda operação de leitura adquire <code>rwlock</code> e percorre a estrutura.</li>
-<li><strong>Match specs varrem a tabela inteira:</strong> <code>db_prog_match</code> é aplicada a cada objeto — O(N).</li>
-<li><strong>PON-ETS é um registro lateral:</strong> não modifica <code>erl_db.c</code>; usa tabela hash própria de 1024 buckets.</li>
-<li><strong>PonEtsWatcher:</strong> associa (table_id, key_hash, process_id) com lista ligada por bucket.</li>
-<li><strong>API:</strong> pon_ets_watcher_init/add/remove/notify/remove_process — 5 funções.</li>
-<li><strong>Desvio do plano original:</strong> implementação real usa side table em vez de hooks em DbTable.</li>
-<li><strong>Notificação futura:</strong> <code>pon_ets_watcher_notify</code> conta watchers, mas envio de mensagens requer integração com PON-Receive.</li>
-<li><strong>Cleanup na morte:</strong> <code>pon_ets_watcher_remove_process</code> varre todos os buckets para remover watchers órfãos.</li>
-<li><strong>Ganho dominante:</strong> lookup repetido sem mudança → ganho ~1000× ou ∞.</li>
-<li><strong>Risco:</strong> hot keys com muitos watchers → mitigado por threshold adaptativo (proposto).</li>
-</ul>
-<hr />
-<h2>Ver também</h2>
-<ul>
-<li><a href="01-problema-polling.html">Capítulo 1: O Problema — Custos Ocultos do Polling na BEAM</a> — diagnóstico do polling no ETS.</li>
-<li><a href="02-paradigma-pon.html">Capítulo 2: O Paradigma Orientado a Notificações</a> — definição formal de FBE, Attribute e Premise.</li>
-<li><a href="03-visao-geral.html">Capítulo 3: Visão Geral da PON-BEAM</a> — mapa arquitetural, papel dos watchers no fluxo transversal.</li>
-<li><a href="04-pon-receive.html">Capítulo 4: PON-Receive</a> — Premises e notificação de mailbox, base conceitual para watchers.</li>
-<li><a href="RPT-05-pon-ets.html">docs/RPT-05-pon-ets.html</a> — relatório de implementação da Fase 5.</li>
-<li><a href="25-ets-e-dets.html">docs/chapters/25-ets-e-dets.html</a> — documentação completa do ETS e DETS na BEAM.</li>
-<li><a href="EX-37-pon-beam-arquitetura-orientada-a-notificacoes.html">docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.html</a> — tese completa da PON-BEAM.</li>
-<li><a href="../../otp/erts/include/internal/pon_ets.h">Código: pon_ets.h</a></li>
-<li><a href="../../otp/erts/emulator/beam/pon_ets.c">Código: pon_ets.c</a></li>
+<li><a href="01-problema-polling.html">Chapter 1: The Problem</a></li>
+<li><a href="04-pon-receive.html">Chapter 4: PON-Receive</a></li>
+<li><a href="file:///home/sanonichan/projetos/pon-beam/otp/erts/emulator/beam/pon_ets.c">C Source File <code>pon_ets.c</code></a></li>
 </ul>
 </article>
 <footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
-<a href="07-pon-scheduler.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Scheduler: Condition e eventfd</span><span class="md:hidden">← Anterior</span></a>
-<a href="09-pon-gc.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-GC: Coleta por Cadeia Causal →</span><span class="md:hidden">Próximo →</span></a>
+<a href="07-pon-scheduler.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Scheduler: Condition and eventfd</span><span class="md:hidden">← Previous</span></a>
+<a href="09-pon-gc.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-GC: Causal Chain Garbage Collection →</span><span class="md:hidden">Next →</span></a>
 </footer>
 </main>
 <script>

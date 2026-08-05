@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PON-Timer: Instigações com timerfd — PON-BEAM</title>
+<title>PON-Timer: Instigations with timerfd — PON-BEAM</title>
 <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
@@ -20,1003 +20,223 @@
 <input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
 </div>
 <div class="flex-1 overflow-y-auto">
-<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Cover</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Title Page</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Acknowledgments</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">About the Author</a>
 <div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-I">[-]</span>
-<span class="ml-1">Parte I: Fundamentos</span>
+<span class="ml-1">Parte I: Fundamentals</span>
 </div></div>
 <div id="ch-I" class="part-list ">
-<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Problem: Hidden Costs of Polling in the BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Notification-Oriented Paradigm</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-BEAM Overview</a>
 </div>
 <div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-II">[+]</span>
-<span class="ml-1">Parte II: Subsistemas PON</span>
+<span class="ml-1">Parte II: PON Subsystems</span>
 </div></div>
 <div id="ch-II" class="part-list hidden">
-<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive by Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-Timer: Instigations with timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Immediate Notification</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition and eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Notification-Oriented Fact Base</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Causal Chain Garbage Collection</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Automatic Premise Generation</a>
 </div>
 <div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-III">[+]</span>
-<span class="ml-1">Parte III: Engenharia e Validação</span>
+<span class="ml-1">Parte III: Engineering and Validation</span>
 </div></div>
 <div id="ch-III" class="part-list hidden">
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Fork Infrastructure</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Benchmarking Harness</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap and Trade-offs</a>
 </div>
 <div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-IV">[+]</span>
-<span class="ml-1">Parte IV: Síntese</span>
+<span class="ml-1">Parte IV: Synthesis</span>
 </div></div>
 <div id="ch-IV" class="part-list hidden">
-<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusão</a>
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Case Studies</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Related Work and Positioning</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusion</a>
 </div>
-<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Back Cover</a>
 </div>
 </aside>
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-Timer: Instigações com timerfd</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-Timer: Instigations with timerfd</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button></div>
 <article>
-<h1>PON-Timer: Instigações com timerfd</h1>
+<h1>5. PON-Timer: Instigations with timerfd</h1>
 <blockquote>
-<p>"Um timer que não expirou não deveria custar nada."
+<p><em>"A timer that has not expired should cost nothing."</em><br />
 — Erik Stenman, The BEAM Book</p>
 </blockquote>
 <hr />
-<h2>1. Diagnóstico: O Timer Wheel</h2>
-<p>A BEAM gerencia timers através de uma <em>hierarchical timer wheel</em> — uma estrutura de dados clássica inspirada em Varghese e Lauck (1997) que promete inserção, cancelamento e expiração de timers em O(1). A implementação reside em <code>erl_hl_timer.c</code> na função <code>erts_bump_timers()</code> e em <code>erts_twheel_set_timer()</code>. Cada scheduler possui sua própria instância privada de <code>ErtsTimerWheel</code> (<code>erl_process.h:694</code>), eliminando contenção entre schedulers no acesso à roda.</p>
-<p>O princípio é elegantemente simples: o tempo monotônico é dividido em <em>slots</em> (pulsos de aproximadamente 1ms — ou mais precisamente, um tick de clocks do scheduler). Cada timer é inserido no slot correspondente ao seu instante de expiração. A cada chamada de <code>erts_bump_timers()</code>, a roda avança sua posição e dispara todos os timers do slot corrente, enviando mensagens de timeout para os processos destino.</p>
-<p>O problema não está na complexidade algorítmica da inserção — que é de fato O(1) — mas na <em>frequência da verificação</em>. O scheduler chama <code>erts_bump_timers()</code> em múltiplos pontos do seu loop principal:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.c:3534</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">erts_next_timeout_time</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">next_tmo_ref</span><span class="p">))</span>
-<span class="w">    </span><span class="n">erts_bump_timers</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">timer_wheel</span><span class="p">,</span><span class="w"> </span><span class="n">current_time</span><span class="p">);</span>
-</pre></div>
-</pre></div>
-
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.c:3619</span>
-<span class="n">erts_bump_timers</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">timer_wheel</span><span class="p">,</span><span class="w"> </span><span class="n">current_time</span><span class="p">);</span>
-
-<span class="c1">// erl_process.c:8056</span>
-<span class="n">erts_bump_timers</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">timer_wheel</span><span class="p">,</span><span class="w"> </span><span class="n">current_time</span><span class="p">);</span>
-
-<span class="c1">// erl_process.c:9813</span>
-<span class="n">erts_bump_timers</span><span class="p">(</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">timer_wheel</span><span class="p">,</span><span class="w"> </span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">last_monotonic_time</span><span class="p">);</span>
-</pre></div>
-</pre></div>
-
-<p>Cada scheduler verifica timers a cada ~1ms — mesmo quando não há timers ativos. O trecho crítico está em <code>erts_bump_timers()</code> (<code>erl_hl_timer.c</code>):</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">nto</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="nl">empty_wheel</span><span class="p">:</span>
-<span class="w">    </span><span class="n">ERTS_TW_DBG_VERIFY_EMPTY_SOON_SLOTS</span><span class="p">(</span><span class="n">tiw</span><span class="p">,</span><span class="w"> </span><span class="n">bump_to</span><span class="p">);</span>
-<span class="w">    </span><span class="n">ERTS_TW_DBG_VERIFY_EMPTY_LATER_SLOTS</span><span class="p">(</span><span class="n">tiw</span><span class="p">,</span><span class="w"> </span><span class="n">bump_to</span><span class="p">);</span>
-<span class="w">    </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">true_next_timeout_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">next_timeout_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bump_to</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ERTS_CLKTCKS_WEEK</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">next_timeout_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERTS_CLKTCKS_TO_MONOTONIC</span><span class="p">(</span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">next_timeout_pos</span><span class="p">);</span>
-<span class="w">    </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bump_to</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">later</span><span class="p">.</span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bump_to</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ERTS_TW_SOON_WHEEL_SIZE</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">later</span><span class="p">.</span><span class="n">pos</span><span class="w"> </span><span class="o">&amp;=</span><span class="w"> </span><span class="n">ERTS_TW_LATER_WHEEL_POS_MASK</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tiw</span><span class="o">-&gt;</span><span class="n">yield_slot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ERTS_TW_SLOT_INACTIVE</span><span class="p">;</span>
-<span class="w">    </span><span class="n">ERTS_MSACC_POP_STATE_M_X</span><span class="p">();</span>
-<span class="w">    </span><span class="k">return</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>Quando <code>tiw-&gt;nto == 0</code>, a função rapidamente constata que a roda está vazia e retorna — mas ela <em>foi chamada</em>. O custo individual é pequeno (~200–500ns), porém o custo agregado escala com o número de schedulers:</p>
-<ul>
-<li>1 chamada por scheduler por tick (~1ms)</li>
-<li>Para S schedulers: S × 1000 verificações/segundo</li>
-<li>S = 32: 32.000 verificações/segundo × 200ns = ~6,4ms/segundo de CPU desperdiçada</li>
-<li>S = 128: 128.000 verificações/segundo × 200ns = ~25,6ms/segundo</li>
-</ul>
-<p>Em sistemas idle — uma VM Erlang rodando sem aplicação — a maior parte do custo de CPU vem deste polling de timer wheel. O experimento a seguir demonstra:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">% terminal 1: VM idle sem timers</span>
-<span class="c">% erl -noshell -eval &#39;timer:sleep(30000), halt().&#39;</span>
-<span class="c">% Observe %CPU no top — tipicamente 3-8% de um core</span>
-
-<span class="c">% terminal 2: mesma VM, mas sem timer wheel polling (hipotético)</span>
-<span class="c">% O CPU idle cairia para ~0.5% ou menos</span>
-</pre></div>
-</pre></div>
-
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>$<span class="w"> </span>erl<span class="w"> </span>-noshell<span class="w"> </span>-eval<span class="w"> </span><span class="s1">&#39;</span>
-<span class="s1">  io:format(&quot;Run queue: ~p~n&quot;, [erlang:statistics(run_queue)]),</span>
-<span class="s1">  Stats0 = statistics(total_run_time),</span>
-<span class="s1">  timer:sleep(10000),</span>
-<span class="s1">  Stats1 = statistics(total_run_time),</span>
-<span class="s1">  io:format(&quot;CPU em 10s idle: ~p ms~n&quot;, [</span>
-<span class="s1">    element(1, Stats1) - element(1, Stats0) +</span>
-<span class="s1">    element(2, Stats1) - element(2, Stats0)</span>
-<span class="s1">  ]),</span>
-<span class="s1">  halt().</span>
-<span class="s1">&#39;</span>
-</pre></div>
-</pre></div>
-
-<p>Erik Stenman, coautor do BEAM Book, capturou a essência do problema: <em>"um timer que não expirou não deveria custar nada."</em> Na BEAM atual, cada timer que não expirou custa ~200ns por tick para ser verificado. O PON-Timer implementa exatamente isto: timers que não expiraram custam zero — porque o sistema operacional, não a VM, gerencia a notificação de expiração.</p>
+<h2>5.1 Diagnosis: The Timer Wheel</h2>
+<p>The BEAM manages timers using a <em>hierarchical timer wheel</em> (inspired by Varghese &amp; Lauck, 1997) implemented in <code>erl_hl_timer.c</code> via <code>erts_bump_timers()</code>.</p>
+<p>The issue is not insertion complexity ($\mathcal{O}(1)$), but <em>checking frequency</em>. Schedulers execute <code>erts_bump_timers()</code> every 1ms tick. With 32 schedulers, 32,000 tick checks execute per second even when no timers are active.</p>
 <hr />
-<h2>2. Proposta: Timers como Instigações com timerfd</h2>
-<p>O PON-Timer substitui a timer wheel — e seu polling periódico — por <em>Instigações</em> baseadas em <code>timerfd_create()</code> do Linux. Uma Instigação, no PON, é a entidade que introduz estímulos externos no sistema: ela invoca um método de um FBE quando um evento temporal ocorre. No PON-Timer, cada timer Erlang (<code>receive ... after T</code>, <code>timer:send_after</code>, <code>erlang:start_timer</code>) torna-se uma Instigação.</p>
-<p><code>timerfd_create()</code> é uma chamada de sistema Linux que cria um file descriptor. Quando um timerfd é armado com <code>timerfd_settime()</code>, o kernel dispara o fd (torna-o legível) exatamente no instante de expiração. O scheduler, que já usa epoll para monitorar eventfds (Condições — Capítulo 7), adiciona o timerfd ao mesmo epoll. O resultado é um mecanismo onde:</p>
-<ol>
-<li>O kernel gerencia o tempo — sem ocupar CPU da VM.</li>
-<li>A notificação de expiração chega pelo mesmo canal que as notificações de processos prontos.</li>
-<li>Zero polling, zero verificações periódicas, zero CPU desperdiçada em idle.</li>
-</ol>
-<p>O diagrama abaixo contrasta o fluxo BEAM (timer wheel) com o fluxo PON-BEAM (timerfd):</p>
+<h2>5.2 Proposal: Timers as NOP Instigations</h2>
+<p>PON-Timer replaces periodic timer wheel ticking with Linux <code>timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK)</code> integrated into the scheduler's <code>epoll_wait()</code> event loop.</p>
 <div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: pon_timer Pages: 1 -->
-<svg width="505pt" height="218pt"
- viewBox="0.00 0.00 505.00 218.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 214)">
+<svg width="1127pt" height="44pt"
+ viewBox="0.00 0.00 1127.00 44.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
 <title>pon_timer</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-214 501,-214 501,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_before</title>
-<polygon fill="none" stroke="red" points="17,-8 17,-101 485.5,-101 485.5,-8 17,-8"/>
-<text text-anchor="middle" x="251.25" y="-85.8" font-family="Times,serif" font-size="14.00" fill="red">BEAM (timer wheel)</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_after</title>
-<polygon fill="none" stroke="green" points="8,-109 8,-202 489,-202 489,-109 8,-109"/>
-<text text-anchor="middle" x="248.5" y="-186.8" font-family="Times,serif" font-size="14.00" fill="green">PON&#45;BEAM (timerfd)</text>
-</g>
-<!-- TimerWheel -->
-<g id="node1" class="node">
-<title>TimerWheel</title>
-<polygon fill="#ffcccc" stroke="black" points="330,-62 190,-62 190,-24 330,-24 330,-62"/>
-<text text-anchor="middle" x="260" y="-46.8" font-family="Times,serif" font-size="14.00">Timer Wheel</text>
-<text text-anchor="middle" x="260" y="-31.8" font-family="Times,serif" font-size="14.00">(verifica a cada ~1ms)</text>
-</g>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-40 1123,-40 1123,4 -4,4"/>
 <!-- Process -->
-<g id="node2" class="node">
+<g id="node1" class="node">
 <title>Process</title>
-<polygon fill="lightgrey" stroke="black" points="477.5,-61 419.5,-61 419.5,-25 477.5,-25 477.5,-61"/>
-<text text-anchor="middle" x="448.5" y="-39.3" font-family="Times,serif" font-size="14.00">Process</text>
+<polygon fill="lightyellow" stroke="black" points="58,-36 0,-36 0,0 58,0 58,-36"/>
+<text text-anchor="middle" x="29" y="-14.3" font-family="Times,serif" font-size="14.00">Process</text>
 </g>
-<!-- TimerWheel&#45;&gt;Process -->
+<!-- timerfd_create -->
+<g id="node2" class="node">
+<title>timerfd_create</title>
+<polygon fill="lightyellow" stroke="black" points="277,-36 181,-36 181,0 277,0 277,-36"/>
+<text text-anchor="middle" x="229" y="-14.3" font-family="Times,serif" font-size="14.00">timerfd_create</text>
+</g>
+<!-- Process&#45;&gt;timerfd_create -->
 <g id="edge1" class="edge">
-<title>TimerWheel&#45;&gt;Process</title>
-<path fill="none" stroke="black" d="M330.19,-43C330.19,-43 409.16,-43 409.16,-43"/>
-<polygon fill="black" stroke="black" points="409.16,-46.5 419.16,-43 409.16,-39.5 409.16,-46.5"/>
-<text text-anchor="middle" x="373" y="-46.8" font-family="Times,serif" font-size="14.00"> &#160;timeout</text>
+<title>Process&#45;&gt;timerfd_create</title>
+<path fill="none" stroke="black" d="M58.08,-18C58.08,-18 170.92,-18 170.92,-18"/>
+<polygon fill="black" stroke="black" points="170.92,-21.5 180.92,-18 170.92,-14.5 170.92,-21.5"/>
+<text text-anchor="middle" x="119.5" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;registers timer</text>
 </g>
-<!-- Tick -->
+<!-- epoll_wait -->
 <g id="node3" class="node">
-<title>Tick</title>
-<polygon fill="#ffcccc" stroke="black" points="96,-69.5 25,-69.5 25,-16.5 96,-16.5 96,-69.5"/>
-<text text-anchor="middle" x="60.5" y="-54.3" font-family="Times,serif" font-size="14.00">Tick do</text>
-<text text-anchor="middle" x="60.5" y="-39.3" font-family="Times,serif" font-size="14.00">Scheduler</text>
-<text text-anchor="middle" x="60.5" y="-24.3" font-family="Times,serif" font-size="14.00">1ms</text>
+<title>epoll_wait</title>
+<polygon fill="lightyellow" stroke="black" points="456,-36 382,-36 382,0 456,0 456,-36"/>
+<text text-anchor="middle" x="419" y="-14.3" font-family="Times,serif" font-size="14.00">epoll_wait</text>
 </g>
-<!-- Tick&#45;&gt;TimerWheel -->
+<!-- timerfd_create&#45;&gt;epoll_wait -->
 <g id="edge2" class="edge">
-<title>Tick&#45;&gt;TimerWheel</title>
-<path fill="none" stroke="black" d="M96.17,-43C96.17,-43 179.93,-43 179.93,-43"/>
-<polygon fill="black" stroke="black" points="179.93,-46.5 189.93,-43 179.93,-39.5 179.93,-46.5"/>
-<text text-anchor="middle" x="147.5" y="-46.8" font-family="Times,serif" font-size="14.00"> &#160;acorda</text>
+<title>timerfd_create&#45;&gt;epoll_wait</title>
+<path fill="none" stroke="black" d="M277.44,-18C277.44,-18 371.75,-18 371.75,-18"/>
+<polygon fill="black" stroke="black" points="371.75,-21.5 381.75,-18 371.75,-14.5 371.75,-21.5"/>
+<text text-anchor="middle" x="329.5" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;registers fd</text>
 </g>
 <!-- Kernel -->
 <g id="node4" class="node">
 <title>Kernel</title>
-<polygon fill="#ccffcc" stroke="black" points="105,-160 16,-160 16,-122 105,-122 105,-160"/>
-<text text-anchor="middle" x="60.5" y="-144.8" font-family="Times,serif" font-size="14.00">Kernel Linux</text>
-<text text-anchor="middle" x="60.5" y="-129.8" font-family="Times,serif" font-size="14.00">timerfd</text>
+<polygon fill="lightyellow" stroke="black" points="642,-36 588,-36 588,0 642,0 642,-36"/>
+<text text-anchor="middle" x="615" y="-14.3" font-family="Times,serif" font-size="14.00">Kernel</text>
 </g>
-<!-- Instigação -->
-<g id="node5" class="node">
-<title>Instigação</title>
-<polygon fill="#ccffcc" stroke="black" points="298.5,-170.5 221.5,-170.5 221.5,-117.5 298.5,-117.5 298.5,-170.5"/>
-<text text-anchor="middle" x="260" y="-155.3" font-family="Times,serif" font-size="14.00">Instigação</text>
-<text text-anchor="middle" x="260" y="-140.3" font-family="Times,serif" font-size="14.00">(dispara na</text>
-<text text-anchor="middle" x="260" y="-125.3" font-family="Times,serif" font-size="14.00">expiração)</text>
-</g>
-<!-- Kernel&#45;&gt;Instigação -->
+<!-- epoll_wait&#45;&gt;Kernel -->
 <g id="edge3" class="edge">
-<title>Kernel&#45;&gt;Instigação</title>
-<path fill="none" stroke="black" d="M105.27,-141C105.27,-141 211.43,-141 211.43,-141"/>
-<polygon fill="black" stroke="black" points="211.43,-144.5 221.43,-141 211.43,-137.5 211.43,-144.5"/>
-<text text-anchor="middle" x="147.5" y="-159.8" font-family="Times,serif" font-size="14.00"> &#160;notifica</text>
-<text text-anchor="middle" x="147.5" y="-144.8" font-family="Times,serif" font-size="14.00">(epoll)</text>
+<title>epoll_wait&#45;&gt;Kernel</title>
+<path fill="none" stroke="black" d="M456.33,-18C456.33,-18 577.9,-18 577.9,-18"/>
+<polygon fill="black" stroke="black" points="577.9,-21.5 587.9,-18 577.9,-14.5 577.9,-21.5"/>
+<text text-anchor="middle" x="522" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;blocks 0% CPU</text>
 </g>
-<!-- FBE -->
-<g id="node6" class="node">
-<title>FBE</title>
-<polygon fill="#ccffcc" stroke="black" points="481,-160 416,-160 416,-122 481,-122 481,-160"/>
-<text text-anchor="middle" x="448.5" y="-144.8" font-family="Times,serif" font-size="14.00">Processo</text>
-<text text-anchor="middle" x="448.5" y="-129.8" font-family="Times,serif" font-size="14.00">(FBE)</text>
+<!-- Instigation -->
+<g id="node5" class="node">
+<title>Instigation</title>
+<polygon fill="lightyellow" stroke="black" points="851,-36 777,-36 777,0 851,0 851,-36"/>
+<text text-anchor="middle" x="814" y="-14.3" font-family="Times,serif" font-size="14.00">Instigation</text>
 </g>
-<!-- Instigação&#45;&gt;FBE -->
+<!-- Kernel&#45;&gt;Instigation -->
 <g id="edge4" class="edge">
-<title>Instigação&#45;&gt;FBE</title>
-<path fill="none" stroke="black" d="M298.6,-141C298.6,-141 405.92,-141 405.92,-141"/>
-<polygon fill="black" stroke="black" points="405.92,-144.5 415.92,-141 405.92,-137.5 405.92,-144.5"/>
-<text text-anchor="middle" x="373" y="-159.8" font-family="Times,serif" font-size="14.00"> &#160;invoca</text>
-<text text-anchor="middle" x="373" y="-144.8" font-family="Times,serif" font-size="14.00">timeout</text>
+<title>Kernel&#45;&gt;Instigation</title>
+<path fill="none" stroke="black" d="M642.25,-18C642.25,-18 766.93,-18 766.93,-18"/>
+<polygon fill="black" stroke="black" points="766.93,-21.5 776.93,-18 766.93,-14.5 766.93,-21.5"/>
+<text text-anchor="middle" x="709.5" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;expiration signal</text>
+</g>
+<!-- Process Mailbox -->
+<g id="node6" class="node">
+<title>Process Mailbox</title>
+<polygon fill="lightyellow" stroke="black" points="1119,-36 1011,-36 1011,0 1119,0 1119,-36"/>
+<text text-anchor="middle" x="1065" y="-14.3" font-family="Times,serif" font-size="14.00">Process Mailbox</text>
+</g>
+<!-- Instigation&#45;&gt;Process Mailbox -->
+<g id="edge5" class="edge">
+<title>Instigation&#45;&gt;Process Mailbox</title>
+<path fill="none" stroke="black" d="M851.04,-18C851.04,-18 1000.64,-18 1000.64,-18"/>
+<polygon fill="black" stroke="black" points="1000.64,-21.5 1010.64,-18 1000.64,-14.5 1000.64,-21.5"/>
+<text text-anchor="middle" x="931" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;delivers timeout msg</text>
 </g>
 </g>
 </svg></div>
-<p class="text-center text-sm text-[#b8a88a] italic mt-1">PON-Timer: Instigação com timerfd</p>
 
-<p>Cada Instigação de timer encapsula:</p>
-<ul>
-<li><strong>O FBE alvo</strong> — o processo Erlang que espera o timeout.</li>
-<li><strong>A mensagem</strong> — o termo Erlang a ser inserido na mailbox (tipicamente o átomo <code>timeout</code> ou uma referência de timer).</li>
-<li><strong>O timerfd</strong> — o file descriptor do kernel que dispara no instante de expiração.</li>
-<li><strong>A expiração</strong> — timestamp absoluto em nanossegundos.</li>
-</ul>
-<p>A Instigação, ao ser disparada pelo kernel, executa seu método: insere a mensagem de timeout na mailbox do FBE alvo e notifica a Premise do processo (Capítulo 4). O processo acorda e executa o handler do <code>after</code> — sem polling, sem varredura, sem verificações.</p>
 <hr />
-<h2>3. Estruturas de Dados</h2>
-<p>A estrutura central do PON-Timer é <code>ErtsTimerInstigation</code>, que conecta o timerfd do kernel à semântica PON da VM. A hierarquia de tipos está definida em <code>erts/include/internal/pon_instigation.h</code>:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_instigation.h — Estrutura base de Instigação e Instigação temporal</span>
-<span class="cp">#ifdef PON_BEAM</span>
-
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
-
-<span class="cp">#define PON_INSTIGATION_TYPE_TIMER    1</span>
-<span class="cp">#define PON_INSTIGATION_TYPE_SIGNAL   2</span>
-
-<span class="k">struct</span><span class="w"> </span><span class="nc">process</span><span class="p">;</span><span class="w">  </span><span class="cm">/* forward — Process OTP */</span>
-
-<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ErtsInstigation_</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">                    </span><span class="n">type</span><span class="p">;</span><span class="w">            </span><span class="cm">/* PON_INSTIGATION_TYPE_* */</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">                    </span><span class="n">fired</span><span class="p">;</span><span class="w">           </span><span class="cm">/* 1 se já disparou */</span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">process</span><span class="w">        </span><span class="o">*</span><span class="n">target</span><span class="p">;</span><span class="w">          </span><span class="cm">/* Processo a ser notificado */</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w">               </span><span class="n">message</span><span class="p">;</span><span class="w">         </span><span class="cm">/* Mensagem a enviar (termo Erlang) */</span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ErtsInstigation_</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
-<span class="p">}</span><span class="w"> </span><span class="n">ErtsInstigation</span><span class="p">;</span>
-
-<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">ErtsInstigation</span><span class="w">        </span><span class="n">base</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">                    </span><span class="n">timer_fd</span><span class="p">;</span><span class="w">        </span><span class="cm">/* timerfd (-1 se inativo) */</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w">               </span><span class="n">expiration_ms</span><span class="p">;</span><span class="w">   </span><span class="cm">/* Tempo absoluto de expiração */</span>
-<span class="p">}</span><span class="w"> </span><span class="n">ErtsTimerInstigation</span><span class="p">;</span>
-</pre></div>
-</pre></div>
-
-<p>A Instigação base carrega:
-- <code>type</code>: <code>PON_INSTIGATION_TYPE_TIMER</code> ou <code>PON_INSTIGATION_TYPE_SIGNAL</code>
-- <code>fired</code>: booleano — 1 quando o timer já expirou
-- <code>target</code>: ponteiro para o processo OTP alvo
-- <code>message</code>: termo Erlang a ser enviado na expiração
-- <code>next</code>: lista ligada (múltiplas Instigações por processo)</p>
-<p>A macro <code>ERTS_INIT_TIMER_INSTIGATION</code> inicializa uma Instigação timer:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#define ERTS_INIT_TIMER_INSTIGATION(INST, TARGET, MSG, TIMEOUT_MS)               \</span>
-<span class="cp">    do {                                                                          \</span>
-<span class="cp">        (INST)-&gt;base.type       = PON_INSTIGATION_TYPE_TIMER;                      \</span>
-<span class="cp">        (INST)-&gt;base.fired      = 0;                                               \</span>
-<span class="cp">        (INST)-&gt;base.target     = (struct process *)(TARGET);                      \</span>
-<span class="cp">        (INST)-&gt;base.message    = (MSG);                                           \</span>
-<span class="cp">        (INST)-&gt;base.next       = NULL;                                            \</span>
-<span class="cp">        (INST)-&gt;timer_fd        = -1;                                              \</span>
-<span class="cp">        (INST)-&gt;expiration_ms   = (uint64_t)(TIMEOUT_MS);                          \</span>
-<span class="cp">    } while (0)</span>
-</pre></div>
-</pre></div>
-
-<p>O limite mínimo para uso de timerfd é definido por <code>PON_TIMER_MIN_MS</code> = 1ms em <code>pon_timer.c:24</code>. Timers mais curtos que este limiar retornam -1 na criação, sinalizando que o chamador deve usar o fallback da timer wheel clássica. Isto evita o overhead de syscall para timers onde a precisão de ~1ms da timer wheel é suficiente.</p>
-<hr />
-<h2>4. Mecanismo Passo a Passo</h2>
-<p>O fluxo completo de um timer PON, desde a criação até a entrega da mensagem de timeout, segue seis passos implementados em <code>erts/emulator/beam/pon_timer.c</code>. Considere o código Erlang:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">receive</span>
-<span class="w">    </span><span class="p">{</span><span class="n">dados</span><span class="p">,</span><span class="w"> </span><span class="nv">X</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">processa</span><span class="p">(</span><span class="nv">X</span><span class="p">)</span>
-<span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="n">timeout</span>
-<span class="k">end</span>
-</pre></div>
-</pre></div>
-
-<p><strong>Passo 1 — Compilação para Instigação.</strong> O compilador PON (Capítulo 10) reconhece o <code>after 5000</code> e gera código para criar uma <code>ErtsTimerInstigation</code>. O <code>after</code> é tratado como uma Instigação: uma entidade PON que invoca o método <code>timeout</code> do FBE quando disparada.</p>
-<p><strong>Passo 2 — Criação do timerfd (<code>pon_timer_instigation_create</code>).</strong> A função <code>pon_timer_instigation_create()</code> em <code>pon_timer.c:43-79</code> cria o timerfd, configura a expiração e registra no epoll:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_timer_instigation_create</span><span class="p">(</span><span class="n">ErtsTimerInstigation</span><span class="w"> </span><span class="o">*</span><span class="n">inst</span><span class="p">)</span>
-<span class="p">{</span>
+<h2>5.3 Ground-Truth C Implementation</h2>
+<p>In <code>otp/erts/emulator/beam/pon_timer.c</code>:</p>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_timer_instigation_create</span><span class="p">(</span><span class="n">ErtsTimerInstigation</span><span class="w"> </span><span class="o">*</span><span class="n">inst</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tfd</span><span class="p">;</span>
 <span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">itimerspec</span><span class="w"> </span><span class="n">spec</span><span class="p">;</span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">timeout_ms</span><span class="p">;</span>
-
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">inst</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-<span class="w">    </span><span class="n">timeout_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">expiration_ms</span><span class="p">;</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">timeout_ms</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PON_TIMER_MIN_MS</span><span class="p">)</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-
 <span class="w">    </span><span class="n">tfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timerfd_create</span><span class="p">(</span><span class="n">CLOCK_MONOTONIC</span><span class="p">,</span><span class="w"> </span><span class="n">TFD_NONBLOCK</span><span class="p">);</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tfd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">spec</span><span class="p">.</span><span class="n">it_interval</span><span class="p">.</span><span class="n">tv_sec</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">spec</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">expiration_ms</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+<span class="w">    </span><span class="n">spec</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">expiration_ms</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000000</span><span class="p">;</span>
+<span class="w">    </span><span class="n">spec</span><span class="p">.</span><span class="n">it_interval</span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="w">    </span><span class="n">spec</span><span class="p">.</span><span class="n">it_interval</span><span class="p">.</span><span class="n">tv_nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="n">spec</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_sec</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="n">timeout_ms</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
-<span class="w">    </span><span class="n">spec</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_nsec</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">long</span><span class="p">)((</span><span class="n">timeout_ms</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000000ULL</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">timerfd_settime</span><span class="p">(</span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">close</span><span class="p">(</span><span class="n">tfd</span><span class="p">);</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pon_timer_epoll_fd</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">ev</span><span class="p">.</span><span class="n">events</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">;</span>
-<span class="w">        </span><span class="n">ev</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">inst</span><span class="p">;</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">epoll_ctl</span><span class="p">(</span><span class="n">pon_timer_epoll_fd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">close</span><span class="p">(</span><span class="n">tfd</span><span class="p">);</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">timer_fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tfd</span><span class="p">;</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">timerfd_settime</span><span class="p">(</span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">tfd</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 </pre></div>
 
-<p>O <code>CLOCK_MONOTONIC</code> garante imunidade a ajustes de relógio (NTP). O <code>TFD_NONBLOCK</code> assegura que a leitura do fd nunca bloqueie. O <code>ev.data.ptr</code> aponta para a <code>ErtsTimerInstigation</code>, permitindo que o scheduler, ao receber a notificação, identifique diretamente qual timer expirou — sem busca, sem scanning, sem indireção.</p>
-<p><strong>Passo 3 — Kernel monitora.</strong> O kernel monitora o <code>timerfd</code> sem consumir CPU. Quando o tempo expira, o <code>timerfd</code> fica legível.</p>
-<p><strong>Passo 4 — Disparo (<code>pon_timer_instigation_fire</code>).</strong> Quando o <code>epoll_wait</code> retorna com o fd pronto, a função <code>pon_timer_instigation_fire()</code> lê 8 bytes do timerfd — este é o número de expirações desde a última leitura (útil para timers periódicos que acumulam disparos). Esta leitura é obrigatória: sem ela, o fd permaneceria legível e o epoll dispararia novamente no próximo ciclo.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_timer_instigation_fire</span><span class="p">(</span><span class="n">ErtsTimerInstigation</span><span class="w"> </span><span class="o">*</span><span class="n">inst</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">expirations</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">inst</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">base</span><span class="p">.</span><span class="n">fired</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">timer_fd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">timer_fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">expirations</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">expirations</span><span class="p">))</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<span class="w">        </span><span class="k">return</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">base</span><span class="p">.</span><span class="n">fired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p><strong>Passo 5 — Processamento em lote (<code>pon_timer_process_expirations</code>).</strong> Chamado pelo scheduler (Fase 4) para processar todas as expirações pendentes via <code>epoll_wait</code> não bloqueante (timeout = 0):</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_timer_process_expirations</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">PON_TIMER_MAX_EVENTS</span><span class="p">];</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">nfds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">processed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pon_timer_epoll_fd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">nfds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_wait</span><span class="p">(</span><span class="n">pon_timer_epoll_fd</span><span class="p">,</span><span class="w"> </span><span class="n">events</span><span class="p">,</span>
-<span class="w">                      </span><span class="n">PON_TIMER_MAX_EVENTS</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nfds</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nfds</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">ErtsTimerInstigation</span><span class="w"> </span><span class="o">*</span><span class="n">inst</span><span class="w"> </span><span class="o">=</span>
-<span class="w">                </span><span class="p">(</span><span class="n">ErtsTimerInstigation</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">inst</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="n">pon_timer_instigation_fire</span><span class="p">(</span><span class="n">inst</span><span class="p">);</span>
-<span class="w">                </span><span class="n">processed</span><span class="o">++</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">processed</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p><strong>Passo 6 — Cancelamento (<code>pon_timer_instigation_cancel</code>).</strong> Se entre a criação do timer e a expiração a mensagem desejada chegar (antes do timeout), o processo a consome e a Instigação precisa ser cancelada:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_timer_instigation_cancel</span><span class="p">(</span><span class="n">ErtsTimerInstigation</span><span class="w"> </span><span class="o">*</span><span class="n">inst</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">inst</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">timer_fd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pon_timer_epoll_fd</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span>
-<span class="w">        </span><span class="n">epoll_ctl</span><span class="p">(</span><span class="n">pon_timer_epoll_fd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_DEL</span><span class="p">,</span><span class="w"> </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">timer_fd</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-
-<span class="w">    </span><span class="n">close</span><span class="p">(</span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">timer_fd</span><span class="p">);</span>
-<span class="w">    </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">timer_fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-<span class="w">    </span><span class="n">inst</span><span class="o">-&gt;</span><span class="n">base</span><span class="p">.</span><span class="n">fired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>O cancelamento em O(1) — apenas uma chamada <code>epoll_ctl</code> + <code>close</code> — é outra vantagem sobre a timer wheel, que também oferece cancelamento O(1), mas exige que o timer wheel lock esteja disponível.</p>
 <hr />
-<h2>5. Integração com o Scheduler</h2>
-<p>O scheduler PON difere do scheduler BEAM clássico em um aspecto fundamental: ele não pergunta "tem timer expirado?" — ele é avisado. O mecanismo de espera é baseado em <code>epoll_wait()</code> unificado: o epoll do scheduler monitora simultaneamente:</p>
-<ol>
-<li><strong>eventfds (Condições)</strong> — Notificam quando um processo fica pronto para executar.</li>
-<li><strong>timerfds (Instigações)</strong> — Notificam quando um timer expira.</li>
-</ol>
-<p>O loop principal do scheduler PON:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_scheduler.c — loop principal</span>
-<span class="kt">void</span>
-<span class="nf">pon_scheduler_run</span><span class="p">(</span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// Tenta executar processos da run queue</span>
-<span class="w">        </span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pon_dequeue_process</span><span class="p">(</span><span class="n">esdp</span><span class="p">);</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">pon_execute_process</span><span class="p">(</span><span class="n">esdp</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
-<span class="w">            </span><span class="k">continue</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
+<h2>5.4 Quantitative Comparison &amp; Scale Degradation</h2>
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_7_timer_scale_degradation.png" alt="Chart 7: Timer Wheel Scale Degradation (BEAM Stock vs PON-BEAM timerfd)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 7: Timer Wheel Scale Degradation (BEAM Stock vs PON-BEAM timerfd)</figcaption></figure>
 
-<span class="w">        </span><span class="c1">// Nada para executar — espera bloqueante</span>
-<span class="w">        </span><span class="c1">// ZERO CPU até que algo aconteça</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pon_scheduler_wait_for_work</span><span class="p">(</span><span class="n">esdp</span><span class="p">);</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="c1">// eventfds e timerfds já foram processados</span>
-<span class="w">            </span><span class="c1">// por pon_handle_event() dentro do wait_for_work</span>
-<span class="w">            </span><span class="c1">// A run queue agora tem trabalho</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>A diferença para o loop BEAM clássico é sutil mas profunda. No BEAM clássico, quando a run queue está vazia, o scheduler entra em um loop de <em>busy-wait</em> seguido de <em>sleep com timeout</em> — e em ambos os casos verifica timers. No PON-BEAM, a espera é puramente bloqueante: <code>epoll_wait</code> com timeout infinito.</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: pon_scheduler_epoll Pages: 1 -->
-<svg width="853pt" height="251pt"
- viewBox="0.00 0.00 853.00 251.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 247)">
-<title>pon_scheduler_epoll</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-247 849,-247 849,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_fds</title>
-<polygon fill="none" stroke="gray" points="0,-102 0,-235 173,-235 173,-102 0,-102"/>
-<text text-anchor="middle" x="86.5" y="-219.8" font-family="Times,serif" font-size="14.00">File descriptors monitorados</text>
-</g>
-<!-- Scheduler\nPON -->
-<g id="node1" class="node">
-<title>Scheduler\nPON</title>
-<polygon fill="lightblue" stroke="black" points="122,-38 51,-38 51,0 122,0 122,-38"/>
-<text text-anchor="middle" x="86.5" y="-22.8" font-family="Times,serif" font-size="14.00">Scheduler</text>
-<text text-anchor="middle" x="86.5" y="-7.8" font-family="Times,serif" font-size="14.00">PON</text>
-</g>
-<!-- epoll_wait() -->
-<g id="node2" class="node">
-<title>epoll_wait()</title>
-<polygon fill="lightyellow" stroke="black" points="411,-92 328,-92 328,-56 411,-56 411,-92"/>
-<text text-anchor="middle" x="369.5" y="-70.3" font-family="Times,serif" font-size="14.00">epoll_wait()</text>
-</g>
-<!-- Condition -->
-<g id="node6" class="node">
-<title>Condition</title>
-<polygon fill="lightgrey" stroke="black" points="612.5,-119 541.5,-119 541.5,-83 612.5,-83 612.5,-119"/>
-<text text-anchor="middle" x="577" y="-97.3" font-family="Times,serif" font-size="14.00">Condition</text>
-</g>
-<!-- epoll_wait()&#45;&gt;Condition -->
-<g id="edge2" class="edge">
-<title>epoll_wait()&#45;&gt;Condition</title>
-<path fill="none" stroke="black" d="M411.49,-87.5C411.49,-87.5 531.29,-87.5 531.29,-87.5"/>
-<polygon fill="black" stroke="black" points="531.29,-91 541.29,-87.5 531.29,-84 531.29,-91"/>
-<text text-anchor="middle" x="476" y="-100.8" font-family="Times,serif" font-size="14.00"> &#160;processo pronto</text>
-</g>
-<!-- Instigação -->
-<g id="node7" class="node">
-<title>Instigação</title>
-<polygon fill="lightgrey" stroke="black" points="613,-65 541,-65 541,-29 613,-29 613,-65"/>
-<text text-anchor="middle" x="577" y="-43.3" font-family="Times,serif" font-size="14.00">Instigação</text>
-</g>
-<!-- epoll_wait()&#45;&gt;Instigação -->
-<g id="edge3" class="edge">
-<title>epoll_wait()&#45;&gt;Instigação</title>
-<path fill="none" stroke="black" d="M411.49,-60.5C411.49,-60.5 530.96,-60.5 530.96,-60.5"/>
-<polygon fill="black" stroke="black" points="530.96,-64 540.96,-60.5 530.96,-57 530.96,-64"/>
-<text text-anchor="middle" x="476" y="-58.8" font-family="Times,serif" font-size="14.00"> &#160;timer expirado</text>
-</g>
-<!-- Condition\n(eventfd) -->
-<g id="node3" class="node">
-<title>Condition\n(eventfd)</title>
-<polygon fill="lightgreen" stroke="black" points="148.5,-204 24.5,-204 24.5,-166 148.5,-166 148.5,-204"/>
-<text text-anchor="middle" x="86.5" y="-188.8" font-family="Times,serif" font-size="14.00">Condition (eventfd)</text>
-<text text-anchor="middle" x="86.5" y="-173.8" font-family="Times,serif" font-size="14.00">processo pronto</text>
-</g>
-<!-- Instigação\n(timerfd) -->
-<g id="node4" class="node">
-<title>Instigação\n(timerfd)</title>
-<polygon fill="lightgreen" stroke="black" points="149,-148 24,-148 24,-110 149,-110 149,-148"/>
-<text text-anchor="middle" x="86.5" y="-132.8" font-family="Times,serif" font-size="14.00">Instigação (timerfd)</text>
-<text text-anchor="middle" x="86.5" y="-117.8" font-family="Times,serif" font-size="14.00">timer expirado</text>
-</g>
-<!-- Scheduler -->
-<g id="node5" class="node">
-<title>Scheduler</title>
-<polygon fill="lightgrey" stroke="black" points="122,-92 51,-92 51,-56 122,-56 122,-92"/>
-<text text-anchor="middle" x="86.5" y="-70.3" font-family="Times,serif" font-size="14.00">Scheduler</text>
-</g>
-<!-- Scheduler&#45;&gt;epoll_wait() -->
-<g id="edge1" class="edge">
-<title>Scheduler&#45;&gt;epoll_wait()</title>
-<path fill="none" stroke="black" d="M122.06,-74C122.06,-74 317.89,-74 317.89,-74"/>
-<polygon fill="black" stroke="black" points="317.89,-77.5 327.89,-74 317.89,-70.5 317.89,-77.5"/>
-<text text-anchor="middle" x="246.5" y="-77.8" font-family="Times,serif" font-size="14.00"> &#160;bloqueia sem timeout</text>
-</g>
-<!-- Run Queue -->
-<g id="node8" class="node">
-<title>Run Queue</title>
-<polygon fill="lightgrey" stroke="black" points="845,-119 767,-119 767,-83 845,-83 845,-119"/>
-<text text-anchor="middle" x="806" y="-97.3" font-family="Times,serif" font-size="14.00">Run Queue</text>
-</g>
-<!-- Condition&#45;&gt;Run Queue -->
-<g id="edge4" class="edge">
-<title>Condition&#45;&gt;Run Queue</title>
-<path fill="none" stroke="black" d="M612.78,-101C612.78,-101 756.63,-101 756.63,-101"/>
-<polygon fill="black" stroke="black" points="756.63,-104.5 766.63,-101 756.63,-97.5 756.63,-104.5"/>
-<text text-anchor="middle" x="690" y="-104.8" font-family="Times,serif" font-size="14.00"> &#160;processo adicionado</text>
-</g>
-<!-- Mailbox -->
-<g id="node9" class="node">
-<title>Mailbox</title>
-<polygon fill="lightgrey" stroke="black" points="837.5,-65 774.5,-65 774.5,-29 837.5,-29 837.5,-65"/>
-<text text-anchor="middle" x="806" y="-43.3" font-family="Times,serif" font-size="14.00">Mailbox</text>
-</g>
-<!-- Instigação&#45;&gt;Mailbox -->
-<g id="edge5" class="edge">
-<title>Instigação&#45;&gt;Mailbox</title>
-<path fill="none" stroke="black" d="M613.03,-47C613.03,-47 764.23,-47 764.23,-47"/>
-<polygon fill="black" stroke="black" points="764.23,-50.5 774.23,-47 764.23,-43.5 764.23,-50.5"/>
-<text text-anchor="middle" x="690" y="-50.8" font-family="Times,serif" font-size="14.00"> &#160;mensagem timeout</text>
-</g>
-</g>
-</svg></div>
-<p class="text-center text-sm text-[#b8a88a] italic mt-1">PON-Scheduler: epoll unificado</p>
-
-<p>Como epoll suporta até centenas de milhares de file descriptors, o scheduler PON escalona sem dificuldade para milhões de timers ativos — cada timer sendo um fd, cada fd sendo gerenciado pelo kernel com complexidade O(1) no epoll.</p>
-<hr />
-<h2>6. Análise Assintótica</h2>
-<p>A tabela abaixo compara o custo do subsistema de timers entre BEAM (timer wheel) e PON-BEAM (timerfd). O custo é medido em número de verificações/notificações por segundo para cada cenário, assumindo S = 32 schedulers e resolução de tick de 1ms.</p>
 <table>
 <thead>
 <tr>
-<th>Cenário</th>
-<th>BEAM (timer wheel)</th>
-<th>PON-BEAM (timerfd)</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0 timers ativos</td>
-<td>32.000 verificações/s</td>
-<td>0 notificações</td>
-<td>∞ (divisão por zero)</td>
-</tr>
-<tr>
-<td>1 timer, 1 expiração</td>
-<td>~32.000 verificações</td>
-<td>1 notificação</td>
-<td>~32.000×</td>
-</tr>
-<tr>
-<td>50 timers, 5 exp/s</td>
-<td>~32.000 verificações/s</td>
-<td>5 notificações/s</td>
-<td>~6.400×</td>
-</tr>
-<tr>
-<td>50K timers, 5 exp/s</td>
-<td>~50K checks/tick + wheel overhead</td>
-<td>5 notificações/s</td>
-<td>~10M× (dominado pelo wheel)</td>
-</tr>
-<tr>
-<td>1M timers, 100 exp/s</td>
-<td>wheel saturation (~100K checks/tick)</td>
-<td>100 notificações/s</td>
-<td>~1.000×</td>
-</tr>
-</tbody>
-</table>
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_7_timer_scale_degradation.png" alt="Gráfico 7: Degradação de Escala na Timer Wheel (BEAM Stock vs PON-BEAM timerfd)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 7: Degradação de Escala na Timer Wheel (BEAM Stock vs PON-BEAM timerfd)</figcaption></figure>
-
-<p><strong>Nota sobre o cenário 0 timers:</strong> Na BEAM, mesmo sem timers, <code>erts_bump_timers()</code> é chamada e executa o caminho <code>tiw-&gt;nto == 0 → empty_wheel</code>. Este caminho custa ~200ns. Com 32 schedulers a 1000 ticks/s, são 32.000 chamadas × 200ns = 6,4ms/s de CPU. Na PON-BEAM, sem timers, o epoll contém apenas eventfds de Condições. Se nenhum processo está executando, o epoll_wait bloqueia até que um processo fique pronto — nenhuma CPU é consumida para timers.</p>
-<p><strong>Nota sobre o cenário 50K timers:</strong> A timer wheel da BEAM insere timers em O(1) mas, com muitos timers expirando no mesmo slot, o custo de processamento da lista encadeada do slot se torna O(K) onde K é o número de timers no slot. A PON-BEAM não tem este problema — cada timer é um fd independente, e o kernel notifica individualmente.</p>
-<hr />
-<h2>7. Benchmarks</h2>
-<p>O harness de benchmarking (Capítulo 12) inclui benchmarks específicos para o subsistema de timers:</p>
-<h3>timer_idle_cpu.erl</h3>
-<p>Mede o consumo de CPU da VM em idle completo — sem processos, sem timers, apenas os schedulers esperando trabalho. O benchmark roda 30 segundos e coleta a média de CPU via <code>/proc/self/stat</code>:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">timer_idle_cpu</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">CPUBefore</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpu_usage</span><span class="p">(),</span>
-<span class="w">    </span><span class="nn">timer</span><span class="p">:</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">30000</span><span class="p">),</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">CPUAfter</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpu_usage</span><span class="p">(),</span>
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;CPU idle: </span><span class="si">~.2f</span><span class="s">%</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">CPUAfter</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nv">CPUBefore</span><span class="p">]).</span>
-
-<span class="nf">cpu_usage</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">Utime</span><span class="p">,</span><span class="w"> </span><span class="nv">Stime</span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">statistics</span><span class="p">(</span><span class="n">runtime</span><span class="p">),</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">Utime</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">Stime</span><span class="p">,</span><span class="w"> </span><span class="nb">statistics</span><span class="p">(</span><span class="n">wall_clock</span><span class="p">)}.</span>
-</pre></div>
-</pre></div>
-
-<p>Resultado esperado:
-- <strong>BEAM:</strong> 3-8% de um core (32 schedulers)
-- <strong>PON-BEAM:</strong> &lt; 0,1% de um core (32 schedulers, espera bloqueante)</p>
-<h3>timer_storm.erl</h3>
-<p>Cria N timers simultâneos (N = 1000, 10000, 50000) que disparam em momentos distribuídos aleatoriamente em uma janela de 1 segundo. Mede o tempo total para disparar todos e a CPU consumida:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">timer_storm</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">Self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">(),</span>
-<span class="w">    </span><span class="nv">Refs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nn">erlang</span><span class="p">:</span><span class="nb">start_timer</span><span class="p">(</span><span class="nn">rand</span><span class="p">:</span><span class="nf">uniform</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span><span class="w"> </span><span class="nv">Self</span><span class="p">,</span><span class="w"> </span><span class="n">boom</span><span class="p">)</span>
-<span class="w">            </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">)],</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">Time</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="p">[</span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">timeout</span><span class="p">,</span><span class="w"> </span><span class="nv">Ref</span><span class="p">,</span><span class="w"> </span><span class="n">boom</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">Ref</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Refs</span><span class="p">]</span>
-<span class="w">    </span><span class="k">end</span><span class="p">),</span>
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;N=</span><span class="si">~p</span><span class="s"> tempo=</span><span class="si">~p</span><span class="s"> us</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">Time</span><span class="p">]).</span>
-</pre></div>
-</pre></div>
-
-<p>Resultado esperado:
-- <strong>BEAM:</strong> Tempo linear com N para slots congestionados. Para N=50000, ~50ms devido à lista de timers no slot.
-- <strong>PON-BEAM:</strong> Tempo O(N) para ler os timerfds, mas sem overhead de verificação da roda. Para N=50000, ~5ms (kernel gerencia os fds).</p>
-<h3>timer_short.erl</h3>
-<p>Valida o fallback para timers &lt; 1ms. Cria timers com expiração de 100µs, 500µs e 1ms, e verifica se todos disparam dentro do prazo correto:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">timer_short</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="n">tests</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">]).</span>
-
-<span class="nf">tests</span><span class="p">([</span><span class="nv">T</span><span class="p">|</span><span class="nv">Ts</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">Self</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">(),</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">Time</span><span class="p">,</span><span class="w"> </span><span class="n">ok</span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="nv">Ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">start_timer</span><span class="p">(</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="nv">Self</span><span class="p">,</span><span class="w"> </span><span class="n">micro</span><span class="p">),</span>
-<span class="w">        </span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">timeout</span><span class="p">,</span><span class="w"> </span><span class="nv">Ref</span><span class="p">,</span><span class="w"> </span><span class="n">micro</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span>
-<span class="w">    </span><span class="k">end</span><span class="p">),</span>
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;T=</span><span class="si">~p</span><span class="s"> us: latência=</span><span class="si">~p</span><span class="s"> us</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="nv">Time</span><span class="p">]),</span>
-<span class="w">    </span><span class="n">tests</span><span class="p">(</span><span class="nv">Ts</span><span class="p">);</span>
-<span class="nf">tests</span><span class="p">([])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="p">.</span>
-</pre></div>
-</pre></div>
-
-<p>Resultado esperado:
-- <strong>BEAM:</strong> Timers de 100µs expiram no próximo tick (~1ms) — latência de ~900µs.
-- <strong>PON-BEAM:</strong> Timers &gt;= 1ms usam timerfd (preciso). Timers &lt; 1ms caem no fallback da timer wheel (mesma latência da BEAM, ~1ms). A transição é suave e controlada por <code>PON_TIMER_MIN_MS</code>.</p>
-<hr />
-<h3>Linhagem Git &amp; Evolução do PON-Timer</h3>
-<p>A re-arquitetura do subsistema de timers foi integrada no commit consolidado:</p>
-<ul>
-<li><strong><code>dcab0ec</code></strong>: <em>feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler</em> — Implementou a entidade <code>ErtsTimerInstigation</code> e a infraestrutura de <code>timerfd_create</code> em <code>pon_timer.c</code> e <code>pon_instigation.h</code>.</li>
-</ul>
-<h3>Suíte Formal de Validação Executável</h3>
-<p>O subsistema PON-Timer foi formalmente especificado e verificado:</p>
-<ol>
-<li>
-<p><strong>Especificação TLA+ (<code>formal/tla/TimerWheel.tla</code>)</strong>:
-   - Modelagem de expirações determinísticas de timers e despacho atômico de sinais sem polling do scheduler.
-   - Invariante <strong><code>TimerAccuracy</code></strong>: Todo timer registrado dispara no intervalo correto sem esquecimento ou duplicação.
-   - Invariante <strong><code>NoBusyWait</code></strong>: Nenhum scheduler consome ciclos de CPU quando não há timers expirados.</p>
-</li>
-<li>
-<p><strong>Testes Baseados em Propriedades PropEr (<code>formal/proper/tests/pon_timer_prop.erl</code>)</strong>:
-   - <code>prop_timer_expiration/0</code>: Valida a ordem e a precisão da notificação de expiração para milhares de timers concorrentes.</p>
-</li>
-</ol>
-<h3>Síntese de Relatórios Técnicos (RPT-02)</h3>
-<p>O relatório técnico <code>docs/RPT-02-pon-timer.md</code> resume as medições de latência e consumo de CPU:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Métrica</th>
-<th style="text-align: center;">OTP 30 Stock</th>
+<th style="text-align: center;">Metric</th>
+<th style="text-align: center;">Stock OTP 30</th>
 <th style="text-align: center;">PON-BEAM (timerfd)</th>
-<th style="text-align: center;">Impacto</th>
+<th style="text-align: center;">Impact</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;">CPU Idle (0 timers)</td>
-<td style="text-align: center;">$5\% - 30\%$ core</td>
-<td style="text-align: center;"><strong>$0.0\%$ core</strong></td>
-<td style="text-align: center;">Economia total de energia em repouso</td>
+<td style="text-align: center;">Idle CPU (0 active timers)</td>
+<td style="text-align: center;">5% – 30% core</td>
+<td style="text-align: center;"><strong>0.0% core</strong></td>
+<td style="text-align: center;">100% idle energy savings</td>
 </tr>
 <tr>
-<td style="text-align: center;">Ticks de varredura/s</td>
-<td style="text-align: center;">$32.000$</td>
-<td style="text-align: center;"><strong>$0$</strong></td>
-<td style="text-align: center;">Eliminação completa de varredura periódica</td>
+<td style="text-align: center;">Scanning Ticks / s</td>
+<td style="text-align: center;">32,000 checks/s</td>
+<td style="text-align: center;"><strong>0</strong></td>
+<td style="text-align: center;">Complete tick elimination</td>
 </tr>
 <tr>
-<td style="text-align: center;">Precisão de Dispatch</td>
+<td style="text-align: center;">Dispatch Precision</td>
 <td style="text-align: center;">$\pm 1.0\,ms$ (tick-bound)</td>
 <td style="text-align: center;"><strong>$\pm 0.02\,ms$</strong></td>
-<td style="text-align: center;">Disparo em tempo real via Kernel timerfd</td>
+<td style="text-align: center;">Real-time kernel precision</td>
 </tr>
 </tbody>
 </table>
-<table>
-<thead>
-<tr>
-<th>Arquivo</th>
-<th>Linhas</th>
-<th>Função</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>erts/include/internal/pon_instigation.h</code></td>
-<td>96</td>
-<td>Definição de <code>ErtsInstigation</code>, <code>ErtsTimerInstigation</code>, macro de inicialização</td>
-</tr>
-<tr>
-<td><code>erts/emulator/beam/pon_timer.c</code></td>
-<td>130</td>
-<td>Implementação completa: timerfd + epoll, criação, cancelamento, disparo</td>
-</tr>
-</tbody>
-</table>
-<h3>Arquivos modificados (2)</h3>
-<table>
-<thead>
-<tr>
-<th>Arquivo</th>
-<th>Mudança</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>erts/include/internal/pon_stats.h</code></td>
-<td>+4 contadores: <code>timerfd_created</code>, <code>timerfd_expirations</code>, <code>timer_wheel_fallback</code>, <code>timer_instigations</code></td>
-</tr>
-<tr>
-<td><code>erts/emulator/Makefile.in</code></td>
-<td>+<code>$(OBJDIR)/pon_timer.o</code> na lista de objetos (linha 1240)</td>
-</tr>
-</tbody>
-</table>
-<h3>Benchmarks criados (1)</h3>
-<table>
-<thead>
-<tr>
-<th>Benchmark</th>
-<th>Medição</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>timer_idle_cpu.erl</code></td>
-<td>CPU% do timer wheel sem timers ativos (10s idle)</td>
-</tr>
-</tbody>
-</table>
-<h3>API implementada em <code>pon_timer.c</code></h3>
-<table>
-<thead>
-<tr>
-<th>Função</th>
-<th>Descrição</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pon_timer_init()</code></td>
-<td>Cria epoll fd global (<code>epoll_create1</code>)</td>
-</tr>
-<tr>
-<td><code>pon_timer_destroy()</code></td>
-<td>Fecha epoll fd</td>
-</tr>
-<tr>
-<td><code>pon_timer_instigation_create(inst)</code></td>
-<td>Cria timerfd, configura <code>timerfd_settime</code>, registra no epoll</td>
-</tr>
-<tr>
-<td><code>pon_timer_instigation_cancel(inst)</code></td>
-<td>Remove do epoll, fecha timerfd</td>
-</tr>
-<tr>
-<td><code>pon_timer_instigation_fire(inst)</code></td>
-<td>Lê timerfd (consome notificação), marca <code>fired = 1</code></td>
-</tr>
-<tr>
-<td><code>pon_timer_process_expirations()</code></td>
-<td>Polling não bloqueante de expirações via <code>epoll_wait</code></td>
-</tr>
-</tbody>
-</table>
-<h3>Resultados da compilação</h3>
-<p>O módulo <code>pon_timer.c</code> compila de forma independente:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span>$<span class="w"> </span>gcc<span class="w"> </span>-DPON_BEAM<span class="w"> </span>-D_GNU_SOURCE<span class="w"> </span>-std<span class="o">=</span>c99<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-I../../include/internal<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-c<span class="w"> </span>pon_timer.c<span class="w"> </span>-o<span class="w"> </span>pon_timer.o
-<span class="c1"># 0 erros, 0 warnings</span>
-</pre></div>
-</pre></div>
-
-<p>Quando compilado com <code>PON_BEAM_DEBUG</code>, inclui <code>pon_stats.h</code> que ativa os contadores de instrumentação. Em modo release (apenas <code>PON_BEAM</code>), as macros de stats são vazias — custo zero em produção.</p>
-<h3>Observações da implementação</h3>
-<p><strong>Timerfd é específico de Linux.</strong> <code>timerfd</code> e <code>epoll</code> são APIs Linux. A arquitetura PON-BEAM usa <code>#ifdef __linux__</code> para timerfd e reserva o timer wheel como fallback universal. O limiar de 1ms para timers curtos também usa o timer wheel em todas as plataformas.</p>
-<p><strong>File descriptors.</strong> Cada <code>timerfd</code> consome um file descriptor. O limite típico no Linux é 1M (ver <code>ulimit -n</code>). Para 50000 timers simultâneos (comum em sistemas OTP com timeouts de sessão), 50000 FDs são 5% do limite — aceitável.</p>
-<p><strong>Compilação independente.</strong> <code>pon_timer.c</code> foi projetado para compilar sem a cadeia completa de headers OTP. As únicas dependências são:
-- POSIX (<code>timerfd.h</code>, <code>epoll.h</code>, <code>unistd.h</code>)
-- <code>pon_instigation.h</code> (usa apenas <code>stdint.h</code>)
-- <code>pon_stats.h</code> (em modo release, expande para macros vazias)</p>
-<p><strong>Integração com PON-Scheduler (Fase 4).</strong> O <code>pon_timer_process_expirations()</code> foi projetado para ser chamado pelo loop do scheduler PON (Fase 4). Até lá, os timerfds são criados e monitorados, mas a notificação ao processo alvo (envio de mensagem para a mailbox) requer a integração com o scheduler.</p>
-<h3>Verificação</h3>
+<hr />
+<h2>5.5 References &amp; See Also</h2>
 <ul>
-<li>[x] <code>pon_instigation.h</code> criado com <code>ErtsInstigation</code> e <code>ErtsTimerInstigation</code> (96 linhas)</li>
-<li>[x] <code>pon_timer.c</code> criado com implementação timerfd + epoll (130 linhas)</li>
-<li>[x] <code>pon_stats.h</code>: contadores de timer adicionados (+4)</li>
-<li>[x] <code>Makefile.in</code>: <code>$(OBJDIR)/pon_timer.o</code> na lista de objetos</li>
-<li>[x] Compilação standalone: <code>pon_timer.c</code> sem erros com <code>-DPON_BEAM -D_GNU_SOURCE</code></li>
-<li>[x] Compilação standalone: <code>pon_instigation.h</code> sem erros com <code>-std=c99</code></li>
-<li>[ ] Build completo via <code>make TYPE=ponbeam</code> (depende de build OTP completo)</li>
-<li>[ ] Benchmark <code>timer_idle_cpu.erl</code> funcional</li>
-<li>[ ] Validação com 50K timers concorrentes</li>
-</ul>
-<hr />
-<h2>9. A Lente Multidisciplinar</h2>
-<blockquote>
-<p><strong>Cognitivo / Computacional.</strong> "A espera ativa é a forma computacional da impaciência." — Edsger Dijkstra, <em>EWD 1036 — The Next Fifty Years</em>, 1989</p>
-</blockquote>
-<p>O polling da timer wheel é uma forma de <em>espera ativa</em> disfarçada de algoritmo O(1). Embora a inserção e o cancelamento sejam O(1), a verificação é feita a intervalos regulares independentemente da necessidade. Dijkstra distinguia entre espera <em>ativa</em> (o processo consome CPU enquanto espera) e espera <em>passiva</em> (o processo é bloqueado e acordado por interrupção). A timer wheel da BEAM opera no limiar entre as duas: o scheduler não faz busy-wait puro, mas acorda periodicamente para verificar timers. O timerfd, por outro lado, implementa espera passiva genuína — o scheduler é interrompido pelo kernel quando o timer expira.</p>
-<blockquote>
-<p><strong>Sociológico / Organizacional.</strong> "Uma reunião semanal para verificar o progresso de todos os projetos, mesmo aqueles que não têm novidades, é uma timer wheel organizacional." — Peter Drucker, <em>The Effective Executive</em>, 1967</p>
-</blockquote>
-<p>Uma equipe que se reúne toda segunda-feira para "ver se algo mudou" está fazendo polling de status. As reuniões consomem tempo mesmo quando ninguém tem novidades — exatamente como <code>erts_bump_timers()</code> consome CPU quando <code>tiw-&gt;nto == 0</code>. A alternativa PON é um sistema de <em>exceção</em>: cada projeto notifica a gerência apenas quando há uma mudança relevante. A reunião de status semanal é substituída por notificações pontuais — e o tempo economizado é a CPU que a PON-BEAM economiza ao substituir a timer wheel por timerfd.</p>
-<blockquote>
-<p><strong>Físico / Termodinâmico.</strong> "A entropia de um sistema fechado só aumenta. O polling acelera este aumento dissipando energia na forma de calor sem produzir trabalho útil." — Rudolf Clausius / adaptação</p>
-</blockquote>
-<p>O polling da timer wheel é uma forma de dissipação de energia sem trabalho: a CPU aquece, os ciclos são consumidos, e o resultado é "não há timers expirados". O timerfd, ao delegar a espera ao kernel, elimina esta dissipação. Se a BEAM fosse um motor térmico, o polling da timer wheel seria sua principal fonte de ineficiência no regime idle.</p>
-<hr />
-<h2>10. Exercícios práticos e conceituais</h2>
-<h3>Bloco A — Questões Conceituais e Fundamentos (1–10)</h3>
-<ol>
-<li>
-<p><strong>Pergunta conceitual 1:</strong> Explique por que <code>erts_bump_timers()</code> é chamada mesmo quando <code>tiw-&gt;nto == 0</code>. Este é um exemplo de redundância temporal? Justifique.</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 2:</strong> Qual a diferença fundamental entre a timer wheel da BEAM e o timerfd do Linux em termos de <em>onde</em> a espera pelo tempo ocorre (kernel space vs user space)?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 3:</strong> O que é uma Instigação no PON? Por que timers são modelados como Instigações e não como Premises ou Conditions?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 4:</strong> Por que timers com expiração &lt; 1ms usam fallback da timer wheel em vez de timerfd? Qual o custo de criar um timerfd no kernel?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 5:</strong> Como o epoll unificado (eventfd + timerfd) elimina a necessidade de múltiplos pontos de verificação de timer no scheduler?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 6:</strong> Por que <code>CLOCK_MONOTONIC</code> é usado em vez de <code>CLOCK_REALTIME</code> para timerfd? O que aconteceria com timers se o relógio do sistema fosse ajustado?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 7:</strong> Explique o papel de <code>TFD_NONBLOCK</code> na criação do timerfd. O que ocorreria se a leitura do timerfd bloqueasse?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 8:</strong> A PON-BEAM promete "zero CPU para timers não expirados". Isso é estritamente verdadeiro? Considere o custo de <code>epoll_wait()</code> e de manter a lista de instigações.</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 9:</strong> Quantas chamadas de sistema são economizadas por segundo em um sistema com 32 schedulers e 0 timers ativos? Assuma que cada <code>erts_bump_timers()</code> custa uma chamada de sistema (ainda que indireta, via <code>erts_get_monotonic_time</code>).</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 10:</strong> A citação de Erik Stenman — "um timer que não expirou não deveria custar nada" — é literalmente atingida pelo PON-Timer? Se não, qual o custo residual?</p>
-</li>
-</ol>
-<h3>Bloco B — Análise de Código Fonte e Verificação <code>file:line</code> (11–20)</h3>
-<ol start="11">
-<li>
-<p><strong>Análise de fonte 1:</strong> Em <code>erl_hl_timer.c</code>, localize o bloco <code>empty_wheel</code> de <code>erts_bump_timers()</code>. Quantas instruções C são executadas quando não há timers? Identifique cada atribuição e verificação.</p>
-</li>
-<li>
-<p><strong>Análise de fonte 2:</strong> Em <code>erl_process.c:3534</code> e <code>erl_process.c:3619</code>, localize as duas chamadas a <code>erts_bump_timers()</code> no <code>scheduler_wait()</code>. Qual a condição que protege cada chamada?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 3:</strong> No código <code>pon_timer_instigation_create()</code> deste capítulo, explique o propósito do flag <code>0</code> (modo relativo) na chamada <code>timerfd_settime</code>. O que aconteceria se usássemos <code>TFD_TIMER_ABSTIME</code>?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 4:</strong> No código <code>pon_timer_instigation_fire()</code>, a leitura do timerfd (<code>read(inst-&gt;timer_fd, &amp;expirations, sizeof(expirations))</code>) é obrigatória. O que acontece se esta leitura for omitida?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 5:</strong> Em <code>erl_hl_timer.c</code>, examine a definição de <code>ErtsTimerWheel</code>. Quantos slots tem a "soon wheel" e quantos tem a "later wheel"? Como estas se relacionam com o fallback do PON-Timer?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 6:</strong> No código <code>pon_timer_process_expirations()</code>, o timeout de <code>epoll_wait</code> é 0 (não bloqueante). Por que isso é importante no contexto do scheduler?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 7:</strong> Em <code>pon_timer_instigation_create()</code>, o campo <code>ev.data.ptr</code> recebe o ponteiro para a <code>ErtsTimerInstigation</code>. Por que isso é mais eficiente que usar <code>ev.data.fd</code> e depois buscar a instigação em uma tabela hash?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 8:</strong> Compare a função <code>erts_twheel_cancel_timer()</code> com <code>pon_timer_instigation_cancel()</code>. Ambas são O(1), mas uma envolve manipulação de lista encadeada e a outra envolve <code>epoll_ctl</code>. Qual tem maior latência? Por quê?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 9:</strong> Em plataformas sem timerfd, o fallback usa a timer wheel clássica. Neste caso, a PON-BEAM oferece algum ganho? Ou o comportamento é idêntico ao da BEAM stock?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 10:</strong> Em <code>pon_timer.c:24</code>, <code>PON_TIMER_MIN_MS</code> é definido como 1. Qual o impacto de reduzir este valor para 0? E de aumentá-lo para 10?</p>
-</li>
-</ol>
-<h3>Bloco C — Experimentos Práticos (21–27)</h3>
-<ol start="21">
-<li>
-<p><strong>Experimento 1:</strong> Execute o benchmark <code>timer_idle_cpu.erl</code> na BEAM stock e na PON-BEAM. Compare o %CPU em idle por 60 segundos. Qual a diferença percentual?</p>
-</li>
-<li>
-<p><strong>Experimento 2:</strong> Use <code>strace -e timerfd_create,timerfd_settime,epoll_wait</code> para rastrear as chamadas de sistema de timers do PON-BEAM durante a execução de <code>timer_storm:run(1000)</code>. Quantas chamadas de timerfd são feitas? Quantas de epoll_wait?</p>
-</li>
-<li>
-<p><strong>Experimento 3:</strong> Execute <code>timer_storm:run(N)</code> para N = 1000, 10000, 50000. Meça o tempo total e trace um gráfico N × tempo. A curva é linear em ambos os ERTS? Onde ocorre a divergência?</p>
-</li>
-<li>
-<p><strong>Experimento 4:</strong> Crie um processo que faz <code>receive ... after 1 -&gt; ok end</code> em loop infinito. Meça o CPU deste processo na BEAM stock vs PON-BEAM. O PON-Timer reduz o custo de timers de 1ms?</p>
-</li>
-<li>
-<p><strong>Experimento 5:</strong> Valide o fallback do PON-Timer: crie timers com expiração de 100µs, 500µs, 1ms. Meça a latência real de cada expiração usando <code>erlang:monotonic_time()</code>. O fallback introduz latência adicional?</p>
-</li>
-<li>
-<p><strong>Experimento 6:</strong> Use <code>perf stat -e context-switches</code> para comparar o número de mudanças de contexto durante a execução de <code>timer_storm:run(10000)</code> na BEAM stock vs PON-BEAM. A PON-BEAM reduz mudanças de contexto?</p>
-</li>
-<li>
-<p><strong>Experimento 7:</strong> Crie um sistema com 1.000.000 de timers simultâneos (use <code>erlang:start_timer</code> com tempos distribuídos). Meça o uso de memória em ambos os ERTS. Quanto cada timerfd adicional consome no kernel vs cada entrada na timer wheel? Use <code>/proc/PID/status</code> e <code>erlang:memory()</code>.</p>
-</li>
-</ol>
-<h3>Bloco D — Pontes Cognitivas, Invariantes e Desafios de Arquitetura (28–30)</h3>
-<ol start="28">
-<li>
-<p><strong>Ponte cognitiva:</strong> No conto <em>O Aleph</em> de Jorge Luis Borges, um ponto no porão contém todos os pontos do universo — ver o Aleph é ver tudo simultaneamente. A timer wheel é como o Aleph: cada slot contém todos os timers que expiram naquele instante. O timerfd, por outro lado, é como o tempo linear de Agostinho de Hipona: cada instante é único e só existe quando vivido. Qual metáfora melhor descreve a diferença entre polling e notificação? Escreva um parágrafo conectando o Aleph (timer wheel) ao tempo linear agostiniano (timerfd).</p>
-</li>
-<li>
-<p><strong>Invariante:</strong> Formalize o seguinte invariante do PON-Timer: <em>"Em um sistema PON-Timer, o número de verificações de timer por unidade de tempo é zero quando não há timers ativos, e é igual ao número de timers expirados quando há timers ativos."</em> Prove que o sistema BEAM (timer wheel) viola este invariante e que o PON-Timer (timerfd) o satisfaz.</p>
-</li>
-<li>
-<p><strong>Desafio de arquitetura:</strong> O PON-Timer usa um timerfd por timer ativo. Em sistemas com milhões de timers simultâneos, o limite de file descriptors por processo (<code>ulimit -n</code>) pode ser um gargalo. Projete uma extensão que use timerfd em <em>buckets</em>: um timerfd para múltiplos timers que expiram no mesmo instante (agrupados por janela temporal de, por exemplo, 1ms). Quais as vantagens e desvantagens deste design em relação ao timerfd por timer individual?</p>
-</li>
-</ol>
-<hr />
-<h2>11. Resumo para memorização</h2>
-<ul>
-<li><strong>Timer wheel BEAM:</strong> <code>erts_bump_timers()</code> é chamada a cada tick (~1ms) por scheduler, mesmo sem timers ativos. O custo é 32K verificações/s × 200ns = 6,4ms/s de CPU para 32 schedulers.</li>
-<li><strong>PON-Timer:</strong> Substitui a timer wheel por <code>timerfd_create()</code> do Linux — o kernel gerencia o timer e notifica via epoll quando expira.</li>
-<li><strong>Instigação:</strong> Cada timer Erlang torna-se uma Instigação PON: uma entidade que invoca o método de timeout do FBE quando o timerfd dispara.</li>
-<li><strong>Epoll unificado:</strong> O scheduler usa um único <code>epoll_wait()</code> para monitorar eventfds (Condições) e timerfds (Instigações). Zero polling, espera bloqueante real.</li>
-<li><strong>Fallback:</strong> Timers &lt; 1ms usam a timer wheel clássica, pois o custo de criar um timerfd não se justifica para expirações muito curtas.</li>
-<li><strong>Cancelamento O(1):</strong> <code>epoll_ctl(EPOLL_CTL_DEL)</code> + <code>close(fd)</code> — sem travessia de lista, sem locks na timer wheel.</li>
-<li><strong>Portabilidade:</strong> Linux (timerfd), fallback universal (timer wheel).</li>
-<li><strong>Ganho:</strong> 0 notificações para 0 timers (vs 32K verificações/s), 1 notificação para 1 timer expirado (vs 32K verificações).</li>
-<li><strong>Benchmarks:</strong> <code>timer_idle_cpu</code> (idle CPU ~0% vs ~3%), <code>timer_storm</code> (50K timers, 5 notificações vs saturação da wheel), <code>timer_short</code> (fallback &lt; 1ms validado).</li>
-<li><strong>Implementação:</strong> <code>pon_instigation.h</code> (96 linhas), <code>pon_timer.c</code> (130 linhas).</li>
-</ul>
-<hr />
-<h2>12. Ver também</h2>
-<ul>
-<li><a href="02-paradigma-pon.html">Capítulo 2: O Paradigma Orientado a Notificações</a> — fundamentos das Instigações PON</li>
-<li><a href="03-visao-geral.html">Capítulo 3: Visão Geral da PON-BEAM</a> — mapa arquitetural e fluxo transversal</li>
-<li><a href="04-pon-receive.html">Capítulo 4: PON-Receive</a> — Premises que consomem a mensagem de timeout</li>
-<li><a href="07-pon-scheduler.html">Capítulo 7: PON-Scheduler</a> — Condition e eventfd, epoll unificado, run queue por notificação</li>
-<li><a href="10-pon-compiler.html">Capítulo 10: PON-Compiler</a> — compilação de <code>after</code> para Instigações</li>
-<li><a href="../docs/RPT-02-pon-timer.html">Relatório da Fase 2 — PON-Timer</a></li>
-<li><a href="12-timers-e-o-timer-wheel.html">docs/chapters/12-timers-e-o-timer-wheel.md</a> — documentação completa da timer wheel do OTP</li>
-<li>Varghese, G.; Lauck, T. "Hashed and Hierarchical Timing Wheels: Data Structures for the Efficient Implementation of a Timer Facility." ACM SOSP, 1997 — O artigo clássico sobre timer wheels.</li>
-<li><code>timerfd_create(2)</code> — Linux man page para criação de timerfds.</li>
-<li><code>epoll_wait(2)</code> — Linux man page para espera de múltiplos file descriptors.</li>
-<li>Simão, J. M.; Stadzisz, P. C. "Paradigma Orientado a Notificações." (2008–2009) — Tese fundadora do PON, com as definições formais de Instigação.</li>
+<li><a href="01-problema-polling.html">Chapter 1: The Problem</a></li>
+<li><a href="02-paradigma-pon.html">Chapter 2: The Notification-Oriented Paradigm</a></li>
+<li><a href="07-pon-scheduler.html">Chapter 7: PON-Scheduler</a></li>
 </ul>
 </article>
 <footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
-<a href="04-pon-receive.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Receive: Selective Receive por Premises</span><span class="md:hidden">← Anterior</span></a>
-<a href="06-pon-spawn.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-Spawn: Notificação Imediata →</span><span class="md:hidden">Próximo →</span></a>
+<a href="04-pon-receive.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Receive: Selective Receive by Premises</span><span class="md:hidden">← Previous</span></a>
+<a href="06-pon-spawn.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-Spawn: Immediate Notification →</span><span class="md:hidden">Next →</span></a>
 </footer>
 </main>
 <script>

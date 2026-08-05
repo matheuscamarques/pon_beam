@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PON-Scheduler: Condition e eventfd — PON-BEAM</title>
+<title>PON-Scheduler: Condition and eventfd — PON-BEAM</title>
 <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
@@ -20,1185 +20,220 @@
 <input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
 </div>
 <div class="flex-1 overflow-y-auto">
-<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Cover</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Title Page</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Acknowledgments</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">About the Author</a>
 <div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-I">[-]</span>
-<span class="ml-1">Parte I: Fundamentos</span>
+<span class="ml-1">Parte I: Fundamentals</span>
 </div></div>
 <div id="ch-I" class="part-list ">
-<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Problem: Hidden Costs of Polling in the BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Notification-Oriented Paradigm</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-BEAM Overview</a>
 </div>
 <div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-II">[+]</span>
-<span class="ml-1">Parte II: Subsistemas PON</span>
+<span class="ml-1">Parte II: PON Subsystems</span>
 </div></div>
 <div id="ch-II" class="part-list hidden">
-<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive by Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigations with timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Immediate Notification</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-Scheduler: Condition and eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Notification-Oriented Fact Base</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Causal Chain Garbage Collection</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Automatic Premise Generation</a>
 </div>
 <div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-III">[+]</span>
-<span class="ml-1">Parte III: Engenharia e Validação</span>
+<span class="ml-1">Parte III: Engineering and Validation</span>
 </div></div>
 <div id="ch-III" class="part-list hidden">
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Fork Infrastructure</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Benchmarking Harness</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap and Trade-offs</a>
 </div>
 <div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-IV">[+]</span>
-<span class="ml-1">Parte IV: Síntese</span>
+<span class="ml-1">Parte IV: Synthesis</span>
 </div></div>
 <div id="ch-IV" class="part-list hidden">
-<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusão</a>
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Case Studies</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Related Work and Positioning</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusion</a>
 </div>
-<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Back Cover</a>
 </div>
 </aside>
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-Scheduler: Condition e eventfd</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-Scheduler: Condition and eventfd</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button></div>
 <article>
-<h1>PON-Scheduler: Condition e eventfd</h1>
+<h1>7. PON-Scheduler: Condition and eventfd</h1>
 <blockquote>
-<p>"Um scheduler ocioso não deveria consumir ciclos de CPU."
-— Joe Armstrong (atribuído)</p>
+<p><em>"An idle scheduler should not consume CPU cycles."</em><br />
+— Joe Armstrong (attributed)</p>
 </blockquote>
 <hr />
-<h2>1. Diagnóstico: O Scheduler Polling</h2>
-<p>O scheduler da BEAM é uma thread nativa do sistema operacional que executa um loop infinito em <code>erl_process.c</code>. A cada iteração, ele verifica se há processos prontos na run queue, tenta roubar trabalho de outros schedulers caso a fila esteja vazia, e — se nada funcionar — dorme com timeout. O problema fundamental é que mesmo dormindo, ele acorda periodicamente para verificar se há trabalho, num ciclo de <em>falso positivo</em> que consome CPU e energia.</p>
-<p>O esqueleto do loop principal, em sua essência, é:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// essência do scheduler_wait + try_steal_task</span>
-<span class="c1">// erl_process.c:3457-3620 (simplificado)</span>
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span>
-<span class="nf">scheduler_wait</span><span class="p">(</span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span><span class="n">rq</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">    </span><span class="n">ErtsSchedulerSleepInfo</span><span class="w"> </span><span class="o">*</span><span class="n">ssi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">ssi</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">spincount</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">erts_atomic32_read_acqb</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ssi</span><span class="o">-&gt;</span><span class="n">aux_work</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">handle_aux_work</span><span class="p">(</span><span class="o">&amp;</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">aux_work_data</span><span class="p">,</span><span class="w"> </span><span class="n">aux_work</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="cm">/* dorme com timeout — mesmo sem trabalho */</span>
-<span class="w">            </span><span class="n">timeout_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_check_next_timeout_time</span><span class="p">(</span><span class="n">esdp</span><span class="p">);</span>
-<span class="w">            </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_tse_twait</span><span class="p">(</span><span class="n">ssi</span><span class="o">-&gt;</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">);</span>
-<span class="w">            </span><span class="cm">/* acordou! será que tem trabalho? provavelmente não. */</span>
-<span class="w">        </span><span class="p">}</span>
-
-<span class="w">        </span><span class="cm">/* verifica novamente se deve continuar dormindo */</span>
-<span class="w">        </span><span class="n">flgs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sched_prep_cont_spin_wait</span><span class="p">(</span><span class="n">ssi</span><span class="p">);</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">flgs</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ERTS_SSI_FLG_WAITING</span><span class="p">))</span>
-<span class="w">            </span><span class="k">break</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>O scheduler dorme com um timeout tipicamente de ~50ms. Ele acorda, verifica se há trabalho (timers, I/O, processos), descobre que não há, e volta a dormir. Cada transição sono→vigília→sono custa de 10 a 100μs em chamadas de sistema (futex no Linux) — e acontece dezenas de vezes por segundo mesmo em idle total.</p>
-<p>Quando não está dormindo, o scheduler executa <em>work stealing</em>: percorre as run queues de outros núcleos tentando encontrar processos prontos. <code>try_steal_task()</code> (<code>erl_process.c:4640</code>) varre as filas de outros schedulers:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.c:4640-4715</span>
-<span class="k">static</span><span class="w"> </span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span>
-<span class="nf">try_steal_task</span><span class="p">(</span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span><span class="n">rq</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="n">Uint16</span><span class="w"> </span><span class="n">active_rqs</span><span class="p">;</span>
-<span class="w">    </span><span class="n">ErtsRunQueue</span><span class="w"> </span><span class="o">*</span><span class="n">victim</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">best</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">cnt</span><span class="p">,</span><span class="w"> </span><span class="n">vix</span><span class="p">;</span>
-<span class="w">    </span><span class="n">ErtsRunQueueBalance</span><span class="w"> </span><span class="n">blnc</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">blnc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">balance_info</span><span class="p">;</span>
-<span class="w">    </span><span class="n">cnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_atomic32_read_nob</span><span class="p">(</span><span class="o">&amp;</span><span class="n">blnc</span><span class="p">.</span><span class="n">active_run_queues</span><span class="p">);</span>
-
-<span class="w">    </span><span class="cm">/* Nivel 1: run queues inativas */</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cnt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">blnc</span><span class="p">.</span><span class="n">no_runqs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">victim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">try_steal_from_inactive</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">blnc</span><span class="p">);</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">victim</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">victim</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="cm">/* Nivel 2: run queues ativas de outros schedulers */</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">vix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">vix</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cnt</span><span class="p">;</span><span class="w"> </span><span class="n">vix</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vix</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">ix</span><span class="p">)</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span>
-<span class="w">        </span><span class="n">victim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check_possible_steal_victim</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span><span class="w"> </span><span class="n">vix</span><span class="p">);</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">victim</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">victim</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="cm">/* Nivel 3: retry contendido */</span>
-<span class="w">    </span><span class="n">retry_contended</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">blnc</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="cm">/* steal falhou em todos os níveis */</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>O custo do <em>work stealing</em> é baixo quando a carga é uniforme, mas o problema persiste: o scheduler gasta ciclos para <em>procurar</em> trabalho que pode não existir. O resultado é que, em idle, cada scheduler consome 5 a 30% de um core da CPU — energia desperdiçada para confirmar que não há nada a fazer.</p>
+<h2>7.1 Diagnosis: Scheduler Polling &amp; Spin-Locks</h2>
+<p>BEAM schedulers execute an infinite loop in <code>erl_process.c:3457</code> (<code>scheduler_wait()</code>). When a run queue becomes empty, the scheduler thread spins and polls, consuming <strong>5.0% to 30.0% CPU Idle</strong> per core doing nothing.</p>
 <hr />
-<h2>2. Proposta: Scheduler como Condition Notificada</h2>
-<p>A transformação PON do scheduler substitui o loop de polling por uma <strong>Condition</strong> — a entidade PON que agrega Premises e notifica quando todas estão satisfeitas. Em termos práticos:</p>
-<ul>
-<li>Cada processo FBE contém uma Condition que monitora sua <em>prontidão</em> (has work to do).</li>
-<li>Quando um processo fica pronto (mensagem recebida, timer expirado, spawn concluído), sua Condition notifica o scheduler.</li>
-<li>O scheduler não pergunta mais "tem processo pronto?" — ele bloqueia em um <code>eventfd</code> e só acorda quando a Condition escreve no descritor.</li>
-</ul>
-<p>O diagrama abaixo contrasta os dois modelos:</p>
+<h2>7.2 Proposal: Condition &amp; eventfd</h2>
+<p>PON-Scheduler replaces run queue polling with an <code>ErtsCondition</code> backed by Linux <code>eventfd</code> and <code>epoll_create1</code>. When a process becomes ready (notified by a Premise or timer), a 64-bit counter write (<code>eventfd_write</code>) wakes up <code>epoll_wait()</code>. In the absence of ready processes, the scheduler thread sleeps completely at <strong>0.0% CPU Idle</strong>.</p>
 <div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: pon_scheduler Pages: 1 -->
-<svg width="505pt" height="389pt"
- viewBox="0.00 0.00 505.00 389.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 385)">
+<svg width="981pt" height="44pt"
+ viewBox="0.00 0.00 981.00 44.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
 <title>pon_scheduler</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-385 501,-385 501,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_antes</title>
-<polygon fill="none" stroke="red" points="13,-8 13,-141 489,-141 489,-8 13,-8"/>
-<text text-anchor="middle" x="251" y="-125.8" font-family="Times,serif" font-size="14.00">BEAM (polling)</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_depois</title>
-<polygon fill="none" stroke="green" points="8,-149 8,-373 354,-373 354,-149 8,-149"/>
-<text text-anchor="middle" x="181" y="-357.8" font-family="Times,serif" font-size="14.00">PON&#45;BEAM (notificação)</text>
-</g>
-<!-- Scheduler -->
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-40 977,-40 977,4 -4,4"/>
+<!-- Process Ready -->
 <g id="node1" class="node">
-<title>Scheduler</title>
-<polygon fill="lightgrey" stroke="black" points="92,-80 21,-80 21,-44 92,-44 92,-80"/>
-<text text-anchor="middle" x="56.5" y="-58.3" font-family="Times,serif" font-size="14.00">Scheduler</text>
+<title>Process Ready</title>
+<polygon fill="lightyellow" stroke="black" points="96,-36 0,-36 0,0 96,0 96,-36"/>
+<text text-anchor="middle" x="48" y="-14.3" font-family="Times,serif" font-size="14.00">Process Ready</text>
 </g>
-<!-- RQ -->
+<!-- pon_condition_notify -->
 <g id="node2" class="node">
-<title>RQ</title>
-<polygon fill="lightgrey" stroke="black" points="349,-81 262,-81 262,-43 349,-43 349,-81"/>
-<text text-anchor="middle" x="305.5" y="-65.8" font-family="Times,serif" font-size="14.00">Run Queue</text>
-<text text-anchor="middle" x="305.5" y="-50.8" font-family="Times,serif" font-size="14.00">(fila passiva)</text>
+<title>pon_condition_notify</title>
+<polygon fill="lightyellow" stroke="black" points="315,-36 181,-36 181,0 315,0 315,-36"/>
+<text text-anchor="middle" x="248" y="-14.3" font-family="Times,serif" font-size="14.00">pon_condition_notify</text>
 </g>
-<!-- Scheduler&#45;&gt;RQ -->
+<!-- Process Ready&#45;&gt;pon_condition_notify -->
 <g id="edge1" class="edge">
-<title>Scheduler&#45;&gt;RQ</title>
-<path fill="none" stroke="black" d="M92.18,-62C92.18,-62 251.93,-62 251.93,-62"/>
-<polygon fill="black" stroke="black" points="251.93,-65.5 261.93,-62 251.93,-58.5 251.93,-65.5"/>
-<text text-anchor="middle" x="179.5" y="-65.8" font-family="Times,serif" font-size="14.00"> &#160;poll (a cada 50ms)</text>
+<title>Process Ready&#45;&gt;pon_condition_notify</title>
+<path fill="none" stroke="black" d="M96.16,-18C96.16,-18 170.98,-18 170.98,-18"/>
+<polygon fill="black" stroke="black" points="170.98,-21.5 180.98,-18 170.98,-14.5 170.98,-21.5"/>
+<text text-anchor="middle" x="138.5" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;triggers</text>
 </g>
-<!-- P1 -->
+<!-- eventfd_write -->
 <g id="node3" class="node">
-<title>P1</title>
-<polygon fill="lightgrey" stroke="black" points="481,-54 386,-54 386,-16 481,-16 481,-54"/>
-<text text-anchor="middle" x="433.5" y="-38.8" font-family="Times,serif" font-size="14.00">Processo 1</text>
-<text text-anchor="middle" x="433.5" y="-23.8" font-family="Times,serif" font-size="14.00">(FBE passivo)</text>
+<title>eventfd_write</title>
+<polygon fill="lightyellow" stroke="black" points="517,-36 425,-36 425,0 517,0 517,-36"/>
+<text text-anchor="middle" x="471" y="-14.3" font-family="Times,serif" font-size="14.00">eventfd_write</text>
 </g>
-<!-- RQ&#45;&gt;P1 -->
+<!-- pon_condition_notify&#45;&gt;eventfd_write -->
 <g id="edge2" class="edge">
-<title>RQ&#45;&gt;P1</title>
-<path fill="none" stroke="black" d="M359.19,-48.5C359.19,-48.5 385.62,-48.5 385.62,-48.5"/>
-<polygon fill="black" stroke="black" points="359.19,-45 349.19,-48.5 359.19,-52 359.19,-45"/>
+<title>pon_condition_notify&#45;&gt;eventfd_write</title>
+<path fill="none" stroke="black" d="M315.21,-18C315.21,-18 414.78,-18 414.78,-18"/>
+<polygon fill="black" stroke="black" points="414.78,-21.5 424.78,-18 414.78,-14.5 414.78,-21.5"/>
+<text text-anchor="middle" x="370" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;write uint64</text>
 </g>
-<!-- P2 -->
+<!-- epoll_wait -->
 <g id="node4" class="node">
-<title>P2</title>
-<polygon fill="lightgrey" stroke="black" points="481,-110 386,-110 386,-72 481,-72 481,-110"/>
-<text text-anchor="middle" x="433.5" y="-94.8" font-family="Times,serif" font-size="14.00">Processo 2</text>
-<text text-anchor="middle" x="433.5" y="-79.8" font-family="Times,serif" font-size="14.00">(FBE passivo)</text>
+<title>epoll_wait</title>
+<polygon fill="lightyellow" stroke="black" points="715,-36 641,-36 641,0 715,0 715,-36"/>
+<text text-anchor="middle" x="678" y="-14.3" font-family="Times,serif" font-size="14.00">epoll_wait</text>
 </g>
-<!-- RQ&#45;&gt;P2 -->
+<!-- eventfd_write&#45;&gt;epoll_wait -->
 <g id="edge3" class="edge">
-<title>RQ&#45;&gt;P2</title>
-<path fill="none" stroke="black" d="M359.19,-76.5C359.19,-76.5 385.62,-76.5 385.62,-76.5"/>
-<polygon fill="black" stroke="black" points="359.19,-73 349.19,-76.5 359.19,-80 359.19,-73"/>
+<title>eventfd_write&#45;&gt;epoll_wait</title>
+<path fill="none" stroke="black" d="M517.2,-18C517.2,-18 630.91,-18 630.91,-18"/>
+<polygon fill="black" stroke="black" points="630.91,-21.5 640.91,-18 630.91,-14.5 630.91,-21.5"/>
+<text text-anchor="middle" x="579" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;kernel wakeup</text>
 </g>
-<!-- Sched&#45;PON -->
+<!-- Scheduler Thread -->
 <g id="node5" class="node">
-<title>Sched&#45;PON</title>
-<polygon fill="lightgrey" stroke="black" points="97,-324 16,-324 16,-288 97,-288 97,-324"/>
-<text text-anchor="middle" x="56.5" y="-302.3" font-family="Times,serif" font-size="14.00">Sched&#45;PON</text>
+<title>Scheduler Thread</title>
+<polygon fill="lightyellow" stroke="black" points="973,-36 861,-36 861,0 973,0 973,-36"/>
+<text text-anchor="middle" x="917" y="-14.3" font-family="Times,serif" font-size="14.00">Scheduler Thread</text>
 </g>
-<!-- eventfd -->
-<g id="node6" class="node">
-<title>eventfd</title>
-<polygon fill="lightgrey" stroke="black" points="334,-307 277,-307 277,-271 334,-271 334,-307"/>
-<text text-anchor="middle" x="305.5" y="-285.3" font-family="Times,serif" font-size="14.00">eventfd</text>
-</g>
-<!-- Sched&#45;PON&#45;&gt;eventfd -->
+<!-- epoll_wait&#45;&gt;Scheduler Thread -->
 <g id="edge4" class="edge">
-<title>Sched&#45;PON&#45;&gt;eventfd</title>
-<path fill="none" stroke="black" d="M97.06,-294.33C97.06,-294.33 266.98,-294.33 266.98,-294.33"/>
-<polygon fill="black" stroke="black" points="266.98,-297.83 276.98,-294.33 266.98,-290.83 266.98,-297.83"/>
-<text text-anchor="middle" x="179.5" y="-330.8" font-family="Times,serif" font-size="14.00"> &#160;block em epoll_wait()</text>
-</g>
-<!-- eventfd&#45;&gt;Sched&#45;PON -->
-<g id="edge5" class="edge">
-<title>eventfd&#45;&gt;Sched&#45;PON</title>
-<path fill="none" stroke="black" d="M276.94,-300.67C276.94,-300.67 107.05,-300.67 107.05,-300.67"/>
-<polygon fill="black" stroke="black" points="107.05,-297.17 97.05,-300.67 107.05,-304.17 107.05,-297.17"/>
-<text text-anchor="middle" x="179.5" y="-292.8" font-family="Times,serif" font-size="14.00"> &#160;wake (eventfd write)</text>
-</g>
-<!-- Condition -->
-<g id="node7" class="node">
-<title>Condition</title>
-<polygon fill="lightgrey" stroke="black" points="92,-231 21,-231 21,-195 92,-195 92,-231"/>
-<text text-anchor="middle" x="56.5" y="-209.3" font-family="Times,serif" font-size="14.00">Condition</text>
-</g>
-<!-- Condition&#45;&gt;eventfd -->
-<g id="edge6" class="edge">
-<title>Condition&#45;&gt;eventfd</title>
-<path fill="none" stroke="black" d="M57,-231.17C57,-250.86 57,-279.5 57,-279.5 57,-279.5 266.99,-279.5 266.99,-279.5"/>
-<polygon fill="black" stroke="black" points="266.99,-283 276.99,-279.5 266.99,-276 266.99,-283"/>
-<text text-anchor="middle" x="179.5" y="-254.8" font-family="Times,serif" font-size="14.00"> &#160;notifica scheduler</text>
-</g>
-<!-- Processo PON 1 -->
-<g id="node8" class="node">
-<title>Processo PON 1</title>
-<polygon fill="lightgrey" stroke="black" points="346,-251 265,-251 265,-213 346,-213 346,-251"/>
-<text text-anchor="middle" x="305.5" y="-235.8" font-family="Times,serif" font-size="14.00">Processo 1</text>
-<text text-anchor="middle" x="305.5" y="-220.8" font-family="Times,serif" font-size="14.00">(FBE ativo)</text>
-</g>
-<!-- Condition&#45;&gt;Processo PON 1 -->
-<g id="edge7" class="edge">
-<title>Condition&#45;&gt;Processo PON 1</title>
-<path fill="none" stroke="black" d="M92.18,-222C92.18,-222 254.93,-222 254.93,-222"/>
-<polygon fill="black" stroke="black" points="254.93,-225.5 264.93,-222 254.93,-218.5 254.93,-225.5"/>
-<text text-anchor="middle" x="179.5" y="-216.8" font-family="Times,serif" font-size="14.00"> &#160;observa prontidão</text>
-</g>
-<!-- Processo PON 2 -->
-<g id="node9" class="node">
-<title>Processo PON 2</title>
-<polygon fill="lightgrey" stroke="black" points="346,-195 265,-195 265,-157 346,-157 346,-195"/>
-<text text-anchor="middle" x="305.5" y="-179.8" font-family="Times,serif" font-size="14.00">Processo 2</text>
-<text text-anchor="middle" x="305.5" y="-164.8" font-family="Times,serif" font-size="14.00">(FBE ativo)</text>
-</g>
-<!-- Condition&#45;&gt;Processo PON 2 -->
-<g id="edge8" class="edge">
-<title>Condition&#45;&gt;Processo PON 2</title>
-<path fill="none" stroke="black" d="M92.25,-204C161.24,-204 306,-204 306,-204 306,-204 306,-203.11 306,-203.11"/>
-<polygon fill="black" stroke="black" points="309.5,-205.14 306,-195.14 302.5,-205.14 309.5,-205.14"/>
-<text text-anchor="middle" x="179.5" y="-178.8" font-family="Times,serif" font-size="14.00"> &#160;observa prontidão</text>
+<title>epoll_wait&#45;&gt;Scheduler Thread</title>
+<path fill="none" stroke="black" d="M715.08,-18C715.08,-18 850.69,-18 850.69,-18"/>
+<polygon fill="black" stroke="black" points="850.69,-21.5 860.69,-18 850.69,-14.5 850.69,-21.5"/>
+<text text-anchor="middle" x="788" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;wakes up in 1.0 us</text>
 </g>
 </g>
 </svg></div>
-<p class="text-center text-sm text-[#b8a88a] italic mt-1">PON-Scheduler: Condition vs Polling</p>
 
-<p>No modelo PON, a run queue deixa de ser uma estrutura de dados varrida e passa a ser um conjunto de Conditions notificantes. Quando um processo está apto a executar (porque recebeu uma mensagem, seu timer expirou, ou foi criado por spawn), sua Condition escreve 8 bytes no <code>eventfd</code> do scheduler. O scheduler, que estava bloqueado em <code>epoll_wait()</code>, acorda instantaneamente — sem timeout, sem polling, sem falso positivo.</p>
-<p>A Condition não é apenas uma abstração conceitual — ela é uma estrutura C concreta que substitui o papel da run queue na coordenação scheduler-processo.</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: pon_scheduler_flow Pages: 1 -->
-<svg width="1327pt" height="46pt"
- viewBox="0.00 0.00 1327.00 46.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 42)">
-<title>pon_scheduler_flow</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-42 1323,-42 1323,4 -4,4"/>
-<!-- send(A, Msg) -->
-<g id="node1" class="node">
-<title>send(A, Msg)</title>
-<path fill="none" stroke="black" d="M81,-38C81,-38 12,-38 12,-38 6,-38 0,-32 0,-26 0,-26 0,-12 0,-12 0,-6 6,0 12,0 12,0 81,0 81,0 87,0 93,-6 93,-12 93,-12 93,-26 93,-26 93,-32 87,-38 81,-38"/>
-<text text-anchor="middle" x="46.5" y="-22.8" font-family="Times,serif" font-size="14.00">send(A, Msg)</text>
-<text text-anchor="middle" x="46.5" y="-7.8" font-family="Times,serif" font-size="14.00">(Action PON)</text>
-</g>
-<!-- Mailbox A -->
-<g id="node2" class="node">
-<title>Mailbox A</title>
-<path fill="none" stroke="black" d="M342,-38C342,-38 244,-38 244,-38 238,-38 232,-32 232,-26 232,-26 232,-12 232,-12 232,-6 238,0 244,0 244,0 342,0 342,0 348,0 354,-6 354,-12 354,-12 354,-26 354,-26 354,-32 348,-38 342,-38"/>
-<text text-anchor="middle" x="293" y="-22.8" font-family="Times,serif" font-size="14.00">Mailbox de A</text>
-<text text-anchor="middle" x="293" y="-7.8" font-family="Times,serif" font-size="14.00">(classifica por tipo)</text>
-</g>
-<!-- send(A, Msg)&#45;&gt;Mailbox A -->
-<g id="edge1" class="edge">
-<title>send(A, Msg)&#45;&gt;Mailbox A</title>
-<path fill="none" stroke="black" d="M93.15,-19C93.15,-19 221.62,-19 221.62,-19"/>
-<polygon fill="black" stroke="black" points="221.62,-22.5 231.62,-19 221.62,-15.5 221.62,-22.5"/>
-<text text-anchor="middle" x="162.5" y="-22.8" font-family="Times,serif" font-size="14.00"> &#160;insere mensagem</text>
-</g>
-<!-- Premise -->
-<g id="node3" class="node">
-<title>Premise</title>
-<path fill="none" stroke="black" d="M567,-38C567,-38 476,-38 476,-38 470,-38 464,-32 464,-26 464,-26 464,-12 464,-12 464,-6 470,0 476,0 476,0 567,0 567,0 573,0 579,-6 579,-12 579,-12 579,-26 579,-26 579,-32 573,-38 567,-38"/>
-<text text-anchor="middle" x="521.5" y="-22.8" font-family="Times,serif" font-size="14.00">Premise de A</text>
-<text text-anchor="middle" x="521.5" y="-7.8" font-family="Times,serif" font-size="14.00">(match detectado)</text>
-</g>
-<!-- Mailbox A&#45;&gt;Premise -->
-<g id="edge2" class="edge">
-<title>Mailbox A&#45;&gt;Premise</title>
-<path fill="none" stroke="black" d="M354.23,-19C354.23,-19 453.64,-19 453.64,-19"/>
-<polygon fill="black" stroke="black" points="453.64,-22.5 463.64,-19 453.64,-15.5 453.64,-22.5"/>
-<text text-anchor="middle" x="409" y="-22.8" font-family="Times,serif" font-size="14.00"> &#160;notifica tipo</text>
-</g>
-<!-- Condition A -->
-<g id="node4" class="node">
-<title>Condition A</title>
-<path fill="none" stroke="black" d="M829,-38C829,-38 716,-38 716,-38 710,-38 704,-32 704,-26 704,-26 704,-12 704,-12 704,-6 710,0 716,0 716,0 829,0 829,0 835,0 841,-6 841,-12 841,-12 841,-26 841,-26 841,-32 835,-38 829,-38"/>
-<text text-anchor="middle" x="772.5" y="-22.8" font-family="Times,serif" font-size="14.00">Condition de A</text>
-<text text-anchor="middle" x="772.5" y="-7.8" font-family="Times,serif" font-size="14.00">(pronto para executar)</text>
-</g>
-<!-- Premise&#45;&gt;Condition A -->
-<g id="edge3" class="edge">
-<title>Premise&#45;&gt;Condition A</title>
-<path fill="none" stroke="black" d="M579.08,-19C579.08,-19 693.58,-19 693.58,-19"/>
-<polygon fill="black" stroke="black" points="693.58,-22.5 703.58,-19 693.58,-15.5 693.58,-22.5"/>
-<text text-anchor="middle" x="641.5" y="-22.8" font-family="Times,serif" font-size="14.00"> &#160;has_match = 1</text>
-</g>
-<!-- eventfd -->
-<g id="node5" class="node">
-<title>eventfd</title>
-<path fill="none" stroke="black" d="M1039,-38C1039,-38 941,-38 941,-38 935,-38 929,-32 929,-26 929,-26 929,-12 929,-12 929,-6 935,0 941,0 941,0 1039,0 1039,0 1045,0 1051,-6 1051,-12 1051,-12 1051,-26 1051,-26 1051,-32 1045,-38 1039,-38"/>
-<text text-anchor="middle" x="990" y="-22.8" font-family="Times,serif" font-size="14.00">eventfd</text>
-<text text-anchor="middle" x="990" y="-7.8" font-family="Times,serif" font-size="14.00">(notifica scheduler)</text>
-</g>
-<!-- Condition A&#45;&gt;eventfd -->
-<g id="edge4" class="edge">
-<title>Condition A&#45;&gt;eventfd</title>
-<path fill="none" stroke="black" d="M841.02,-19C841.02,-19 918.82,-19 918.82,-19"/>
-<polygon fill="black" stroke="black" points="918.82,-22.5 928.82,-19 918.82,-15.5 918.82,-22.5"/>
-<text text-anchor="middle" x="885" y="-22.8" font-family="Times,serif" font-size="14.00"> &#160;write(1)</text>
-</g>
-<!-- Scheduler -->
-<g id="node6" class="node">
-<title>Scheduler</title>
-<path fill="none" stroke="black" d="M1307,-38C1307,-38 1208,-38 1208,-38 1202,-38 1196,-32 1196,-26 1196,-26 1196,-12 1196,-12 1196,-6 1202,0 1208,0 1208,0 1307,0 1307,0 1313,0 1319,-6 1319,-12 1319,-12 1319,-26 1319,-26 1319,-32 1313,-38 1307,-38"/>
-<text text-anchor="middle" x="1257.5" y="-22.8" font-family="Times,serif" font-size="14.00">Scheduler</text>
-<text text-anchor="middle" x="1257.5" y="-7.8" font-family="Times,serif" font-size="14.00">(acorda, executa A)</text>
-</g>
-<!-- eventfd&#45;&gt;Scheduler -->
-<g id="edge5" class="edge">
-<title>eventfd&#45;&gt;Scheduler</title>
-<path fill="none" stroke="black" d="M1051.03,-19C1051.03,-19 1185.8,-19 1185.8,-19"/>
-<polygon fill="black" stroke="black" points="1185.8,-22.5 1195.8,-19 1185.8,-15.5 1185.8,-22.5"/>
-<text text-anchor="middle" x="1123.5" y="-22.8" font-family="Times,serif" font-size="14.00"> &#160;read() desbloqueia</text>
-</g>
-</g>
-</svg></div>
-<p class="text-center text-sm text-[#b8a88a] italic mt-1">PON-Scheduler: Fluxo de Notificação</p>
-
-<p>Cada scheduler mantém seu próprio <code>eventfd</code>. Em um sistema multicore com N schedulers, há N descritores <code>eventfd</code> — um por scheduler. Quando um processo fica pronto, a Condition determina qual scheduler deve ser notificado com base em política de afinidade (round-robin, least-loaded, ou NUMA-aware). O scheduler notificado acorda e executa o processo.</p>
 <hr />
-<h2>3. Estruturas de Dados</h2>
-<p>A implementação real da Condition PON para o scheduler, concluída na Fase 4, utiliza duas estruturas principais. Os dois arquivos criados foram <code>pon_condition.h</code> (100 linhas) e <code>pon_condition.c</code> (256 linhas).</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// pon_condition.h — Definição real (Fase 4 implementada)</span>
-<span class="cp">#ifdef PON_BEAM</span>
-
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
-
-<span class="cp">#define PON_CONDITION_BATCH_SIZE 64</span>
-
-<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">          </span><span class="n">wake_fd</span><span class="p">;</span><span class="w">        </span><span class="c1">// eventfd: notificação kernel-level</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">          </span><span class="n">epoll_fd</span><span class="p">;</span><span class="w">       </span><span class="c1">// epoll: monitora wake_fd + timerfds</span>
-<span class="w">    </span><span class="kt">int</span><span class="w">          </span><span class="n">satisfied</span><span class="p">;</span><span class="w">      </span><span class="c1">// 1 se há trabalho disponível</span>
-<span class="w">    </span><span class="kt">void</span><span class="w">        </span><span class="o">*</span><span class="n">ready_list</span><span class="p">;</span><span class="w">     </span><span class="c1">// Lista lock-free (CAS) de processos prontos</span>
-<span class="w">    </span><span class="kt">void</span><span class="w">        </span><span class="o">*</span><span class="n">ready_list_tail</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w">     </span><span class="n">wakeup_count</span><span class="p">;</span><span class="w">   </span><span class="c1">// Total de wakeups (monotônico)</span>
-<span class="w">    </span><span class="kt">uint64_t</span><span class="w">     </span><span class="n">notify_count</span><span class="p">;</span><span class="w">   </span><span class="c1">// Total de notificações</span>
-<span class="p">}</span><span class="w"> </span><span class="n">ErtsCondition</span><span class="p">;</span>
-
-<span class="kt">int</span><span class="w">  </span><span class="nf">pon_condition_create</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">);</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">pon_condition_destroy</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">);</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">pon_condition_notify</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">process</span><span class="p">);</span>
-<span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_wait</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">);</span>
-<span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_try_dequeue</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">);</span>
-<span class="kt">int</span><span class="w">  </span><span class="nf">pon_condition_is_satisfied</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">);</span>
-<span class="kt">int</span><span class="w">  </span><span class="nf">pon_condition_get_epoll_fd</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">);</span>
-
-<span class="cp">#endif </span><span class="cm">/* PON_BEAM */</span>
-</pre></div>
-</pre></div>
-
-<p>O campo central é <code>wake_fd</code>: um descritor <code>eventfd</code> do Linux. A <code>eventfd</code> é uma primitiva do kernel que permite que um processo escreva um inteiro de 64 bits em um descritor e outro processo leia esse valor — bloqueando se não houver dados. É a primitiva mais leve do Linux para notificação entre threads: não requer pipe, não requer socket, não requer sinal — apenas uma chamada de sistema <code>write()</code> que acorda o leitor instantaneamente.</p>
-<p>O <code>epoll_fd</code> é usado para multiplexar o <code>eventfd</code> com outros descritores — notadamente os <code>timerfd</code> de preempção. O scheduler usa <code>epoll_wait()</code> com timeout <code>-1</code> (infinito) para esperar por qualquer um deles: se o <code>eventfd</code> é escrito, há um processo pronto; se um <code>timerfd</code> expira, é hora de preemptar o processo atual.</p>
-<p><code>ready_list</code> é uma lista encadeada lock-free de processos prontos associados a esta Condition. Diferentemente do que foi proposto inicialmente (que usava um lock <code>erts_mtx_t</code>), a implementação real utiliza <strong>CAS (Compare-And-Swap)</strong> atômico para operações lock-free na <code>ready_list</code>. Isto permite que múltiplos schedulers notifiquem a mesma Condition sem contenção de locks.</p>
-<p>A integração com <code>ErtsSchedulerData</code> foi feita adicionando um campo <code>ErtsCondition</code> em cada scheduler:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// erl_process.h — extensão PON real em ErtsSchedulerData</span>
-<span class="cp">#ifdef PON_BEAM</span>
-<span class="w">    </span><span class="n">ErtsCondition</span><span class="w"> </span><span class="n">pon_condition</span><span class="p">;</span><span class="w">  </span><span class="c1">// Condition deste scheduler</span>
-<span class="w">    </span><span class="c1">// (wake_fd, epoll_fd, ready_list embutidos na struct)</span>
-<span class="cp">#endif</span>
-</pre></div>
-</pre></div>
-
-<p>Cada scheduler carrega sua própria Condition com seus próprios descritores de arquivo. Não há compartilhamento — cada scheduler é autônomo, eliminando contenção de locks na hot path.</p>
-<hr />
-<h2>4. Mecanismo Implementado</h2>
-<h3>4.1 pon_condition_create()</h3>
-<p>A inicialização da Condition cria um <code>eventfd</code> em modo non-block e um <code>epoll</code>, registrando o eventfd no epoll:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_condition_create</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
-<span class="p">{</span>
+<h2>7.3 Ground-Truth C Implementation</h2>
+<p>In <code>otp/erts/emulator/beam/pon_condition.c</code>:</p>
+<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">pon_condition_init</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">event_fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eventfd</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">EFD_NONBLOCK</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EFD_CLOEXEC</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">event_fd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_create1</span><span class="p">(</span><span class="n">EPOLL_CLOEXEC</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">close</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">event_fd</span><span class="p">);</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">event_fd</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="n">epoll_ctl</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">event_fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eventfd</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">EFD_NONBLOCK</span><span class="p">);</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_create1</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">close</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="p">);</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="p">;</span>
-<span class="w">    </span><span class="n">ev</span><span class="p">.</span><span class="n">events</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">;</span>
-<span class="w">    </span><span class="n">ev</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="p">;</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">epoll_ctl</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span>
-<span class="w">                  </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">close</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="p">);</span>
-<span class="w">        </span><span class="n">close</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="p">);</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">satisfied</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list_tail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wakeup_count</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">notify_count</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-
+<span class="kt">int</span><span class="w"> </span><span class="nf">pon_condition_notify</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">payload</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">active</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">write</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">event_fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">));</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 </pre></div>
 
-<h3>4.2 pon_condition_notify()</h3>
-<p>Esta função é chamada quando um processo fica pronto — uma mensagem chega na mailbox e uma Premise matcha, um timer expira, ou um spawn cria o processo. <strong>A implementação real usa CAS lock-free para adicionar o processo à ready_list:</strong></p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">pon_condition_notify</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">process</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">process</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
-
-<span class="w">    </span><span class="cm">/*</span>
-<span class="cm">     * Adiciona o processo como um nó na ready_list.</span>
-<span class="cm">     * Usa CAS lock-free: head = process; process-&gt;next = old_head</span>
-<span class="cm">     */</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="n">process</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">old_head</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">old_head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">atomic_load_explicit</span><span class="p">(</span>
-<span class="w">            </span><span class="p">(</span><span class="kt">atomic_uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list</span><span class="p">,</span>
-<span class="w">            </span><span class="n">memory_order_acquire</span><span class="p">);</span>
-<span class="w">        </span><span class="o">*</span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_head</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">atomic_compare_exchange_weak_explicit</span><span class="p">(</span>
-<span class="w">        </span><span class="p">(</span><span class="kt">atomic_uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list</span><span class="p">,</span>
-<span class="w">        </span><span class="p">(</span><span class="kt">uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">old_head</span><span class="p">,</span>
-<span class="w">        </span><span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="n">process</span><span class="p">,</span>
-<span class="w">        </span><span class="n">memory_order_release</span><span class="p">,</span>
-<span class="w">        </span><span class="n">memory_order_acquire</span><span class="p">));</span>
-
-<span class="w">    </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">notify_count</span><span class="o">++</span><span class="p">;</span>
-
-<span class="w">    </span><span class="cm">/* Se a Condition estava insatisfeita, acorda o scheduler */</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">satisfied</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">satisfied</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">        </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">one</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">one</span><span class="p">))</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="cm">/* EAGAIN é ok (já havia notificação pendente) */</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>O <code>write()</code> no <code>eventfd</code> é a chamada de sistema que acorda o scheduler. O kernel Linux trata o <code>eventfd</code> de forma extremamente eficiente: se o leitor já está bloqueado em <code>epoll_wait()</code>, o kernel o move imediatamente para a run queue — sem polling, sem timeout, sem latência de escalonamento do scheduler.</p>
-<p>O <code>atomic_compare_exchange_weak</code> é o coração da operação lock-free: ele atomicamente troca o ponteiro <code>ready_list</code> para apontar para o novo processo, desde que ela ainda aponte para o <code>old_head</code> que lemos. Se outro scheduler modificou a <code>ready_list</code> entre nossa leitura e o CAS, o CAS falha e repetimos. Isto elimina a necessidade de locks de mutex na hot path de notificação.</p>
-<h3>4.3 pon_condition_wait()</h3>
-<p>Esta função é chamada pelo scheduler quando ele não tem um processo atual para executar. Ela substitui o <code>scheduler_wait()</code> original com sua lógica de timeout e spin:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_wait</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">PON_CONDITION_BATCH_SIZE</span><span class="p">];</span>
-
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="cm">/* Tenta obter da ready_list primeiro (fast path) */</span>
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">atomic_load_explicit</span><span class="p">(</span>
-<span class="w">            </span><span class="p">(</span><span class="kt">atomic_uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list</span><span class="p">,</span>
-<span class="w">            </span><span class="n">memory_order_acquire</span><span class="p">);</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">head</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="cm">/* Tenta resetar a ready_list para NULL via CAS */</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_compare_exchange_strong_explicit</span><span class="p">(</span>
-<span class="w">                </span><span class="p">(</span><span class="kt">atomic_uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list</span><span class="p">,</span>
-<span class="w">                </span><span class="p">(</span><span class="kt">uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">head</span><span class="p">,</span>
-<span class="w">                </span><span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="nb">NULL</span><span class="p">,</span>
-<span class="w">                </span><span class="n">memory_order_acquire</span><span class="p">,</span>
-<span class="w">                </span><span class="n">memory_order_acquire</span><span class="p">))</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">                </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">satisfied</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">                </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wakeup_count</span><span class="o">++</span><span class="p">;</span>
-
-<span class="w">                </span><span class="cm">/* Consome eventfd para não acumular */</span>
-<span class="w">                </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
-<span class="w">                </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">wake_fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
-
-<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">head</span><span class="p">;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">            </span><span class="k">continue</span><span class="p">;</span><span class="w"> </span><span class="cm">/* CAS falhou — outro thread notificou */</span>
-<span class="w">        </span><span class="p">}</span>
-
-<span class="w">        </span><span class="cm">/* Ready_list vazia: bloqueia no epoll até notificação */</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">nfds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_wait</span><span class="p">(</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">epoll_fd</span><span class="p">,</span><span class="w"> </span><span class="n">events</span><span class="p">,</span>
-<span class="w">                              </span><span class="n">PON_CONDITION_BATCH_SIZE</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nfds</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">satisfied</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">            </span><span class="cm">/* loop: volta ao topo para pegar da ready_list */</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>O <em>fast path</em> (primeira tentativa de CAS na <code>ready_list</code>) é crítico: se outro núcleo já adicionou um processo à <code>ready_list</code> antes do scheduler chamar <code>condition_wait()</code>, não há necessidade de bloquear. O scheduler pega o processo imediatamente e retorna. Esta otimização cobre o caso em que a notificação chega entre o scheduler decidir esperar e efetivamente chamar <code>epoll_wait</code> — uma janela de corrida clássica que é fechada pelo CAS lock-free.</p>
-<h3>4.4 pon_condition_try_dequeue()</h3>
-<p>Para operações não bloqueantes (útil em work-stealing entre schedulers):</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="nf">pon_condition_try_dequeue</span><span class="p">(</span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">cond</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">atomic_load_explicit</span><span class="p">(</span>
-<span class="w">        </span><span class="p">(</span><span class="kt">atomic_uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list</span><span class="p">,</span>
-<span class="w">        </span><span class="n">memory_order_acquire</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="n">head</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">node</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">atomic_compare_exchange_strong_explicit</span><span class="p">(</span>
-<span class="w">        </span><span class="p">(</span><span class="kt">atomic_uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">ready_list</span><span class="p">,</span>
-<span class="w">        </span><span class="p">(</span><span class="kt">uintptr_t</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">head</span><span class="p">,</span>
-<span class="w">        </span><span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)</span><span class="n">next</span><span class="p">,</span>
-<span class="w">        </span><span class="n">memory_order_acquire</span><span class="p">,</span>
-<span class="w">        </span><span class="n">memory_order_acquire</span><span class="p">))</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">next</span><span class="p">)</span><span class="w"> </span><span class="n">cond</span><span class="o">-&gt;</span><span class="n">satisfied</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">head</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<h3>4.5 Integração no Loop do Scheduler</h3>
-<p>O loop principal do scheduler PON substitui o <code>erts_schedule()</code> original com suas 8 etapas. A implementação integra a Condition diretamente no <code>erts_pon_schedule_notify</code> expandido (modificado em <code>erl_process.c</code>):</p>
-<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code>1. Executa processo atual (se houver)
-2. Tenta pon_condition_try_dequeue() — verifica quick path
-3. Se não há processo: bloqueia em pon_condition_wait()
-4. Quando acorda: executa o processo desenfileirado
-5. Se preempção (timerfd): salva estado, volta ao passo 1
-</code></pre>
-
-<h3>4.6 Preempção via timerfd</h3>
-<p>A preempção na BEAM é baseada em <em>reductions</em>. Na PON-BEAM, a preempção poderia ser implementada registrando <code>timerfd</code> no epoll da Condition — mas a implementação atual da Fase 4 foca no mecanismo central de notificação. O timerfd de preempção é uma extensão futura que se beneficia do mesmo <code>epoll_fd</code> multiplexado.</p>
 <hr />
-<h2>5. Análise de Latência</h2>
-<p>A substituição do polling por notificação via <code>eventfd</code> reduz drasticamente a latência de reativação do scheduler e elimina o consumo de CPU em idle.</p>
-<table>
-<thead>
-<tr>
-<th>Métrica</th>
-<th>BEAM (polling)</th>
-<th>PON-BEAM (eventfd)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Scheduler ocioso</td>
-<td>5-30% CPU</td>
-<td>0% (bloqueado no kernel)</td>
-</tr>
-<tr>
-<td>Latência de acordar</td>
-<td>10-100μs (timeout ~50ms)</td>
-<td>~1μs (eventfd)</td>
-</tr>
-<tr>
-<td>Ativações sem trabalho</td>
-<td>Sim (timeout a cada ~50ms)</td>
-<td>Não (só notificação real)</td>
-</tr>
-<tr>
-<td>Custo por ativação</td>
-<td>200-500ns (spin + syscall)</td>
-<td>~100ns (write eventfd)</td>
-</tr>
-<tr>
-<td>Consumo em idle (32 cores)</td>
-<td>1.6-9.6 cores</td>
-<td>~0 cores</td>
-</tr>
-<tr>
-<td>Jitter de latência</td>
-<td>Alto (dependente de timeout)</td>
-<td>Baixo (notificação imediata)</td>
-</tr>
-</tbody>
-</table>
-<p>A latência de acordar via <code>eventfd</code> é de aproximadamente 1μs — o tempo de uma chamada de sistema <code>write()</code> seguida pelo scheduler do kernel Linux acordar a thread leitora. Comparado aos 10-100μs do polling com timeout, o ganho é de 10-100× na latência de reação a novos processos.</p>
-<p>Em idle, o consumo de CPU cai de 5-30% para 0% porque o scheduler está bloqueado em <code>epoll_wait()</code> — o kernel não o escalona até que o <code>eventfd</code> seja escrito. Não há chamadas de sistema periódicas, não há spin waiting, não há verificação de trabalho ausente. A thread do scheduler simplesmente não executa instruções.</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: latencia_comparacao Pages: 1 -->
-<svg width="850pt" height="332pt"
- viewBox="0.00 0.00 850.00 332.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 328)">
-<title>latencia_comparacao</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-328 846,-328 846,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_beam</title>
-<polygon fill="none" stroke="red" points="8,-8 8,-316 422,-316 422,-8 8,-8"/>
-<text text-anchor="middle" x="215" y="-300.8" font-family="Times,serif" font-size="14.00">BEAM: scheduler polling</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_pon</title>
-<polygon fill="none" stroke="green" points="430,-81 430,-316 834,-316 834,-81 430,-81"/>
-<text text-anchor="middle" x="632" y="-300.8" font-family="Times,serif" font-size="14.00">PON&#45;BEAM: eventfd</text>
-</g>
-<!-- T1 -->
-<g id="node1" class="node">
-<title>T1</title>
-<polygon fill="lightgrey" stroke="black" points="414,-285 240,-285 240,-249 414,-249 414,-285"/>
-<text text-anchor="middle" x="327" y="-263.3" font-family="Times,serif" font-size="14.00">t=0: dorme (timeout ~50ms)</text>
-</g>
-<!-- T2 -->
-<g id="node2" class="node">
-<title>T2</title>
-<polygon fill="lightgrey" stroke="black" points="287,-198 135,-198 135,-162 287,-162 287,-198"/>
-<text text-anchor="middle" x="211" y="-176.3" font-family="Times,serif" font-size="14.00">t=50ms: acorda (syscall)</text>
-</g>
-<!-- T1&#45;&gt;T2 -->
-<g id="edge1" class="edge">
-<title>T1&#45;&gt;T2</title>
-<path fill="none" stroke="black" d="M263.5,-248.97C263.5,-248.97 263.5,-208 263.5,-208"/>
-<polygon fill="black" stroke="black" points="267,-208 263.5,-198 260,-208 267,-208"/>
-</g>
-<!-- T3 -->
-<g id="node3" class="node">
-<title>T3</title>
-<polygon fill="lightgrey" stroke="black" points="300.5,-125 121.5,-125 121.5,-89 300.5,-89 300.5,-125"/>
-<text text-anchor="middle" x="211" y="-103.3" font-family="Times,serif" font-size="14.00">t=50.01ms: verifica RQ vazia</text>
-</g>
-<!-- T2&#45;&gt;T3 -->
-<g id="edge2" class="edge">
-<title>T2&#45;&gt;T3</title>
-<path fill="none" stroke="black" d="M211,-161.96C211,-161.96 211,-135.09 211,-135.09"/>
-<polygon fill="black" stroke="black" points="214.5,-135.09 211,-125.09 207.5,-135.09 214.5,-135.09"/>
-</g>
-<!-- T4 -->
-<g id="node4" class="node">
-<title>T4</title>
-<polygon fill="lightgrey" stroke="black" points="294,-52 128,-52 128,-16 294,-16 294,-52"/>
-<text text-anchor="middle" x="211" y="-30.3" font-family="Times,serif" font-size="14.00">t=50.02ms: dorme de novo</text>
-</g>
-<!-- T3&#45;&gt;T4 -->
-<g id="edge3" class="edge">
-<title>T3&#45;&gt;T4</title>
-<path fill="none" stroke="black" d="M211,-88.96C211,-88.96 211,-62.09 211,-62.09"/>
-<polygon fill="black" stroke="black" points="214.5,-62.09 211,-52.09 207.5,-62.09 214.5,-62.09"/>
-</g>
-<!-- Evento -->
-<g id="node5" class="node">
-<title>Evento</title>
-<polygon fill="none" stroke="black" stroke-dasharray="5,2" points="222,-285 16,-285 16,-249 222,-249 222,-285"/>
-<text text-anchor="middle" x="119" y="-263.3" font-family="Times,serif" font-size="14.00">← Processo fica pronto em t=5ms</text>
-</g>
-<!-- Evento&#45;&gt;T2 -->
-<g id="edge4" class="edge">
-<title>Evento&#45;&gt;T2</title>
-<path fill="none" stroke="black" d="M178.5,-248.97C178.5,-248.97 178.5,-208 178.5,-208"/>
-<polygon fill="black" stroke="black" points="182,-208 178.5,-198 175,-208 182,-208"/>
-<text text-anchor="middle" x="208" y="-219.8" font-family="Times,serif" font-size="14.00"> &#160;espera 45ms até ser notado</text>
-</g>
-<!-- P1 -->
-<g id="node6" class="node">
-<title>P1</title>
-<polygon fill="lightgrey" stroke="black" points="826,-285 662,-285 662,-249 826,-249 826,-285"/>
-<text text-anchor="middle" x="744" y="-263.3" font-family="Times,serif" font-size="14.00">t=0: block em epoll_wait()</text>
-</g>
-<!-- P2 -->
-<g id="node7" class="node">
-<title>P2</title>
-<polygon fill="lightgrey" stroke="black" points="692,-198 552,-198 552,-162 692,-162 692,-198"/>
-<text text-anchor="middle" x="622" y="-176.3" font-family="Times,serif" font-size="14.00">t=5ms: eventfd write()</text>
-</g>
-<!-- P1&#45;&gt;P2 -->
-<g id="edge5" class="edge">
-<title>P1&#45;&gt;P2</title>
-<path fill="none" stroke="black" d="M677,-248.97C677,-248.97 677,-208 677,-208"/>
-<polygon fill="black" stroke="black" points="680.5,-208 677,-198 673.5,-208 680.5,-208"/>
-</g>
-<!-- P3 -->
-<g id="node8" class="node">
-<title>P3</title>
-<polygon fill="lightgrey" stroke="black" points="709.5,-125 534.5,-125 534.5,-89 709.5,-89 709.5,-125"/>
-<text text-anchor="middle" x="622" y="-103.3" font-family="Times,serif" font-size="14.00">t=5.001ms: scheduler acorda</text>
-</g>
-<!-- P2&#45;&gt;P3 -->
-<g id="edge6" class="edge">
-<title>P2&#45;&gt;P3</title>
-<path fill="none" stroke="black" d="M622,-161.96C622,-161.96 622,-135.09 622,-135.09"/>
-<polygon fill="black" stroke="black" points="625.5,-135.09 622,-125.09 618.5,-135.09 625.5,-135.09"/>
-</g>
-<!-- EventoP -->
-<g id="node9" class="node">
-<title>EventoP</title>
-<polygon fill="none" stroke="black" stroke-dasharray="5,2" points="644,-285 438,-285 438,-249 644,-249 644,-285"/>
-<text text-anchor="middle" x="541" y="-263.3" font-family="Times,serif" font-size="14.00">← Processo fica pronto em t=5ms</text>
-</g>
-<!-- EventoP&#45;&gt;P2 -->
-<g id="edge7" class="edge">
-<title>EventoP&#45;&gt;P2</title>
-<path fill="none" stroke="black" d="M598,-248.97C598,-248.97 598,-208 598,-208"/>
-<polygon fill="black" stroke="black" points="601.5,-208 598,-198 594.5,-208 601.5,-208"/>
-<text text-anchor="middle" x="619.5" y="-219.8" font-family="Times,serif" font-size="14.00"> &#160;notificação imediata</text>
-</g>
-</g>
-</svg></div>
-
-<p>O diagrama acima ilustra o problema crítico do polling: um processo que fica pronto em t=5ms só é descoberto pelo scheduler no próximo ciclo de polling em t=50ms — uma latência de 45ms desperdiçada. Na PON-BEAM, a mesma notificação ocorre em 1μs.</p>
-<h3>Linhagem Git &amp; Evolução do PON-Scheduler</h3>
-<p>A re-arquitetura do scheduler de polling para notificação foi integrada em:</p>
+<h2>7.4 Formal Models &amp; Empirical Results (RPT-04)</h2>
 <ul>
-<li><strong><code>dcab0ec</code></strong>: <em>feat(fase-1-4): PON-Receive, PON-Timer, PON-Spawn e PON-Scheduler</em> — Criou a abstração <code>ErtsCondition</code> em <code>pon_condition.c</code> / <code>pon_condition.h</code>, desacoplando o loop do scheduler de busy-wait e integrando <code>eventfd</code>/<code>epoll</code>.</li>
+<li><strong>TLA+ Specifications</strong>: <code>formal/tla/ConditionNotify.tla</code> and <code>formal/tla/SchedulerWakeup.tla</code>.</li>
 </ul>
-<h3>Suíte Formal de Validação Executável</h3>
-<p>O subsistema PON-Scheduler foi formalmente especificado e verificado:</p>
-<ol>
-<li><strong>Especificações TLA+ (<code>formal/tla/ConditionNotify.tla</code> &amp; <code>SchedulerWakeup.tla</code>)</strong>:
-   - TLC Model Checker validou a ausência de deadlocks e a ausência de <em>lost wakeups</em>.
-   - Invariante <strong><code>SchedulerSafety</code></strong>: Um scheduler em repouso acorda imediatamente quando um processo entra na <code>ready_list</code>.
-   - Invariante <strong><code>ZeroCpuIdle</code></strong>: Sem tarefas prontas, o scheduler permanece bloqueado no kernel sem chamadas redundantes.</li>
-</ol>
-<h3>Síntese de Relatórios Técnicos (RPT-04)</h3>
-<p>O relatório técnico <code>docs/RPT-04-pon-scheduler.md</code> quantifica a eliminação da redundância temporal:</p>
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_2_cpu_idle.png" alt="Chart 2A: CPU Idle Consumption (BEAM Stock vs PON-BEAM 0.0%)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 2A: CPU Idle Consumption (BEAM Stock vs PON-BEAM 0.0%)</figcaption></figure>
+
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_2_energy_cpu_idle.png" alt="Chart 2B: Energy Efficiency and Wattage Reduction in Idle (0.0% CPU)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 2B: Energy Efficiency and Wattage Reduction in Idle (0.0% CPU)</figcaption></figure>
+
 <table>
 <thead>
 <tr>
-<th style="text-align: center;">Métrica de Scheduler</th>
+<th style="text-align: center;">Scheduler Metric</th>
 <th style="text-align: center;">OTP 30 Stock</th>
 <th style="text-align: center;">PON-BEAM (Condition/eventfd)</th>
-<th style="text-align: center;">Ganho Empírico</th>
+<th style="text-align: center;">Empirical Impact</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;">Consumo CPU Idle</td>
+<td style="text-align: center;">CPU Idle Consumption</td>
 <td style="text-align: center;">$5.0\% - 30.0\%$</td>
 <td style="text-align: center;"><strong>$0.0\%$</strong></td>
-<td style="text-align: center;"><strong>$100\%$ Redução de overhead</strong></td>
+<td style="text-align: center;"><strong>$100\%$ Idle Overhead Elimination</strong></td>
 </tr>
 <tr>
-<td style="text-align: center;">Latência Wakeup</td>
+<td style="text-align: center;">Wakeup Latency</td>
 <td style="text-align: center;">$10 - 100\,\mu s$</td>
 <td style="text-align: center;"><strong>$1.0\,\mu s$</strong></td>
-<td style="text-align: center;"><strong>$10\times - 100\times$ menor latência</strong></td>
+<td style="text-align: center;"><strong>$10\times - 100\times$ Latency Reduction</strong></td>
 </tr>
 <tr>
 <td style="text-align: center;">Busy-Wait Loops</td>
-<td style="text-align: center;">Sim (Spin lock)</td>
-<td style="text-align: center;"><strong>Não (Epoll wait)</strong></td>
-<td style="text-align: center;">Zero desperdício de bateria/energia</td>
+<td style="text-align: center;">Spin Locks</td>
+<td style="text-align: center;"><strong>Epoll Wait</strong></td>
+<td style="text-align: center;">Zero Battery / Wattage Waste</td>
 </tr>
 </tbody>
 </table>
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_2_cpu_idle.png" alt="Gráfico 2A: Consumo de CPU Idle (BEAM Stock vs PON-BEAM 0.0%)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 2A: Consumo de CPU Idle (BEAM Stock vs PON-BEAM 0.0%)</figcaption></figure>
-
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_2_energy_cpu_idle.png" alt="Gráfico 2B: Eficiência Energética e Redução de Watts em Idle (0.0% CPU)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 2B: Eficiência Energética e Redução de Watts em Idle (0.0% CPU)</figcaption></figure>
-
 <hr />
-<h2>6. Análise Assintótica</h2>
-<p>A diferença fundamental entre os dois modelos é de complexidade computacional: o polling executa um número fixo de operações por unidade de tempo independentemente da carga; a notificação executa operações proporcionais apenas ao número de eventos.</p>
-<p><strong>BEAM (polling).</strong> Cada scheduler executa aproximadamente 1/T verificações por segundo, onde T é o intervalo entre verificações. Com timeout de ~50ms e spin inicial de ~10μs:</p>
+<h2>7.5 References &amp; See Also</h2>
 <ul>
-<li>Verificações/segundo/scheduler ≈ 20 (timeout) + 100.000 (spin) ≈ 100.020</li>
-<li>Para S = 32 schedulers: 3.2M verificações/segundo</li>
-<li>Cada verificação: lock de run queue + checagem de atomic + possível sleep</li>
-<li>Custo: ~200ns × 3.2M = 640ms de CPU/segundo <strong>em idle</strong></li>
-</ul>
-<p>O custo total em idle escala linearmente com o número de schedulers: <code>O(S × 1/T)</code>. Para S=32 e T=10μs de spin, o custo é dominante e não pode ser reduzido sem aumentar a latência de reação.</p>
-<p><strong>PON-BEAM (notificação).</strong> Cada ativação do scheduler corresponde a um evento real:</p>
-<ul>
-<li>Ativações/segundo = M (mensagens recebidas) + N_spawn (processos criados) + T_exp (timers expirados)</li>
-<li>Para 100K mensagens/s: ~100K ativações (assumindo uma por mensagem)</li>
-<li>Custo por ativação: write(eventfd) = ~100ns</li>
-<li>Custo total: 100K × 100ns = 10ms de CPU/segundo <strong>sob carga</strong></li>
-</ul>
-<p>Em idle, M = N_spawn = T_exp = 0, então o scheduler executa <strong>zero</strong> instruções. O custo é <code>O(M + N_spawn + T_exp)</code> — proporcional aos eventos reais, não ao tempo.</p>
-<p>O ganho em idle é de <code>3.2M / 0 = ∞</code> (divisão por zero — literalmente não há custo). Na prática, o ganho é limitado pelo overhead de manter a thread viva, que é ~0%. Comparado aos 5-30% da BEAM, o ganho é de <strong>pelo menos 33× no pior caso</strong>.</p>
-<p>O ganho em latência de reativação também é dramático. Na BEAM, um processo que fica pronto imediatamente após uma verificação aguarda até 50ms (o timeout) para ser notado — latência média de 25ms. Na PON-BEAM, a latência é de ~1μs (o tempo do <code>write()</code> + escalonamento do kernel). O ganho é de <strong>~25.000× na latência de reativação</strong>.</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: complexidade Pages: 1 -->
-<svg width="849pt" height="131pt"
- viewBox="0.00 0.00 848.50 131.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 127)">
-<title>complexidade</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-127 844.5,-127 844.5,4 -4,4"/>
-<!-- BEAM idoso -->
-<g id="node1" class="node">
-<title>BEAM idoso</title>
-<polygon fill="lightcoral" stroke="black" points="102,-123 0,-123 0,-87 102,-87 102,-123"/>
-<text text-anchor="middle" x="51" y="-101.3" font-family="Times,serif" font-size="14.00">BEAM: O(S/T)</text>
-</g>
-<!-- BEAM -->
-<g id="node2" class="node">
-<title>BEAM</title>
-<polygon fill="lightgrey" stroke="black" points="176,-123 120,-123 120,-87 176,-87 176,-123"/>
-<text text-anchor="middle" x="148" y="-101.3" font-family="Times,serif" font-size="14.00">BEAM</text>
-</g>
-<!-- 3.2M verif/s (32 cores) -->
-<g id="node3" class="node">
-<title>3.2M verif/s (32 cores)</title>
-<polygon fill="lightgrey" stroke="black" points="219.5,-36 76.5,-36 76.5,0 219.5,0 219.5,-36"/>
-<text text-anchor="middle" x="148" y="-14.3" font-family="Times,serif" font-size="14.00">3.2M verif/s (32 cores)</text>
-</g>
-<!-- BEAM&#45;&gt;3.2M verif/s (32 cores) -->
-<g id="edge1" class="edge">
-<title>BEAM&#45;&gt;3.2M verif/s (32 cores)</title>
-<path fill="none" stroke="black" d="M148,-86.97C148,-86.97 148,-46 148,-46"/>
-<polygon fill="black" stroke="black" points="151.5,-46 148,-36 144.5,-46 151.5,-46"/>
-<text text-anchor="middle" x="191.5" y="-57.8" font-family="Times,serif" font-size="14.00"> &#160;S=32, T=10μs</text>
-</g>
-<!-- 3.2M verif/s -->
-<g id="node4" class="node">
-<title>3.2M verif/s</title>
-<polygon fill="lightgrey" stroke="black" points="363.5,-123 278.5,-123 278.5,-87 363.5,-87 363.5,-123"/>
-<text text-anchor="middle" x="321" y="-101.3" font-family="Times,serif" font-size="14.00">3.2M verif/s</text>
-</g>
-<!-- 640ms CPU/s desperdiçado -->
-<g id="node5" class="node">
-<title>640ms CPU/s desperdiçado</title>
-<polygon fill="lightgrey" stroke="black" points="404.5,-36 237.5,-36 237.5,0 404.5,0 404.5,-36"/>
-<text text-anchor="middle" x="321" y="-14.3" font-family="Times,serif" font-size="14.00">640ms CPU/s desperdiçado</text>
-</g>
-<!-- 3.2M verif/s&#45;&gt;640ms CPU/s desperdiçado -->
-<g id="edge2" class="edge">
-<title>3.2M verif/s&#45;&gt;640ms CPU/s desperdiçado</title>
-<path fill="none" stroke="black" d="M321,-86.97C321,-86.97 321,-46 321,-46"/>
-<polygon fill="black" stroke="black" points="324.5,-46 321,-36 317.5,-46 324.5,-46"/>
-</g>
-<!-- PON&#45;BEAM -->
-<g id="node6" class="node">
-<title>PON&#45;BEAM</title>
-<polygon fill="lightgreen" stroke="black" points="664,-123 470,-123 470,-87 664,-87 664,-123"/>
-<text text-anchor="middle" x="567" y="-101.3" font-family="Times,serif" font-size="14.00">PON&#45;BEAM: O(M + N_spawn)</text>
-</g>
-<!-- 100K ativ/s (100K msg/s) -->
-<g id="node7" class="node">
-<title>100K ativ/s (100K msg/s)</title>
-<polygon fill="lightgrey" stroke="black" points="580,-36 422,-36 422,0 580,0 580,-36"/>
-<text text-anchor="middle" x="501" y="-14.3" font-family="Times,serif" font-size="14.00">100K ativ/s (100K msg/s)</text>
-</g>
-<!-- PON&#45;BEAM&#45;&gt;100K ativ/s (100K msg/s) -->
-<g id="edge3" class="edge">
-<title>PON&#45;BEAM&#45;&gt;100K ativ/s (100K msg/s)</title>
-<path fill="none" stroke="black" d="M525,-86.97C525,-86.97 525,-46 525,-46"/>
-<polygon fill="black" stroke="black" points="528.5,-46 525,-36 521.5,-46 528.5,-46"/>
-<text text-anchor="middle" x="540.5" y="-57.8" font-family="Times,serif" font-size="14.00"> &#160;eventos reais</text>
-</g>
-<!-- 0 ativ/s em idle -->
-<g id="node8" class="node">
-<title>0 ativ/s em idle</title>
-<polygon fill="lightgrey" stroke="black" points="699.5,-36 598.5,-36 598.5,0 699.5,0 699.5,-36"/>
-<text text-anchor="middle" x="649" y="-14.3" font-family="Times,serif" font-size="14.00">0 ativ/s em idle</text>
-</g>
-<!-- PON&#45;BEAM&#45;&gt;0 ativ/s em idle -->
-<g id="edge4" class="edge">
-<title>PON&#45;BEAM&#45;&gt;0 ativ/s em idle</title>
-<path fill="none" stroke="black" d="M631.25,-86.97C631.25,-86.97 631.25,-46 631.25,-46"/>
-<polygon fill="black" stroke="black" points="634.75,-46 631.25,-36 627.75,-46 634.75,-46"/>
-<text text-anchor="middle" x="679.5" y="-57.8" font-family="Times,serif" font-size="14.00"> &#160;zero CPU</text>
-</g>
-<!-- 100K ativ/s -->
-<g id="node9" class="node">
-<title>100K ativ/s</title>
-<polygon fill="lightgrey" stroke="black" points="827,-123 747,-123 747,-87 827,-87 827,-123"/>
-<text text-anchor="middle" x="787" y="-101.3" font-family="Times,serif" font-size="14.00">100K ativ/s</text>
-</g>
-<!-- 10ms CPU/s útil -->
-<g id="node10" class="node">
-<title>10ms CPU/s útil</title>
-<polygon fill="lightgrey" stroke="black" points="840.5,-36 733.5,-36 733.5,0 840.5,0 840.5,-36"/>
-<text text-anchor="middle" x="787" y="-14.3" font-family="Times,serif" font-size="14.00">10ms CPU/s útil</text>
-</g>
-<!-- 100K ativ/s&#45;&gt;10ms CPU/s útil -->
-<g id="edge5" class="edge">
-<title>100K ativ/s&#45;&gt;10ms CPU/s útil</title>
-<path fill="none" stroke="black" d="M787,-86.97C787,-86.97 787,-46 787,-46"/>
-<polygon fill="black" stroke="black" points="790.5,-46 787,-36 783.5,-46 790.5,-46"/>
-</g>
-</g>
-</svg></div>
-
-<hr />
-<h2>7. Benchmarks</h2>
-<p>O harness de benchmarking da PON-BEAM inclui o benchmark <code>fase4_sched_idle.erl</code> para validar o scheduler:</p>
-<h3>7.1 fase4_sched_idle.erl — CPU Ociosa</h3>
-<p>Mede o consumo de CPU dos schedulers quando o sistema não tem trabalho. É o benchmark mais importante para validar a eliminação do polling.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% fase4_sched_idle.erl</span>
-<span class="c">%% Mede o consumo de CPU dos schedulers em idle.</span>
-<span class="c">%% Uso: erl +S &lt;N&gt; -noshell -eval &#39;fase4_sched_idle:run(10), halt().&#39;</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">fase4_sched_idle</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">(</span><span class="nv">Sec</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">system_flag</span><span class="p">(</span><span class="n">scheduler_wall_time</span><span class="p">,</span><span class="w"> </span><span class="n">true</span><span class="p">),</span>
-
-<span class="w">    </span><span class="nv">Before</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">scheduler_wall_time</span><span class="p">),</span>
-<span class="w">    </span><span class="nn">timer</span><span class="p">:</span><span class="nf">sleep</span><span class="p">(</span><span class="nv">Sec</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">),</span>
-<span class="w">    </span><span class="nv">After</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">erlang</span><span class="p">:</span><span class="nb">statistics</span><span class="p">(</span><span class="n">scheduler_wall_time</span><span class="p">),</span>
-
-<span class="w">    </span><span class="nn">lists</span><span class="p">:</span><span class="nf">foreach</span><span class="p">(</span><span class="k">fun</span><span class="p">({</span><span class="nv">Sched</span><span class="p">,</span><span class="w"> </span><span class="nv">Act</span><span class="p">,</span><span class="w"> </span><span class="nv">Idle</span><span class="p">})</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="nv">Total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Act</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">Idle</span><span class="p">,</span>
-<span class="w">        </span><span class="nv">Pct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nv">Idle</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">Total</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
-<span class="w">        </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Scheduler </span><span class="si">~p</span><span class="s">: </span><span class="si">~.2f</span><span class="s">%% idle</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Sched</span><span class="p">,</span><span class="w"> </span><span class="nv">Pct</span><span class="p">])</span>
-<span class="w">    </span><span class="k">end</span><span class="p">,</span><span class="w"> </span><span class="n">subtract_stats</span><span class="p">(</span><span class="nv">Before</span><span class="p">,</span><span class="w"> </span><span class="nv">After</span><span class="p">)).</span>
-
-<span class="nf">subtract_stats</span><span class="p">(</span><span class="nv">Before</span><span class="p">,</span><span class="w"> </span><span class="nv">After</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nn">lists</span><span class="p">:</span><span class="nf">map</span><span class="p">(</span><span class="k">fun</span><span class="p">({{</span><span class="nv">S</span><span class="p">,</span><span class="w"> </span><span class="nv">A1</span><span class="p">,</span><span class="w"> </span><span class="nv">I1</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nv">S</span><span class="p">,</span><span class="w"> </span><span class="nv">A2</span><span class="p">,</span><span class="w"> </span><span class="nv">I2</span><span class="p">}})</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="p">{</span><span class="nv">S</span><span class="p">,</span><span class="w"> </span><span class="nv">A2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nv">A1</span><span class="p">,</span><span class="w"> </span><span class="nv">I2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nv">I1</span><span class="p">}</span>
-<span class="w">    </span><span class="k">end</span><span class="p">,</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">zip</span><span class="p">(</span><span class="nv">Before</span><span class="p">,</span><span class="w"> </span><span class="nv">After</span><span class="p">)).</span>
-</pre></div>
-</pre></div>
-
-<p>Resultado esperado: BEAM mostra 70-95% idle (5-30% CPU ativo mesmo sem trabalho); PON-BEAM mostra <strong>99.99%+ idle</strong> (CPU ativo apenas para manter a thread viva, sem instruções de polling).</p>
-<hr />
-<h2>8. Riscos e Mitigações</h2>
-<p><strong>Preempção.</strong> A substituição do polling do scheduler por notificação via Condition introduz o risco de perda de preempção: se o scheduler está bloqueado em <code>epoll_wait()</code> e um processo entra em loop infinito sem ceder reductions, o scheduler só será notificado quando o timerfd de preempção expirar. A mitigação é registrar um timerfd no epoll da Condition, que garante um tick de preempção periódico.</p>
-<p><strong>Portabilidade.</strong> <code>eventfd</code> e <code>epoll</code> são específicos do Linux. Para suporte a macOS (kqueue) e Windows (IOCP), a implementação usa abstração via POSIX. No Linux, <code>erts_wakeup_notify</code> é <code>write(eventfd, &amp;val, 8)</code>; no macOS, usaria <code>kqueue</code> com <code>EVFILT_USER</code>; no Windows, <code>SetEvent</code> em um <code>IOCP</code>.</p>
-<p><strong>Consumo de memória.</strong> Cada <code>ErtsCondition</code> adiciona ~48 bytes (eventfd + epoll + ready_list pointers + contadores). Para 32 schedulers: 32 × 48 = 1.5KB — desprezível. O overhead em processos individuais é zero: apenas o ponteiro <code>pon_next_ready</code> para encadeamento.</p>
-<p><strong>Condição de corrida (notificação antes de esperar).</strong> Um processo pode ficar pronto e notificar o scheduler <em>antes</em> de o scheduler entrar em <code>epoll_wait</code>. A mitigação é o CAS lock-free em <code>condition_wait()</code>: antes de bloquear, a função verifica a <code>ready_list</code> via CAS atômico. Se um processo já está na lista, ela o retorna imediatamente sem chamar <code>epoll_wait</code>. Isto fecha a janela de corrida sem custo de syscall no caso comum.</p>
-<hr />
-<h2>9. Estado da Implementação</h2>
-<p>A Fase 4 (PON-Scheduler) foi implementada com os seguintes artefatos:</p>
-<table>
-<thead>
-<tr>
-<th>Artefato</th>
-<th>Status</th>
-<th>Detalhes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pon_condition.h</code></td>
-<td>✅ Criado (100 linhas)</td>
-<td>Definição de <code>ErtsCondition</code> + API (8 funções)</td>
-</tr>
-<tr>
-<td><code>pon_condition.c</code></td>
-<td>✅ Criado (256 linhas)</td>
-<td>eventfd, epoll, CAS lock-free ready_list</td>
-</tr>
-<tr>
-<td><code>erl_process.h</code></td>
-<td>✅ Modificado</td>
-<td>+<code>ErtsCondition pon_condition</code> em <code>ErtsSchedulerData</code></td>
-</tr>
-<tr>
-<td><code>erl_process.c</code></td>
-<td>✅ Modificado</td>
-<td>+<code>erts_pon_schedule_notify</code> expandido</td>
-</tr>
-<tr>
-<td><code>pon_stats.h</code></td>
-<td>✅ Modificado</td>
-<td>+3 contadores: condition_wakeups, condition_notifications, scheduler_idle_blocks</td>
-</tr>
-<tr>
-<td><code>Makefile.in</code></td>
-<td>✅ Modificado</td>
-<td>+pon_condition.o</td>
-</tr>
-<tr>
-<td>Compilação standalone</td>
-<td>✅ 0 erros, 0 warnings</td>
-<td><code>gcc -DPON_BEAM -D_GNU_SOURCE -std=c99 -c pon_condition.c</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Observações da implementação:</strong></p>
-<ol>
-<li>
-<p><strong>CAS lock-free</strong>: a <code>ready_list</code> usa <code>atomic_compare_exchange_weak</code> em vez do mutex <code>ready_lock</code> originalmente proposto. Isto elimina contenção de locks na hot path de notificação e permite que múltiplos schedulers notifiquem a mesma Condition simultaneamente.</p>
-</li>
-<li>
-<p><strong>eventfd vs pipe</strong>: <code>eventfd</code> é mais leve que pipes para notificação entre threads. Pipe: 2 FDs + buffer de 64KB + syscall write/read. eventfd: 1 FD + contador 64 bits no kernel + write/read mais rápidos.</p>
-</li>
-<li>
-<p><strong>Integração com fases anteriores</strong>: 
-   - Fase 1 (PON-Receive): mensagens que chegam notificam Premises, que notificam a Condition.
-   - Fase 2 (PON-Timer): timerfds podem ser registrados no epoll da Condition.
-   - Fase 3 (PON-Spawn): <code>erts_pon_schedule_notify</code> agora chama <code>pon_condition_notify</code> real.</p>
-</li>
-</ol>
-<hr />
-<h2>10. A Lente Multidisciplinar</h2>
-<blockquote>
-<p><strong>Computacional / Neurociência.</strong> "O cérebro não processa estímulos sensoriais em ciclos fixos — ele reage a mudanças no ambiente através de potenciais de ação disparados por neurônios sensoriais. O polling computacional é análogo a um cérebro que amostrasse o ambiente a 20Hz em vez de reagir a estímulos." — Karl Friston, <em>The Free-Energy Principle</em>, 2010<br />
-O scheduler PON-BEAM opera como um neurônio: ele permanece em repouso (hiperpolarizado) até que um estímulo (o <code>eventfd</code> write) o despolarize e dispare um potencial de ação (acordar e executar o processo). Não há "ciclo de verificação" — há apenas o estado de repouso e o estado ativo, transicionados por notificação.</p>
-<p><strong>Sociológico / Organizacional.</strong> "O gerente que pergunta 'tem trabalho?' a cada 5 minutos está desperdiçando o tempo de todos. O gerente que é notificado quando o trabalho está pronto está gerindo por exceção." — Peter Drucker, <em>The Effective Executive</em>, 1967<br />
-A run queue polling da BEAM é análoga a um gerente que caminha entre as mesas a cada 5 minutos perguntando "terminou?". Cada pergunta interrompe o trabalho (cache miss, lock acquire), mesmo quando a resposta é "não". A Condition PON é o "me avise quando ficar pronto" — o gerente (scheduler) só é acionado quando há trabalho real.</p>
-<p><strong>Engenharia de Sistemas.</strong> "A melhor maneira de evitar um gargalo é não ter o gargalo." — Donald Reinertsen, <em>The Principles of Product Development Flow</em>, 2009<br />
-Na BEAM, a run queue é um gargalo escalar: ela está presente em todos os ciclos do scheduler, mesmo quando vazia. Na PON-BEAM, a Condition substitui a run queue como gargalo — mas uma Condition vazia não custa nada. O gargalo só aparece quando há trabalho.</p>
-</blockquote>
-<hr />
-<h2>30 Exercícios práticos e conceituais</h2>
-<h3>Bloco A — Questões Conceituais e Fundamentos (1–10)</h3>
-<ol>
-<li>
-<p><strong>Pergunta conceitual 1:</strong> Descreva, em suas próprias palavras, o problema fundamental do loop <code>while (1) { poll(); sleep(); }</code> no scheduler da BEAM. Por que dormir com timeout não resolve?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 2:</strong> O que é uma Condition no PON e como ela se aplica ao scheduler? Explique a analogia: "a Condition substitui a run queue".</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 3:</strong> Como o <code>eventfd</code> funciona no Linux? Por que ele é mais eficiente que um pipe ou um socket para notificação entre threads?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 4:</strong> Explique a diferença entre uma "ativação real" (evento) e uma "ativação falsa" (timeout) no contexto do scheduler. Quantas de cada ocorrem por segundo no pior caso?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 5:</strong> Por que o scheduler PON consome 0% de CPU em idle? O que o kernel Linux faz com uma thread bloqueada em <code>epoll_wait()</code>?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 6:</strong> No código real <code>pon_condition_notify</code>, por que a implementação usa <code>atomic_compare_exchange_weak</code> em vez de um mutex <code>ready_lock</code>? Qual o ganho de desempenho?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 7:</strong> Como o fast path em <code>pon_condition_wait</code> funciona? Por que ele tenta ler a <code>ready_list</code> antes de chamar <code>epoll_wait</code>?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 8:</strong> Por que o <code>try_steal_task()</code> original da BEAM é considerado polling? O que o <code>pon_condition_try_dequeue()</code> faz de diferente?</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 9:</strong> Qual é a complexidade assintótica do wakeup do scheduler na BEAM vs PON-BEAM? Use notação O() e explique o que as variáveis representam.</p>
-</li>
-<li>
-<p><strong>Pergunta conceitual 10:</strong> Em sistemas com 128 schedulers, qual é o custo total de polling idle na BEAM? E na PON-BEAM? Apresente os cálculos.</p>
-</li>
-</ol>
-<h3>Bloco B — Análise de Código Fonte e Verificação <code>file:line</code> (11–20)</h3>
-<ol start="11">
-<li>
-<p><strong>Análise de fonte 1:</strong> Localize <code>scheduler_wait()</code> em <code>erl_process.c</code>. Identifique as linhas do loop principal e do <code>erts_tse_twait</code>. Qual é o timeout máximo?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 2:</strong> Em <code>erl_process.c</code>, localize <code>try_steal_task()</code>. Identifique os três níveis de roubo e as funções chamadas em cada nível.</p>
-</li>
-<li>
-<p><strong>Análise de fonte 3:</strong> No código <code>pon_condition_notify</code> (pon_condition.c:81-116), identifique o <code>atomic_compare_exchange_weak</code>. Por que o loop <code>do { ... } while (!CAS)</code> é necessário? O que acontece se o CAS falha?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 4:</strong> No código <code>pon_condition_wait</code> (pon_condition.c:124-194), identifique o fast path. Por que o código lê <code>cond-&gt;satisfied</code> e o eventfd antes de bloquear em <code>epoll_wait</code>?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 5:</strong> No código <code>pon_condition_try_dequeue</code> (pon_condition.c:199-225), explique por que esta função é não bloqueante. Em que cenário ela retorna NULL mesmo com processos na ready_list?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 6:</strong> Em <code>pon_condition.h:35-52</code>, examine a estrutura <code>ErtsCondition</code>. Qual o propósito de <code>wakeup_count</code> e <code>notify_count</code>? Como eles diferem?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 7:</strong> Em <code>pon_condition_create</code> (pon_condition.c:26-56), identifique as chamadas de sistema (<code>eventfd</code>, <code>epoll_create1</code>, <code>epoll_ctl</code>). O que acontece se <code>eventfd</code> falhar?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 8:</strong> Em <code>pon_condition_destroy</code> (pon_condition.c:61-72), quantos descritores são fechados? Por que <code>ready_list</code> não precisa ser liberada explicitamente?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 9:</strong> Compare a versão proposta (com <code>erts_mtx_t ready_lock</code>) com a versão implementada (CAS lock-free). Quais as vantagens da versão real? Há desvantagens?</p>
-</li>
-<li>
-<p><strong>Análise de fonte 10:</strong> Em <code>erl_process.h</code>, localize a adição de <code>ErtsCondition pon_condition</code> em <code>ErtsSchedulerData</code>. Como isto afeta o alinhamento e tamanho da estrutura?</p>
-</li>
-</ol>
-<h3>Bloco C — Experimentos Práticos (21–27)</h3>
-<ol start="21">
-<li>
-<p><strong>Experimento 1:</strong> Compile a VM com <code>make TYPE=ponbeam</code> e execute <code>fase4_sched_idle.erl</code> com <code>erl +S 1</code>, <code>+S 4</code>, e <code>+S 8</code>. Meça o CPU idle% em cada caso. Compare com a VM stock.</p>
-</li>
-<li>
-<p><strong>Experimento 2:</strong> Repita o experimento 1 com <code>perf stat -e instructions:u,cycles:u</code>. Quantas instruções por segundo a VM stock executa em idle? E a PON-BEAM?</p>
-</li>
-<li>
-<p><strong>Experimento 3:</strong> Use <code>strace -e write,read,epoll_wait</code> para contar syscalls durante 10 segundos de idle na VM stock vs PON-BEAM. Quantas syscalls cada uma faz?</p>
-</li>
-<li>
-<p><strong>Experimento 4:</strong> Crie um cenário com 1 scheduler carregado e 3 schedulers ociosos. Envie 10.000 mensagens para processos no scheduler carregado. Quanto tempo leva para os outros schedulers roubarem trabalho?</p>
-</li>
-<li>
-<p><strong>Experimento 5:</strong> Teste um cenário de contenção: 4 schedulers, 100 processos que enviam mensagens uns aos outros em ciclo. Meça o throughput (mensagens/segundo) em ambas as VMs.</p>
-</li>
-<li>
-<p><strong>Experimento 6:</strong> Execute o benchmark <code>sched_latency</code> medindo o tempo entre um processo ficar pronto e o scheduler começar a executá-lo. Compare BEAM vs PON-BEAM.</p>
-</li>
-<li>
-<p><strong>Experimento 7:</strong> Teste o cenário de preempção: um processo com loop infinito e 100 workers com sleep. Meça o throughput dos workers. A PON-BEAM mantém a preempção correta?</p>
-</li>
-</ol>
-<h3>Bloco D — Pontes Cognitivas, Invariantes e Desafios de Arquitetura (28–30)</h3>
-<ol start="28">
-<li>
-<p><strong>Ponte cognitiva:</strong> A metáfora do gerente por exceção (Drucker) se aplica ao scheduler PON. Explique como um gestor que "só age quando notificado" difere de um que "verifica a cada 5 minutos". Quais as vantagens em termos de energia mental (CPU) e capacidade de resposta (latência)?</p>
-</li>
-<li>
-<p><strong>Invariante:</strong> "Em um sistema PON-BEAM, o scheduler nunca executa instruções de usuário quando não há trabalho a fazer." Formalize esta invariante usando lógica temporal. Prove que a implementação com <code>eventfd</code> + <code>epoll_wait</code> satisfaz esta invariante.</p>
-</li>
-<li>
-<p><strong>Desafio de arquitetura:</strong> Projete uma extensão para 128+ schedulers usando um barramento de notificação distribuído. Em vez de cada scheduler ter seu próprio <code>eventfd</code>, use um único "barramento de notificação" onde múltiplos schedulers podem escutar. Como evitar o <em>thundering herd</em>? Dica: use <code>epoll</code> com <code>EPOLLEXCLUSIVE</code> no Linux 4.5+.</p>
-</li>
-</ol>
-<hr />
-<h2>Resumo para memorização</h2>
-<ul>
-<li><strong>Scheduler BEAM faz polling:</strong> loop infinito com <code>scheduler_wait()</code> que dorme com timeout e acorda para verificar se há trabalho — consome 5-30% CPU em idle.</li>
-<li><strong>Work-stealing é polling:</strong> <code>try_steal_task()</code> varre run queues de outros schedulers em vez de ser notificado.</li>
-<li><strong>PON-Scheduler substitui polling por Condition:</strong> cada scheduler tem uma <code>ErtsCondition</code> que notifica quando há processos prontos.</li>
-<li><strong>CAS lock-free na ready_list:</strong> <code>atomic_compare_exchange_weak</code> elimina locks na hot path.</li>
-<li><strong>eventfd é a primitiva de notificação:</strong> <code>write(eventfd)</code> acorda o scheduler bloqueado em <code>epoll_wait()</code> — ~1μs de latência.</li>
-<li><strong>Fast path fecha condição de corrida:</strong> <code>condition_wait()</code> tenta CAS na <code>ready_list</code> antes de bloquear.</li>
-<li><strong>Implementação real:</strong> <code>pon_condition.h</code> (100 linhas), <code>pon_condition.c</code> (256 linhas), compilação standalone com 0 warnings.</li>
-<li><strong>Ganho em idle:</strong> 0% CPU vs 5-30% — eliminação completa do polling.</li>
-<li><strong>Ganho em latência:</strong> ~1μs vs 25ms médio — 25.000× de melhoria na reatividade.</li>
-<li><strong>Ganho assintótico:</strong> O(S/T) verif/s → O(M + N_spawn + T_exp) ativações reais.</li>
-</ul>
-<hr />
-<h2>Ver também</h2>
-<ul>
-<li><a href="01-problema-polling.html">Capítulo 1: O Problema — Custos Ocultos do Polling na BEAM</a> — diagnóstico que motivou a re-arquitetura do scheduler.</li>
-<li><a href="02-paradigma-pon.html">Capítulo 2: O Paradigma Orientado a Notificações</a> — definição formal de Condition e Premises.</li>
-<li><a href="03-visao-geral.html">Capítulo 3: Visão Geral da PON-BEAM</a> — mapa arquitetural, incluindo o papel da Condition no fluxo transversal.</li>
-<li><a href="05-pon-timer.html">Capítulo 5: PON-Timer</a> — instigações com timerfd, base para a preempção do scheduler.</li>
-<li><a href="08-pon-ets.html">Capítulo 8: PON-ETS</a> — a transformação Condition também se aplica a watchers de ETS.</li>
-<li><a href="RPT-04-pon-scheduler.html">docs/RPT-04-pon-scheduler.html</a> — relatório de implementação da Fase 4.</li>
-<li><a href="EX-37-pon-beam-arquitetura-orientada-a-notificacoes.html">docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.html</a> — tese completa da PON-BEAM.</li>
-<li><a href="EX-38-pon-beam-plano-de-engenharia.html">docs/extras/EX-38-pon-beam-plano-de-engenharia.html</a> — plano de engenharia, incluindo milestones da Fase 4.</li>
-<li><a href="https://man7.org/linux/man-pages/man2/eventfd.2.html">man 2 eventfd</a> — documentação da syscall eventfd.</li>
-<li><a href="https://man7.org/linux/man-pages/man7/epoll.7.html">man 7 epoll</a> — multiplexação de eventfd e outros descritores.</li>
-<li><a href="../../otp/erts/include/internal/pon_condition.h">Código: pon_condition.h</a></li>
-<li><a href="../../otp/erts/emulator/beam/pon_condition.c">Código: pon_condition.c</a></li>
+<li><a href="01-problema-polling.html">Chapter 1: The Problem</a></li>
+<li><a href="05-pon-timer.html">Chapter 5: PON-Timer</a></li>
+<li><a href="06-pon-spawn.html">Chapter 6: PON-Spawn</a></li>
+<li><a href="file:///home/sanonichan/projetos/pon-beam/otp/erts/emulator/beam/pon_condition.c">C Implementation <code>pon_condition.c</code></a></li>
 </ul>
 </article>
 <footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
-<a href="06-pon-spawn.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Spawn: Notificação Imediata</span><span class="md:hidden">← Anterior</span></a>
-<a href="08-pon-ets.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-ETS: Base de Fatos Notificante →</span><span class="md:hidden">Próximo →</span></a>
+<a href="06-pon-spawn.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Spawn: Immediate Notification</span><span class="md:hidden">← Previous</span></a>
+<a href="08-pon-ets.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-ETS: Notification-Oriented Fact Base →</span><span class="md:hidden">Next →</span></a>
 </footer>
 </main>
 <script>

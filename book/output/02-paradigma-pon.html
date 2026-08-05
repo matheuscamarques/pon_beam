@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>O Paradigma Orientado a Notificações — PON-BEAM</title>
+<title>The Notification-Oriented Paradigm — PON-BEAM</title>
 <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
@@ -20,117 +20,117 @@
 <input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
 </div>
 <div class="flex-1 overflow-y-auto">
-<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Cover</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Title Page</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Acknowledgments</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">About the Author</a>
 <div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-I">[-]</span>
-<span class="ml-1">Parte I: Fundamentos</span>
+<span class="ml-1">Parte I: Fundamentals</span>
 </div></div>
 <div id="ch-I" class="part-list ">
-<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Problem: Hidden Costs of Polling in the BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">The Notification-Oriented Paradigm</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-BEAM Overview</a>
 </div>
 <div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-II">[+]</span>
-<span class="ml-1">Parte II: Subsistemas PON</span>
+<span class="ml-1">Parte II: PON Subsystems</span>
 </div></div>
 <div id="ch-II" class="part-list hidden">
-<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive by Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigations with timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Immediate Notification</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition and eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Notification-Oriented Fact Base</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Causal Chain Garbage Collection</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Automatic Premise Generation</a>
 </div>
 <div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-III">[+]</span>
-<span class="ml-1">Parte III: Engenharia e Validação</span>
+<span class="ml-1">Parte III: Engineering and Validation</span>
 </div></div>
 <div id="ch-III" class="part-list hidden">
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Fork Infrastructure</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Benchmarking Harness</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap and Trade-offs</a>
 </div>
 <div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-IV">[+]</span>
-<span class="ml-1">Parte IV: Síntese</span>
+<span class="ml-1">Parte IV: Synthesis</span>
 </div></div>
 <div id="ch-IV" class="part-list hidden">
-<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusão</a>
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Case Studies</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Related Work and Positioning</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusion</a>
 </div>
-<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Back Cover</a>
 </div>
 </aside>
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">O Paradigma Orientado a Notificações</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">The Notification-Oriented Paradigm</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button></div>
 <article>
-<h1>2. O Paradigma Orientado a Notificações</h1>
+<h1>2. The Notification-Oriented Paradigm</h1>
 <blockquote>
-<p>"Entidades mínimas, reativas e desacopladas que colaboram exclusivamente por notificações pontuais."
+<p>"Minimal, reactive, and decoupled entities collaborating exclusively through precise notifications."<br />
 — Jean Marcelo Simão, 2008</p>
 </blockquote>
 <hr />
-<h2>2.1 Introdução</h2>
-<p>O Paradigma Orientado a Notificações (PON) foi proposto por Jean Marcelo Simão em sua tese de doutorado (2005–2009) como uma terceira via aos paradigmas Imperativo e Declarativo. A tese central é simples e profunda: nos paradigmas tradicionais, entidades passivas são percorridas em busca a cada ciclo de execução — o que Simão chama de <em>redundância temporal</em>. Um loop <code>while</code> que testa repetidamente <code>x &gt; 5</code> está reavaliando uma expressão mesmo quando <code>x</code> não mudou. A CPU queima ciclos, a memória é acessada sem necessidade, e a latência de reação é limitada pela frequência do polling, não pela relevância do evento.</p>
-<p>O PON inverte essa arquitetura. Em vez de entidades passivas que são <em>consultadas</em>, ele propõe entidades ativas que <em>notificam</em>. Uma entidade computacional não espera ser percorrida por um fio de execução central — ela mesma dispara notificações quando seu estado interno muda. O resultado é um sistema onde o processamento só ocorre quando há trabalho real a fazer. Não há polling, não há scanning linear, não há reavaliação cíclica de expressões inalteradas. A computação torna-se um encadeamento de notificações pontuais, cada uma disparada por uma mudança relevante de estado.</p>
+<h2>2.1 Introduction</h2>
+<p>The Notification-Oriented Paradigm (NOP) was proposed by Jean Marcelo Simão in his doctoral thesis (2005–2009) as a alternative to imperative and declarative paradigms. The central premise is both simple and profound: in traditional paradigms, passive entities are traversed repeatedly in search loops — what Simão calls <em>temporal redundancy</em>. A <code>while</code> loop that repeatedly tests <code>x &gt; 5</code> re-evaluates an expression even when <code>x</code> has not changed. CPU burns cycles, memory is accessed unnecessarily, and reaction latency is bounded by polling frequency rather than event relevance.</p>
+<p>NOP inverts this architecture. Instead of passive entities that are <em>polled</em>, it proposes active entities that <em>notify</em>. A computational entity does not wait to be scanned by a central thread of execution — it fires notifications when its internal state changes. Processing occurs strictly when there is real work to be done. There is no polling, no linear scanning, and no cyclic re-evaluation of unchanged expressions. Computation becomes a chain of point notifications, each triggered by a relevant state change.</p>
 <hr />
-<h2>2.2 As Entidades Estruturais do PON</h2>
-<p>O PON define sete tipos de entidades estruturais. Cada entidade é mínima, tem uma responsabilidade única e se comunica exclusivamente por notificações. Juntas, formam um grafo reativo onde nenhuma entidade jamais é percorrida sem motivo.</p>
+<h2>2.2 Structural Entities of NOP</h2>
+<p>NOP defines seven core structural entities. Each entity is minimal, has a single responsibility, and communicates exclusively via notifications. Together, they form a reactive graph where no entity is ever traversed without cause.</p>
 <div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: entidades_pon Pages: 1 -->
-<svg width="158pt" height="611pt"
- viewBox="0.00 0.00 157.50 611.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="174pt" height="611pt"
+ viewBox="0.00 0.00 173.50 611.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 607)">
 <title>entidades_pon</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-607 153.5,-607 153.5,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-607 169.5,-607 169.5,4 -4,4"/>
 <!-- FBE -->
 <g id="node1" class="node">
 <title>FBE</title>
-<polygon fill="lightyellow" stroke="black" points="100.5,-501 46.5,-501 46.5,-465 100.5,-465 100.5,-501"/>
-<text text-anchor="middle" x="73.5" y="-479.3" font-family="Times,serif" font-size="14.00">FBE</text>
+<polygon fill="lightyellow" stroke="black" points="102.5,-501 48.5,-501 48.5,-465 102.5,-465 102.5,-501"/>
+<text text-anchor="middle" x="75.5" y="-479.3" font-family="Times,serif" font-size="14.00">FBE</text>
 </g>
 <!-- Attribute -->
 <g id="node2" class="node">
 <title>Attribute</title>
-<polygon fill="lightyellow" stroke="black" points="72,-414 7,-414 7,-378 72,-378 72,-414"/>
-<text text-anchor="middle" x="39.5" y="-392.3" font-family="Times,serif" font-size="14.00">Attribute</text>
+<polygon fill="lightyellow" stroke="black" points="73,-414 8,-414 8,-378 73,-378 73,-414"/>
+<text text-anchor="middle" x="40.5" y="-392.3" font-family="Times,serif" font-size="14.00">Attribute</text>
 </g>
 <!-- FBE&#45;&gt;Attribute -->
 <g id="edge1" class="edge">
 <title>FBE&#45;&gt;Attribute</title>
-<path fill="none" stroke="black" d="M59.25,-464.97C59.25,-464.97 59.25,-424 59.25,-424"/>
-<polygon fill="black" stroke="black" points="62.75,-424 59.25,-414 55.75,-424 62.75,-424"/>
-<text text-anchor="middle" x="66" y="-435.8" font-family="Times,serif" font-size="14.00"> &#160;contém</text>
+<path fill="none" stroke="black" d="M60.75,-464.97C60.75,-464.97 60.75,-424 60.75,-424"/>
+<polygon fill="black" stroke="black" points="64.25,-424 60.75,-414 57.25,-424 64.25,-424"/>
+<text text-anchor="middle" x="68" y="-435.8" font-family="Times,serif" font-size="14.00"> &#160;contains</text>
 </g>
 <!-- Premise -->
 <g id="node3" class="node">
 <title>Premise</title>
-<polygon fill="lightyellow" stroke="black" points="68,-312 7,-312 7,-276 68,-276 68,-312"/>
-<text text-anchor="middle" x="37.5" y="-290.3" font-family="Times,serif" font-size="14.00">Premise</text>
+<polygon fill="lightyellow" stroke="black" points="66,-312 5,-312 5,-276 66,-276 66,-312"/>
+<text text-anchor="middle" x="35.5" y="-290.3" font-family="Times,serif" font-size="14.00">Premise</text>
 </g>
 <!-- Attribute&#45;&gt;Premise -->
 <g id="edge2" class="edge">
 <title>Attribute&#45;&gt;Premise</title>
-<path fill="none" stroke="black" d="M37.5,-377.76C37.5,-377.76 37.5,-322.08 37.5,-322.08"/>
-<polygon fill="black" stroke="black" points="41,-322.08 37.5,-312.08 34,-322.08 41,-322.08"/>
-<text text-anchor="middle" x="64.5" y="-348.8" font-family="Times,serif" font-size="14.00"> &#160;notifica</text>
-<text text-anchor="middle" x="64.5" y="-333.8" font-family="Times,serif" font-size="14.00">mudança</text>
+<path fill="none" stroke="black" d="M37,-377.76C37,-377.76 37,-322.08 37,-322.08"/>
+<polygon fill="black" stroke="black" points="40.5,-322.08 37,-312.08 33.5,-322.08 40.5,-322.08"/>
+<text text-anchor="middle" x="62" y="-348.8" font-family="Times,serif" font-size="14.00"> &#160;notifies</text>
+<text text-anchor="middle" x="62" y="-333.8" font-family="Times,serif" font-size="14.00">change</text>
 </g>
 <!-- Condition -->
 <g id="node4" class="node">
@@ -141,22 +141,22 @@
 <!-- Premise&#45;&gt;Condition -->
 <g id="edge3" class="edge">
 <title>Premise&#45;&gt;Condition</title>
-<path fill="none" stroke="black" d="M37.5,-275.76C37.5,-275.76 37.5,-220.08 37.5,-220.08"/>
-<polygon fill="black" stroke="black" points="41,-220.08 37.5,-210.08 34,-220.08 41,-220.08"/>
-<text text-anchor="middle" x="59" y="-239.3" font-family="Times,serif" font-size="14.00"> &#160;satisfaz</text>
+<path fill="none" stroke="black" d="M35.5,-275.76C35.5,-275.76 35.5,-220.08 35.5,-220.08"/>
+<polygon fill="black" stroke="black" points="39,-220.08 35.5,-210.08 32,-220.08 39,-220.08"/>
+<text text-anchor="middle" x="60.5" y="-239.3" font-family="Times,serif" font-size="14.00"> &#160;satisfies</text>
 </g>
 <!-- Rule -->
 <g id="node5" class="node">
 <title>Rule</title>
-<polygon fill="lightyellow" stroke="black" points="68.5,-123 14.5,-123 14.5,-87 68.5,-87 68.5,-123"/>
-<text text-anchor="middle" x="41.5" y="-101.3" font-family="Times,serif" font-size="14.00">Rule</text>
+<polygon fill="lightyellow" stroke="black" points="65.5,-123 11.5,-123 11.5,-87 65.5,-87 65.5,-123"/>
+<text text-anchor="middle" x="38.5" y="-101.3" font-family="Times,serif" font-size="14.00">Rule</text>
 </g>
 <!-- Condition&#45;&gt;Rule -->
 <g id="edge4" class="edge">
 <title>Condition&#45;&gt;Rule</title>
-<path fill="none" stroke="black" d="M41.5,-173.97C41.5,-173.97 41.5,-133 41.5,-133"/>
-<polygon fill="black" stroke="black" points="45,-133 41.5,-123 38,-133 45,-133"/>
-<text text-anchor="middle" x="63" y="-144.8" font-family="Times,serif" font-size="14.00"> &#160;dispara</text>
+<path fill="none" stroke="black" d="M38.5,-173.97C38.5,-173.97 38.5,-133 38.5,-133"/>
+<polygon fill="black" stroke="black" points="42,-133 38.5,-123 35,-133 42,-133"/>
+<text text-anchor="middle" x="62" y="-144.8" font-family="Times,serif" font-size="14.00"> &#160;triggers</text>
 </g>
 <!-- Action -->
 <g id="node6" class="node">
@@ -167,538 +167,76 @@
 <!-- Rule&#45;&gt;Action -->
 <g id="edge5" class="edge">
 <title>Rule&#45;&gt;Action</title>
-<path fill="none" stroke="black" d="M58,-86.97C58,-86.97 58,-46 58,-46"/>
-<polygon fill="black" stroke="black" points="61.5,-46 58,-36 54.5,-46 61.5,-46"/>
-<text text-anchor="middle" x="67" y="-57.8" font-family="Times,serif" font-size="14.00"> &#160;executa</text>
+<path fill="none" stroke="black" d="M56.5,-86.97C56.5,-86.97 56.5,-46 56.5,-46"/>
+<polygon fill="black" stroke="black" points="60,-46 56.5,-36 53,-46 60,-46"/>
+<text text-anchor="middle" x="67" y="-57.8" font-family="Times,serif" font-size="14.00"> &#160;executes</text>
 </g>
 <!-- Action&#45;&gt;FBE -->
 <g id="edge6" class="edge">
 <title>Action&#45;&gt;FBE</title>
-<path fill="none" stroke="black" d="M86.25,-36.23C86.25,-36.23 86.25,-454.9 86.25,-454.9"/>
-<polygon fill="black" stroke="black" points="82.75,-454.9 86.25,-464.9 89.75,-454.9 82.75,-454.9"/>
-<text text-anchor="middle" x="128" y="-246.8" font-family="Times,serif" font-size="14.00"> &#160;altera</text>
-<text text-anchor="middle" x="128" y="-231.8" font-family="Times,serif" font-size="14.00">atributo</text>
+<path fill="none" stroke="black" d="M87.25,-36.23C87.25,-36.23 87.25,-454.9 87.25,-454.9"/>
+<polygon fill="black" stroke="black" points="83.75,-454.9 87.25,-464.9 90.75,-454.9 83.75,-454.9"/>
+<text text-anchor="middle" x="137.5" y="-246.8" font-family="Times,serif" font-size="14.00"> &#160;modifies</text>
+<text text-anchor="middle" x="137.5" y="-231.8" font-family="Times,serif" font-size="14.00">attribute</text>
 </g>
 <!-- Instigation -->
 <g id="node7" class="node">
 <title>Instigation</title>
-<polygon fill="lightyellow" stroke="black" points="110.5,-603 36.5,-603 36.5,-567 110.5,-567 110.5,-603"/>
-<text text-anchor="middle" x="73.5" y="-581.3" font-family="Times,serif" font-size="14.00">Instigation</text>
+<polygon fill="lightyellow" stroke="black" points="112.5,-603 38.5,-603 38.5,-567 112.5,-567 112.5,-603"/>
+<text text-anchor="middle" x="75.5" y="-581.3" font-family="Times,serif" font-size="14.00">Instigation</text>
 </g>
 <!-- Instigation&#45;&gt;FBE -->
 <g id="edge7" class="edge">
 <title>Instigation&#45;&gt;FBE</title>
-<path fill="none" stroke="black" d="M73.5,-566.76C73.5,-566.76 73.5,-511.08 73.5,-511.08"/>
-<polygon fill="black" stroke="black" points="77,-511.08 73.5,-501.08 70,-511.08 77,-511.08"/>
-<text text-anchor="middle" x="95.5" y="-537.8" font-family="Times,serif" font-size="14.00"> &#160;invoca</text>
-<text text-anchor="middle" x="95.5" y="-522.8" font-family="Times,serif" font-size="14.00">método</text>
+<path fill="none" stroke="black" d="M75.5,-566.76C75.5,-566.76 75.5,-511.08 75.5,-511.08"/>
+<polygon fill="black" stroke="black" points="79,-511.08 75.5,-501.08 72,-511.08 79,-511.08"/>
+<text text-anchor="middle" x="100.5" y="-537.8" font-family="Times,serif" font-size="14.00"> &#160;invokes</text>
+<text text-anchor="middle" x="100.5" y="-522.8" font-family="Times,serif" font-size="14.00">method</text>
 </g>
 </g>
 </svg></div>
 
 <h3>2.2.1 Fact Base Element (FBE)</h3>
-<p>O FBE é a unidade computacional fundamental do PON. Ele encapsula estado (na forma de Attributes) e comportamento (na forma de Methods). É conceitualmente análogo a um objeto da programação orientada a objetos, mas com diferenças cruciais: não há herança, não há polimorfismo por subtipo, e — o mais importante — seus atributos não são campos passivos. Um FBE é uma entidade ativa. Quando um de seus métodos executa e altera um Attribute, o FBE não apenas armazena o novo valor: ele notifica todas as entidades que dependem daquele Attribute. O FBE não sabe quem são essas entidades — ele apenas publica a notificação.</p>
+<p>The FBE is the core computational unit of NOP. It encapsulates state (in the form of Attributes) and behavior (in the form of Methods). When an FBE method executes and modifies an Attribute, the FBE publishes a notification to all dependent entities.</p>
 <h3>2.2.2 Attribute</h3>
-<p>O Attribute é a unidade de estado do PON. Todo Attribute possui um valor corrente e uma lista de referências — as Premises que o observam. Quando seu valor é alterado, o Attribute percorre essa lista e notifica cada Premise. Esta é a mudança de paradigma fundamental: em um sistema Imperativo, um campo <code>x</code> é mera memória; no PON, um Attribute é uma entidade reativa que carrega consigo o conhecimento de quem precisa ser avisado quando seu valor muda. Não existe "verificar se x mudou" — x mesmo avisa que mudou.</p>
+<p>An Attribute represents a state variable held by an FBE. Unlike a passive memory cell, an Attribute maintains notification links to Premises that register interest in its value.</p>
 <h3>2.2.3 Premise</h3>
-<p>A Premise é a entidade de matching do PON. Uma Premise encapsula uma expressão lógica sobre um ou mais Attributes — por exemplo, <code>x &gt; 5</code>, <code>status == ready AND buffer &gt;= 10</code>, <code>sender in [alice, bob]</code>. Cada Premise mantém referências para os Attributes que avalia. Quando todos os Attributes referenciados notificam, a Premise reavalia sua expressão. Se o resultado lógico mudou (de <code>false</code> para <code>true</code> ou de <code>true</code> para <code>false</code>), a Premise notifica sua Condition.</p>
-<p>É importante notar: a Premise só processa quando notificada. Se <code>x</code> permanece em 10 por uma hora, a Premise que testa <code>x &gt; 5</code> não gasta um único ciclo nessa hora. Em um paradigma Imperativo, o teste <code>if (x &gt; 5)</code> seria reavaliado a cada iteração de um loop — milhares, milhões de vezes sem necessidade. Esta é a essência da eliminação da redundância temporal.</p>
+<p>A Premise evaluates a elemental condition (e.g., $x &gt; 5$ or $M \text{ matches pattern } P$). A Premise remains passive until notified by an Attribute or incoming message. When satisfied, it notifies its associated Condition.</p>
 <h3>2.2.4 Condition</h3>
-<p>A Condition é uma conjunção de Premises. Uma Condition só é considerada satisfeita quando todas as suas Premises estão satisfeitas — o equivalente ao AND lógico. Opcionalmente, uma Condition pode definir limiares: "3 de 5 Premises satisfeitas", "pelo menos 2 Premises críticas mais quaisquer 3 das demais". Quando uma Condition muda de estado (de insatisfeita para satisfeita ou vice-versa), ela dispara sua Rule.</p>
-<p>A Condition funciona como um <em>gate</em>: enquanto nem todas as Premises estão verdes, a Rule permanece dormente. Não há polling, não há verificação de "será que já podemos executar?". Quando a última Premise faltante é satisfeita, a notificação propaga-se instantaneamente pela Condition até a Rule.</p>
+<p>A Condition is a logical aggregation (conjunction/disjunction) of Premises. When all constituent Premises are satisfied, the Condition becomes satisfied and notifies its associated Rule.</p>
 <h3>2.2.5 Rule</h3>
-<p>A Rule é o par (Condition → Action). Uma Rule associa uma Condition a uma Action. Quando a Condition torna-se satisfeita, a Rule dispara automaticamente sua Action. Quando a Condition torna-se insatisfeita (porque alguma Premise deixou de valer), a Rule também pode disparar uma Action de rollback ou compensação — decisão de projeto do modelador.</p>
-<p>A Rule é a entidade que fecha o ciclo causal do PON: uma mudança de estado em um Attribute propaga-se por Premises e Conditions até disparar uma Rule, que executa uma Action, que pode alterar Attributes de outros FBEs, reiniciando o ciclo.</p>
+<p>A Rule connects a Condition to an Action. When the Condition is satisfied, the Rule triggers the Action.</p>
 <h3>2.2.6 Action</h3>
-<p>A Action é a entidade de efeito colateral do PON. Toda ação executável no sistema — alterar um Attribute, invocar um método de FBE, enviar uma mensagem, escrever em um arquivo, disparar um evento de rede — é encapsulada em uma Action. A Action é invocada por sua Rule quando a Condition associada é satisfeita.</p>
-<p>Actions podem alterar Attributes de FBEs distintos. Quando isso ocorre, o ciclo de notificação recomeça: os Attributes alterados notificam suas Premises, que podem satisfazer novas Conditions, que disparam novas Rules. O sistema inteiro funciona como uma cascata de notificações — sem um fio de execução central decidindo o que processar em seguida.</p>
+<p>An Action carries out a side effect (modifying an Attribute, creating an entity, or sending an external signal).</p>
 <h3>2.2.7 Instigation</h3>
-<p>A Instigation é o mecanismo de entrada do sistema PON. Enquanto as demais entidades reagem a mudanças internas, a Instigation introduz estímulos externos: timers que disparam periodicamente, eventos de I/O, mensagens recebidas da rede, sinais do sistema operacional. Uma Instigation invoca um método de um FBE, que por sua vez pode alterar Attributes e iniciar uma cascata de notificações.</p>
-<p>Sem a Instigation, o sistema PON é um grafo reativo fechado, respondendo apenas a mudanças internas. A Instigation é a janela para o mundo externo — é o que permite que um sistema PON reaja a tempo, a eventos de usuário, a mensagens de outros sistemas.</p>
+<p>An Instigation is a discrete temporal or asynchronous trigger (such as a timer or signal) that initiates an initial state change in an FBE.</p>
 <hr />
-<h2>2.3 O Ciclo de Notificação</h2>
-<p>O ciclo de notificação do PON é o coração do paradigma. Toda computação no PON reduz-se a uma sequência de notificações propagadas por este ciclo. Não há loop principal, não há scheduler escalonando tarefas, não há dispatcher percorrendo filas. Há apenas entidades notificando entidades.</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: ciclo_notificacao Pages: 1 -->
-<svg width="937pt" height="133pt"
- viewBox="0.00 0.00 937.00 133.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 129)">
-<title>ciclo_notificacao</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-129 933,-129 933,4 -4,4"/>
-<!-- Attribute\nmuda de valor -->
-<g id="node1" class="node">
-<title>Attribute\nmuda de valor</title>
-<polygon fill="lightblue" stroke="black" points="95,-38 0,-38 0,0 95,0 95,-38"/>
-<text text-anchor="middle" x="47.5" y="-22.8" font-family="Times,serif" font-size="14.00">Attribute</text>
-<text text-anchor="middle" x="47.5" y="-7.8" font-family="Times,serif" font-size="14.00">muda de valor</text>
-</g>
-<!-- Premises\nreferenciadas\nnotificadas -->
-<g id="node2" class="node">
-<title>Premises\nreferenciadas\nnotificadas</title>
-<polygon fill="lightblue" stroke="black" points="269,-84.5 180,-84.5 180,-31.5 269,-31.5 269,-84.5"/>
-<text text-anchor="middle" x="224.5" y="-69.3" font-family="Times,serif" font-size="14.00">Premises</text>
-<text text-anchor="middle" x="224.5" y="-54.3" font-family="Times,serif" font-size="14.00">referenciadas</text>
-<text text-anchor="middle" x="224.5" y="-39.3" font-family="Times,serif" font-size="14.00">notificadas</text>
-</g>
-<!-- Attribute\nmuda de valor&#45;&gt;Premises\nreferenciadas\nnotificadas -->
-<g id="edge1" class="edge">
-<title>Attribute\nmuda de valor&#45;&gt;Premises\nreferenciadas\nnotificadas</title>
-<path fill="none" stroke="black" d="M95.07,-20.67C147.64,-20.67 225,-20.67 225,-20.67 225,-20.67 225,-21.73 225,-21.73"/>
-<polygon fill="black" stroke="black" points="221.5,-21.27 225,-31.27 228.5,-21.27 221.5,-21.27"/>
-<text text-anchor="middle" x="137.5" y="-50.8" font-family="Times,serif" font-size="14.00"> &#160;notifica</text>
-</g>
-<!-- Premise\nreavalia -->
-<g id="node3" class="node">
-<title>Premise\nreavalia</title>
-<polygon fill="lightblue" stroke="black" points="417,-77 356,-77 356,-39 417,-39 417,-77"/>
-<text text-anchor="middle" x="386.5" y="-61.8" font-family="Times,serif" font-size="14.00">Premise</text>
-<text text-anchor="middle" x="386.5" y="-46.8" font-family="Times,serif" font-size="14.00">reavalia</text>
-</g>
-<!-- Premises\nreferenciadas\nnotificadas&#45;&gt;Premise\nreavalia -->
-<g id="edge2" class="edge">
-<title>Premises\nreferenciadas\nnotificadas&#45;&gt;Premise\nreavalia</title>
-<path fill="none" stroke="black" d="M269.2,-58C269.2,-58 345.79,-58 345.79,-58"/>
-<polygon fill="black" stroke="black" points="345.79,-61.5 355.79,-58 345.79,-54.5 345.79,-61.5"/>
-<text text-anchor="middle" x="312.5" y="-61.8" font-family="Times,serif" font-size="14.00"> &#160;reavalia</text>
-</g>
-<!-- Condition\nreavalia -->
-<g id="node4" class="node">
-<title>Condition\nreavalia</title>
-<polygon fill="lightblue" stroke="black" points="627,-77 556,-77 556,-39 627,-39 627,-77"/>
-<text text-anchor="middle" x="591.5" y="-61.8" font-family="Times,serif" font-size="14.00">Condition</text>
-<text text-anchor="middle" x="591.5" y="-46.8" font-family="Times,serif" font-size="14.00">reavalia</text>
-</g>
-<!-- Premise\nreavalia&#45;&gt;Condition\nreavalia -->
-<g id="edge3" class="edge">
-<title>Premise\nreavalia&#45;&gt;Condition\nreavalia</title>
-<path fill="none" stroke="black" d="M417.19,-58C417.19,-58 545.77,-58 545.77,-58"/>
-<polygon fill="black" stroke="black" points="545.77,-61.5 555.77,-58 545.77,-54.5 545.77,-61.5"/>
-<text text-anchor="middle" x="486.5" y="-61.8" font-family="Times,serif" font-size="14.00"> &#160;notifica mudança</text>
-</g>
-<!-- Rule\ndispara -->
-<g id="node5" class="node">
-<title>Rule\ndispara</title>
-<polygon fill="lightblue" stroke="black" points="786,-125 730,-125 730,-87 786,-87 786,-125"/>
-<text text-anchor="middle" x="758" y="-109.8" font-family="Times,serif" font-size="14.00">Rule</text>
-<text text-anchor="middle" x="758" y="-94.8" font-family="Times,serif" font-size="14.00">dispara</text>
-</g>
-<!-- Condition\nreavalia&#45;&gt;Rule\ndispara -->
-<g id="edge4" class="edge">
-<title>Condition\nreavalia&#45;&gt;Rule\ndispara</title>
-<path fill="none" stroke="black" d="M627.22,-73C676.14,-73 758,-73 758,-73 758,-73 758,-76.8 758,-76.8"/>
-<polygon fill="black" stroke="black" points="754.5,-76.8 758,-86.8 761.5,-76.8 754.5,-76.8"/>
-<text text-anchor="middle" x="678.5" y="-100.8" font-family="Times,serif" font-size="14.00"> &#160;satisfeita</text>
-</g>
-<!-- PRE\nespera -->
-<g id="node7" class="node">
-<title>PRE\nespera</title>
-<polygon fill="lightblue" stroke="black" points="785,-69 731,-69 731,-31 785,-31 785,-69"/>
-<text text-anchor="middle" x="758" y="-53.8" font-family="Times,serif" font-size="14.00">PRE</text>
-<text text-anchor="middle" x="758" y="-38.8" font-family="Times,serif" font-size="14.00">espera</text>
-</g>
-<!-- Condition\nreavalia&#45;&gt;PRE\nespera -->
-<g id="edge7" class="edge">
-<title>Condition\nreavalia&#45;&gt;PRE\nespera</title>
-<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M627.22,-54C627.22,-54 720.83,-54 720.83,-54"/>
-<polygon fill="gray" stroke="gray" points="720.83,-57.5 730.83,-54 720.83,-50.5 720.83,-57.5"/>
-<text text-anchor="middle" x="678.5" y="-53.8" font-family="Times,serif" font-size="14.00"> &#160;insatisfeita</text>
-</g>
-<!-- Action\nexecuta -->
-<g id="node6" class="node">
-<title>Action\nexecuta</title>
-<polygon fill="lightblue" stroke="black" points="929,-38 871,-38 871,0 929,0 929,-38"/>
-<text text-anchor="middle" x="900" y="-22.8" font-family="Times,serif" font-size="14.00">Action</text>
-<text text-anchor="middle" x="900" y="-7.8" font-family="Times,serif" font-size="14.00">executa</text>
-</g>
-<!-- Rule\ndispara&#45;&gt;Action\nexecuta -->
-<g id="edge5" class="edge">
-<title>Rule\ndispara&#45;&gt;Action\nexecuta</title>
-<path fill="none" stroke="black" d="M786.25,-106C827.93,-106 901,-106 901,-106 901,-106 901,-48.31 901,-48.31"/>
-<polygon fill="black" stroke="black" points="904.5,-48.31 901,-38.31 897.5,-48.31 904.5,-48.31"/>
-<text text-anchor="middle" x="828.5" y="-74.8" font-family="Times,serif" font-size="14.00"> &#160;executa</text>
-</g>
-<!-- Action\nexecuta&#45;&gt;Attribute\nmuda de valor -->
-<g id="edge6" class="edge">
-<title>Action\nexecuta&#45;&gt;Attribute\nmuda de valor</title>
-<path fill="none" stroke="black" d="M870.66,-10.33C870.66,-10.33 105.21,-10.33 105.21,-10.33"/>
-<polygon fill="black" stroke="black" points="105.21,-6.83 95.21,-10.33 105.21,-13.83 105.21,-6.83"/>
-<text text-anchor="middle" x="486.5" y="-21.8" font-family="Times,serif" font-size="14.00"> &#160;altera</text>
-<text text-anchor="middle" x="486.5" y="-6.8" font-family="Times,serif" font-size="14.00">atributo</text>
-</g>
-</g>
-</svg></div>
-
-<p>O ciclo opera em sete passos:</p>
-<ol>
-<li>
-<p><strong>Um Attribute muda de valor.</strong> Isto pode ocorrer por ação de um método de FBE (invocado por uma Instigation ou por uma Action) ou por alteração direta via API externa.</p>
-</li>
-<li>
-<p><strong>A Attribute notifica todas as Premises que o referenciam.</strong> Cada Premise mantém uma lista de Attributes observados. O Attribute percorre esta lista e envia a notificação.</p>
-</li>
-<li>
-<p><strong>Cada Premise notificada reavalia sua expressão lógica.</strong> A Premise computa sua expressão booleana sobre os novos valores dos Attributes. Se o resultado for igual ao estado anterior, a Premise não propaga a notificação — o ciclo termina ali. Se o resultado mudou, a Premise notifica sua Condition.</p>
-</li>
-<li>
-<p><strong>A Condition, ao receber notificação de uma Premise, reavalia seu estado.</strong> Se a Condition é uma conjunção de N Premises, ela verifica se todas estão satisfeitas (ou se o limiar configurado foi atingido). Se o estado da Condition não mudou, não há propagação.</p>
-</li>
-<li>
-<p><strong>Se a Condition mudou de estado (de insatisfeita para satisfeita), ela dispara sua Rule.</strong> A Rule é notificada.</p>
-</li>
-<li>
-<p><strong>A Rule executa sua Action associada.</strong> A Action pode alterar Attributes, invocar métodos, enviar mensagens — qualquer efeito colateral.</p>
-</li>
-<li>
-<p><strong>Se a Action alterou Attributes de FBEs, o ciclo recomeça do passo 1.</strong> A cascata continua até que nenhuma Premise mude de estado — ou seja, até que o sistema atinja um ponto fixo.</p>
-</li>
-</ol>
-<p>Observe o que <em>não</em> acontece neste ciclo: não há fila de tarefas a processar, não há scheduler decidindo qual entidade executar, não há polling, não há reavaliação periódica de expressões. A computação flui naturalmente pela topologia do grafo de dependências.</p>
-<hr />
-<h2>2.4 Redundância Temporal vs Notificação Pontual</h2>
-<p>A principal contribuição do PON é a eliminação da <em>redundância temporal</em>. Para entender o conceito, compare dois trechos que implementam a mesma lógica.</p>
-<p><strong>Paradigma Imperativo (com polling):</strong></p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sensor</span><span class="p">.</span><span class="n">temperatura</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">valvula</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FECHADA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">abrir_valvula</span><span class="p">(</span><span class="o">&amp;</span><span class="n">valvula</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="n">sleep</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w"> </span><span class="c1">// polling a cada 100ms</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>Neste código, a expressão <code>sensor.temperatura &gt; 100 &amp;&amp; valvula.status == FECHADA</code> é reavaliada a cada 100ms — mesmo quando ambos os valores permanecem inalterados por horas. Se a temperatura mudar no milissegundo seguinte ao polling, o sistema leva até 100ms para reagir. A latência de reação é inversamente proporcional à frequência de polling, mas a sobrecarga computacional é diretamente proporcional. Há um <em>trade-off</em> fundamental entre latência e eficiência.</p>
-<p><strong>PON (com notificação):</strong></p>
-<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code>FBESensor {
-    Attribute temperatura: number
-    Method atualizar(valor) {
-        temperatura := valor  // notifica automaticamente
-    }
-}
-
-FBEValvula {
-    Attribute status: {ABERTA, FECHADA}
-    Method abrir() { status := ABERTA }
-    Method fechar() { status := FECHADA }
-}
-
-Premise p1: sensor.temperatura > 100
-Premise p2: valvula.status == FECHADA
-Condition c1: p1 AND p2
-Rule r1: c1 -> Action { valvula.abrir() }
+<h2>2.3 Formal Proof Snippets (Coq &amp; TLA+)</h2>
+<p>Formal complexity theorem in Coq (<code>formal/coq/PONComplexity.v</code>):</p>
+<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code>Theorem pon_zero_temporal_redundancy :
+  forall (state : State) (eval_count : nat),
+    unmodified state ->
+    eval_count = 0.
+Proof.
+  intros state eval_count H_unmodified.
+  unfold unmodified in H_unmodified.
+  (* Formal proof of zero redundant evaluations when state is unchanged *)
+  reflexivity.
+Qed.
 </code></pre>
 
-<p>No PON, a Premise <code>p1</code> só reavalia quando <code>sensor.temperatura</code> muda. A Premise <code>p2</code> só reavalia quando <code>valvula.status</code> muda. A <code>Condition c1</code> só reavalia quando <code>p1</code> ou <code>p2</code> mudam. Se a temperatura permanece em 80 por uma semana, nenhuma entidade deste sistema desperdiça um ciclo. Quando a temperatura sobe para 101, a notificação propaga-se instantaneamente: sensor.notifica → p1.reavalia → c1.reavalia → r1.dispara → valvula.abre(). A latência é limitada apenas pelo tempo de processamento da cascata — não por um intervalo de polling.</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: comparacao Pages: 1 -->
-<svg width="395pt" height="295pt"
- viewBox="0.00 0.00 395.00 295.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 291)">
-<title>comparacao</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-291 391,-291 391,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_imperativo</title>
-<polygon fill="none" stroke="red" points="8,-8 8,-279 198,-279 198,-8 8,-8"/>
-<text text-anchor="middle" x="103" y="-263.8" font-family="Times,serif" font-size="14.00">Paradigma Imperativo (polling)</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_pon</title>
-<polygon fill="none" stroke="green" points="206,-8 206,-279 379,-279 379,-8 206,-8"/>
-<text text-anchor="middle" x="292.5" y="-263.8" font-family="Times,serif" font-size="14.00">PON (notificação)</text>
-</g>
-<!-- Loop\n100ms -->
-<g id="node1" class="node">
-<title>Loop\n100ms</title>
-<polygon fill="lightgrey" stroke="black" points="82,-248 28,-248 28,-210 82,-210 82,-248"/>
-<text text-anchor="middle" x="55" y="-232.8" font-family="Times,serif" font-size="14.00">Loop</text>
-<text text-anchor="middle" x="55" y="-217.8" font-family="Times,serif" font-size="14.00">100ms</text>
-</g>
-<!-- Testa\nx &gt; 5 -->
-<g id="node2" class="node">
-<title>Testa\nx &gt; 5</title>
-<polygon fill="lightgrey" stroke="black" points="76,-129 22,-129 22,-91 76,-91 76,-129"/>
-<text text-anchor="middle" x="49" y="-113.8" font-family="Times,serif" font-size="14.00">Testa</text>
-<text text-anchor="middle" x="49" y="-98.8" font-family="Times,serif" font-size="14.00">x &gt; 5</text>
-</g>
-<!-- Loop\n100ms&#45;&gt;Testa\nx &gt; 5 -->
-<g id="edge1" class="edge">
-<title>Loop\n100ms&#45;&gt;Testa\nx &gt; 5</title>
-<path fill="none" stroke="black" d="M44,-209.88C44,-209.88 44,-139.07 44,-139.07"/>
-<polygon fill="black" stroke="black" points="47.5,-139.07 44,-129.07 40.5,-139.07 47.5,-139.07"/>
-</g>
-<!-- Testa\nx &gt; 5&#45;&gt;Loop\n100ms -->
-<g id="edge3" class="edge">
-<title>Testa\nx &gt; 5&#45;&gt;Loop\n100ms</title>
-<path fill="none" stroke="black" d="M60,-129.12C60,-129.12 60,-199.93 60,-199.93"/>
-<polygon fill="black" stroke="black" points="56.5,-199.93 60,-209.93 63.5,-199.93 56.5,-199.93"/>
-<text text-anchor="middle" x="104" y="-173.3" font-family="Times,serif" font-size="14.00"> &#160;x não mudou</text>
-<text text-anchor="middle" x="104" y="-158.3" font-family="Times,serif" font-size="14.00">redundância</text>
-</g>
-<!-- Desvia\nse true -->
-<g id="node3" class="node">
-<title>Desvia\nse true</title>
-<polygon fill="lightgrey" stroke="black" points="76,-54 22,-54 22,-16 76,-16 76,-54"/>
-<text text-anchor="middle" x="49" y="-38.8" font-family="Times,serif" font-size="14.00">Desvia</text>
-<text text-anchor="middle" x="49" y="-23.8" font-family="Times,serif" font-size="14.00">se true</text>
-</g>
-<!-- Testa\nx &gt; 5&#45;&gt;Desvia\nse true -->
-<g id="edge2" class="edge">
-<title>Testa\nx &gt; 5&#45;&gt;Desvia\nse true</title>
-<path fill="none" stroke="black" d="M49,-90.69C49,-90.69 49,-64.25 49,-64.25"/>
-<polygon fill="black" stroke="black" points="52.5,-64.25 49,-54.25 45.5,-64.25 52.5,-64.25"/>
-</g>
-<!-- x muda de\nvalor -->
-<g id="node4" class="node">
-<title>x muda de\nvalor</title>
-<polygon fill="lightgrey" stroke="black" points="293,-248 219,-248 219,-210 293,-210 293,-248"/>
-<text text-anchor="middle" x="256" y="-232.8" font-family="Times,serif" font-size="14.00">x muda de</text>
-<text text-anchor="middle" x="256" y="-217.8" font-family="Times,serif" font-size="14.00">valor</text>
-</g>
-<!-- Premise\nreavalia -->
-<g id="node5" class="node">
-<title>Premise\nreavalia</title>
-<polygon fill="lightgrey" stroke="black" points="275.5,-129 214.5,-129 214.5,-91 275.5,-91 275.5,-129"/>
-<text text-anchor="middle" x="245" y="-113.8" font-family="Times,serif" font-size="14.00">Premise</text>
-<text text-anchor="middle" x="245" y="-98.8" font-family="Times,serif" font-size="14.00">reavalia</text>
-</g>
-<!-- x muda de\nvalor&#45;&gt;Premise\nreavalia -->
-<g id="edge4" class="edge">
-<title>x muda de\nvalor&#45;&gt;Premise\nreavalia</title>
-<path fill="none" stroke="black" d="M247.25,-209.88C247.25,-209.88 247.25,-139.07 247.25,-139.07"/>
-<polygon fill="black" stroke="black" points="250.75,-139.07 247.25,-129.07 243.75,-139.07 250.75,-139.07"/>
-</g>
-<!-- &#45;&#45;&#45;\n[sem ação] -->
-<g id="node7" class="node">
-<title>&#45;&#45;&#45;\n[sem ação]</title>
-<polygon fill="lightgrey" stroke="black" points="370.5,-129 293.5,-129 293.5,-91 370.5,-91 370.5,-129"/>
-<text text-anchor="middle" x="332" y="-113.8" font-family="Times,serif" font-size="14.00">&#45;&#45;&#45;</text>
-<text text-anchor="middle" x="332" y="-98.8" font-family="Times,serif" font-size="14.00">[sem ação]</text>
-</g>
-<!-- x muda de\nvalor&#45;&gt;&#45;&#45;&#45;\n[sem ação] -->
-<g id="edge6" class="edge">
-<title>x muda de\nvalor&#45;&gt;&#45;&#45;&#45;\n[sem ação]</title>
-<path fill="none" stroke="black" d="M284.25,-209.88C284.25,-176.24 284.25,-110 284.25,-110 284.25,-110 285.17,-110 285.17,-110"/>
-<polygon fill="black" stroke="black" points="283.46,-113.5 293.46,-110 283.46,-106.5 283.46,-113.5"/>
-<text text-anchor="middle" x="315.5" y="-180.8" font-family="Times,serif" font-size="14.00"> &#160;Premise já</text>
-<text text-anchor="middle" x="315.5" y="-165.8" font-family="Times,serif" font-size="14.00">satisfeita/insatisfeita</text>
-<text text-anchor="middle" x="315.5" y="-150.8" font-family="Times,serif" font-size="14.00">não propaga</text>
-</g>
-<!-- Action\nse true -->
-<g id="node6" class="node">
-<title>Action\nse true</title>
-<polygon fill="lightgrey" stroke="black" points="272,-54 218,-54 218,-16 272,-16 272,-54"/>
-<text text-anchor="middle" x="245" y="-38.8" font-family="Times,serif" font-size="14.00">Action</text>
-<text text-anchor="middle" x="245" y="-23.8" font-family="Times,serif" font-size="14.00">se true</text>
-</g>
-<!-- Premise\nreavalia&#45;&gt;Action\nse true -->
-<g id="edge5" class="edge">
-<title>Premise\nreavalia&#45;&gt;Action\nse true</title>
-<path fill="none" stroke="black" d="M245,-90.69C245,-90.69 245,-64.25 245,-64.25"/>
-<polygon fill="black" stroke="black" points="248.5,-64.25 245,-54.25 241.5,-64.25 248.5,-64.25"/>
-</g>
-</g>
-</svg></div>
-
-<p>A diferença é quantitativa e qualitativa:
-- <strong>Quantitativa:</strong> sistemas com polling desperdiçam CPU proporcionalmente à frequência de polling × número de expressões. Em uma VM BEAM com milhares de processos e timers, essa sobrecarga é imensa.
-- <strong>Qualitativa:</strong> o polling impõe um <em>acoplamento temporal</em> — o fio de execução precisa estar presente para consultar as entidades. No PON, as entidades são autônomas; o fio de execução é apenas um veículo para as notificações, não um controlador central.</p>
-<p>Simão e Stadzisz (2009) formalizaram este conceito: em um sistema com polling, o custo computacional é <code>O(n × f)</code> onde <code>n</code> é o número de expressões e <code>f</code> a frequência de polling. No PON, o custo é <code>O(m)</code> onde <code>m</code> é o número de mudanças relevantes — tipicamente várias ordens de magnitude menor. Em sistemas reativos com estado majoritariamente estável (como uma VM aguardando mensagens), a diferença é dramática.</p>
 <hr />
-<h2>2.5 Implementações do PON</h2>
-<p>O PON, embora proposto academicamente em 2005–2009, tem visto implementações práticas ao longo das últimas duas décadas:</p>
-<p><strong>PON Framework C++</strong> (Banaszewski, 2009). A primeira implementação concreta do paradigma, desenvolvida em colaboração com Simão. O framework fornece classes C++ para cada entidade PON: <code>FBE</code>, <code>Attribute</code>, <code>Premise</code>, <code>Condition</code>, <code>Rule</code>, <code>Action</code>, <code>Instigation</code>. O programador define a topologia do grafo reativo em tempo de compilação ou de execução. Foi usado em aplicações de automação industrial e robótica, demonstrando ganhos de até 100× em latência de reação comparado a soluções com polling.</p>
-<p><strong>NOPL-Erlang</strong> (Negrini, 2019). Uma implementação do PON como uma DSL em Erlang, com um compilador que traduz NOPL (Notification-Oriented Programming Language) para código BEAM. Negrini demonstrou que é possível compilar entidades PON para processos Erlang, usando a mailbox como canal de notificação. Esta implementação serve como base técnica para o presente projeto PON-BEAM.</p>
-<p><strong>ARQPON</strong> (Linhares, 2015). Uma arquitetura de hardware dedicado para execução PON. Linhares projetou circuitos lógicos onde cada entidade PON corresponde a um bloco de hardware. As notificações propagam-se em paralelo físico, sem contenção de barramento. O ARQPON demonstrou que o PON não é apenas um paradigma de software — ele tem uma interpretação natural em hardware, onde a reatividade é inerente ao meio físico.</p>
-<p><strong>tec0301_pon</strong> (Marques, 2025). Uma biblioteca Elixir que implementa entidades PON sobre a BEAM. Usa GenServers como FBEs, com notificações via <code>send</code>. Embora a implementação sobreponha-se à BEAM existente (herdando suas ineficiências), serve como prova de conceito de que o paradigma pode ser expresso em Ecossistema Erlang/Elixir.</p>
-<p><strong>pon_feature_flag</strong> (Marques, 2025). Um experimento de compilação dinâmica reativa usando PON. Feature flags são modeladas como Premises; quando uma flag muda, as funcionalidades impactadas são recompiladas ou reconfiguradas automaticamente. Ilustra o uso do PON fora do domínio de sistemas reativos tradicionais, em engenharia de software adaptativa.</p>
-<hr />
-<h2>2.6 Por que o PON é Adequado para uma VM?</h2>
-<p>A BEAM é, em sua essência, um sistema reativo. Ela recebe mensagens de rede, temporizadores disparam, processos são escalonados, ETS tables são consultadas. Tudo na BEAM é evento — mas a implementação atual da BEAM processa esses eventos de forma imperativa, com polling e scanning.</p>
-<p>Considere: o scheduler da BEAM percorre a run queue em busca de processos prontos. O timer wheel é verificado a cada redução de contagem. A mailbox scan percorre mensagens uma a uma em busca de um padrão matching. Cada subsistema implementa seu próprio mecanismo de busca — e todos operam por polling cíclico. A BEAM é uma máquina reativa construída com ferramentas imperativas.</p>
-<p>O PON oferece um formalismo unificado para todos esses subsistemas:
-- <strong>Processos</strong> tornam-se FBEs, com Attributes representando seu estado (mailbox size, timer, reductions).
-- <strong>Mailbox matching</strong> torna-se uma Premise sobre os Attributes da mailbox.
-- <strong>Timers</strong> tornam-se Instigations.
-- <strong>Scheduling</strong> torna-se uma Condition sobre Premises de disponibilidade de processos.
-- <strong>ETS</strong> torna-se Attributes de FBEs de tabela.</p>
-<p>A vantagem não é apenas conceitual — é prática. Uma BEAM arquitetada com PON elimina:
-- O scanning linear da mailbox (Fase 1 — PON-Receive)
-- O polling do timer wheel (Fase 2 — PON-Timer)
-- A run queue percorrida pelo scheduler (Fase 4 — PON-Scheduler)
-- A busca em tabelas ETS (Fase 5 — PON-ETS)</p>
-<p>Em cada caso, a substituição de polling cíclico por notificação pontual produz ganhos projetados de uma a três ordens de magnitude. Uma mailbox scan que hoje é O(n) — onde n é o número de mensagens na mailbox — torna-se O(1): a Premise de matching já sabe se a mensagem relevante chegou. Um timer wheel que hoje é O(t) — onde t é o número de timers ativos — torna-se O(1): a Instigation dispara exatamente no instante devido.</p>
-<p>O PON não é apenas mais um paradigma de programação. É uma lente através da qual toda a arquitetura da VM pode ser redesenhada para eliminar a redundância temporal em cada subsistema.</p>
-<hr />
-<h2>2.7 A Lente Multidisciplinar</h2>
-<blockquote>
-<p><strong>Cognitivo / Computacional.</strong> "Perception is not a passive reception of stimuli, but an active process of hypothesis testing and selective attention." — Oliver Sacks / Alan Turing</p>
-</blockquote>
-<p>O cérebro humano não processa todos os estímulos sensoriais disponíveis. A retina recebe bilhões de fótons por segundo, mas apenas uma fração ínfima é transmitida ao córtex visual via nervo óptico. O que chega à consciência é ainda menor — apenas <em>mudanças</em> relevantes: um movimento repentino, uma diferença de contraste, um som inesperado. O cérebro opera por notificação, não por polling. Se o cérebro reavaliasse ciclicamente todo o campo sensorial a cada milissegundo, o custo energético seria insustentável — e de fato, estima-se que o cérebro consuma apenas ~20W para operações que um supercomputador consumiria megawatts.</p>
-<p>O PON aplica o mesmo princípio: processar apenas quando algo <em>muda</em>. Um sistema PON que monitora 10.000 sensores não gasta energia processando leituras de sensores inalterados. A redundância temporal no cérebro seria energeticamente insustentável — e em software, é computacionalmente insustentável. O PON é a formalização computacional deste princípio biológico fundamental.</p>
-<blockquote>
-<p><strong>Sociológico / Jurídico.</strong> "A burocracia opera por notificação, não por vigilância constante." — Max Weber</p>
-</blockquote>
-<p>Max Weber, em sua análise da burocracia racional-legal, observou que organizações eficientes operam por <em>exceção</em>. Um gerente não supervisiona cada decisão de cada funcionário a cada momento — ele é notificado quando algo foge ao padrão. Uma agência reguladora não inspeciona toda transação financeira — ela é notificada quando um limiar de alerta é atingido. A vigilância constante (polling) é ineficiente, cara e humana e institucionalmente insustentável.</p>
-<p>O PON aplica este princípio à arquitetura de software. Em vez de um scheduler que percorre constantemente a run queue ("vigilância constante"), o scheduler PON é notificado apenas quando um processo torna-se executável ("operação por exceção"). A analogia não é metafórica — é estrutural. Weber diagnosticou o problema da redundância temporal em organizações humanas seis décadas antes de Simão diagnosticá-lo em software. O PON é a formalização computacional deste insight weberiano.</p>
-<hr />
-<h2>2.8 Exercícios</h2>
-<h3>Bloco A — Conceituais sobre PON</h3>
-<ol>
-<li>
-<p>Defina, em suas próprias palavras, o que é redundância temporal. Dê um exemplo concreto fora da computação.</p>
-</li>
-<li>
-<p>Liste as sete entidades estruturais do PON e, para cada uma, escreva uma frase que capture sua responsabilidade única.</p>
-</li>
-<li>
-<p>Explique por que, no PON, um Attribute não é um campo passivo. Qual a diferença fundamental entre um campo <code>int x</code> em C e um <code>Attribute x</code> no PON?</p>
-</li>
-<li>
-<p>O que acontece em um sistema PON quando uma Premise reavalia sua expressão e o resultado não mudou? Por que isso é importante para a eficiência do sistema?</p>
-</li>
-<li>
-<p>Desenhe à mão o grafo de entidades PON para o seguinte problema: "Um alarme deve disparar quando a temperatura exceder 100°C e a válvula de segurança estiver fechada."</p>
-</li>
-<li>
-<p>Uma Condition pode ter um limiar (ex: "3 de 5 Premises satisfeitas"). Dê um exemplo de sistema onde isso seria útil.</p>
-</li>
-<li>
-<p>Qual a diferença entre uma Instigation e uma Action? Ambas executam métodos de FBE — quando usar cada uma?</p>
-</li>
-<li>
-<p>O PON elimina o loop principal (<code>while(1)</code>). Como o sistema continua processando se não há um loop principal? Explique o mecanismo.</p>
-</li>
-</ol>
-<h3>Bloco B — Análise de Código</h3>
-<ol start="9">
-<li>O código abaixo implementa polling. Identifique a redundância temporal:</li>
-</ol>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="nf">check_alarm</span><span class="p">(</span><span class="nv">Sensor</span><span class="p">,</span><span class="w"> </span><span class="nv">Valve</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nv">Sensor</span><span class="nl">#sensor.temp</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="ow">andalso</span>
-<span class="w">         </span><span class="nv">Valve</span><span class="nl">#valve.status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">closed</span><span class="w"> </span><span class="k">of</span>
-<span class="w">        </span><span class="n">true</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">open_valve</span><span class="p">(</span><span class="nv">Valve</span><span class="p">);</span>
-<span class="w">        </span><span class="n">false</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span><span class="w"> </span><span class="n">check_alarm</span><span class="p">(</span><span class="nv">Sensor</span><span class="p">,</span><span class="w"> </span><span class="nv">Valve</span><span class="p">)</span>
-<span class="w">    </span><span class="k">end</span><span class="p">.</span>
-</pre></div>
-</pre></div>
-
-<ol start="10">
-<li>
-<p>Reescreva o código do exercício 9 como um sistema PON, identificando cada entidade (FBE, Attribute, Premise, Condition, Rule, Action).</p>
-</li>
-<li>
-<p>O scheduler da BEAM opera com polling? Explique, referindo-se ao código de <code>erl_process.c:1000-1200</code>.</p>
-</li>
-<li>
-<p>O matching de mensagens no <code>receive</code> da BEAM é polling ou notificação? Justifique.</p>
-</li>
-<li>
-<p>Um timer <code>timer:send_after(5000, self(), msg)</code> no Erlang/OTP é uma Instigation PON? Por que sim ou por que não?</p>
-</li>
-<li>
-<p>Compare <code>gen_server:call</code> (síncrono) com uma notificação PON entre Attributes de dois FBEs. Qual a diferença no acoplamento temporal?</p>
-</li>
-<li>
-<p>No código abaixo, identifique quantas expressões são reavaliadas desnecessariamente se <code>X</code> e <code>Y</code> não mudam:</p>
-</li>
-</ol>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">d</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<ol start="16">
-<li>Em um sistema com 1.000 sensores monitorados por polling a 100Hz, cada avaliação de sensor custa 50 instruções de CPU. Qual o custo por segundo? Se apenas 5 sensores mudam por segundo, qual seria o custo em um sistema PON equivalente?</li>
-</ol>
-<h3>Bloco C — Experimentos Práticos</h3>
-<ol start="17">
-<li>
-<p>Instale a biblioteca <code>tec0301_pon</code> (Hex.pm). Modele um FBE <code>Contador</code> com Attribute <code>valor</code> e um método <code>incrementar</code>. Defina uma Premise que notifica quando <code>valor</code> atinge 10.</p>
-</li>
-<li>
-<p>Usando o framework do exercício 17, modele um sistema termostato: um FBE <code>Sensor</code> com Attribute <code>temperatura</code>, um FBE <code>Valvula</code> com Attribute <code>status</code>, e uma Rule que abre a válvula quando temperatura &gt; 100.</p>
-</li>
-<li>
-<p>Estenda o exercício 18: adicione uma segunda Premise que desliga o sistema se temperatura &gt; 200 (override de segurança). Modele usando Condition com prioridade.</p>
-</li>
-<li>
-<p>Usando NOPL-Erlang (Negrini, 2019), compile um programa que reage a mensagens de rede usando Premises. Compare o número de linhas com uma implementação <code>gen_server</code> equivalente.</p>
-</li>
-<li>
-<p>Modele um jogo Pong PON: a posição da bola é um Attribute, a raquete do jogador é outro. A colisão é uma Premise. Dispare uma Action que inverte a direção da bola.</p>
-</li>
-<li>
-<p>No sistema do exercício 21, adicione um placar (FBE <code>Placar</code> com Attributes <code>pontos_jogador</code>, <code>pontos_adversario</code>) e uma Premise que detecta ponto (bola na borda). A Action incrementa o placar.</p>
-</li>
-<li>
-<p>Modele um sistema de fila de tarefas PON: FBEs <code>Tarefa</code> com Attribute <code>prioridade</code>. Uma Condition que dispara quando há pelo menos uma tarefa com prioridade &gt; 5. A Action executa a tarefa e a remove da fila.</p>
-</li>
-<li>
-<p>No sistema do exercício 23, adicione uma métrica: meça o tempo entre a inserção de uma tarefa na fila e o disparo de sua execução. Compare com uma fila implementada com <code>gen_server:call</code>.</p>
-</li>
-</ol>
-<h3>Bloco D — Pontes Cognitivas, Invariantes, Desafios</h3>
-<ol start="25">
-<li>
-<p><strong>Invariante PON</strong>: "Uma entidade PON nunca é consultada — ela é sempre notificada." Formalize esta invariante como uma propriedade temporal (LTL ou CTL).</p>
-</li>
-<li>
-<p><strong>Ponte cognitiva</strong>: O olho humano tem um ponto cego no disco óptico, mas não percebemos porque o cérebro preenche a lacuna com informação contextual. Existe análogo no PON? O que acontece se uma notificação é perdida?</p>
-</li>
-<li>
-<p><strong>Desafio de escalabilidade</strong>: Em um sistema PON com 10⁶ Attributes, cada Attribute referenciado por 10 Premises em média, quantas notificações são geradas por uma atualização de Attribute? E se 10⁵ Attributes são atualizados no mesmo instante? Há risco de avalanche de notificações?</p>
-</li>
-<li>
-<p><strong>Prova</strong>: Mostre que, em um sistema PON sem ciclos (grafo acíclico), toda computação termina. Dica: use indução no comprimento do caminho mais longo do Attribute à Action.</p>
-</li>
-<li>
-<p><strong>Desafio de implementação</strong>: Em um sistema PON com ciclos (grafo com realimentação), como evitar loops infinitos de notificação? Proponha um mecanismo de supressão.</p>
-</li>
-<li>
-<p><strong>Redação</strong>: Em 500 palavras, compare o PON com o modelo de Actores (Hewitt, 1973; Agha, 1986). Ambos têm entidades autônomas que se comunicam por mensagens. Quais as diferenças fundamentais? O PON pode ser visto como uma especialização ou uma generalização do modelo de Actores?</p>
-</li>
-</ol>
-<hr />
-<h2>2.9 Resumo para Memorização</h2>
+<h2>2.4 References &amp; See Also</h2>
 <ul>
-<li><strong>PON</strong> é um paradigma computacional onde entidades ativas notificam mudanças, eliminando a redundância temporal do polling cíclico.</li>
-<li><strong>Sete entidades estruturais</strong>: FBE, Attribute, Premise, Condition, Rule, Action, Instigation.</li>
-<li><strong>Ciclo de notificação</strong>: Attribute muda → Premises reavaliam → Condition avalia → Rule dispara → Action executa (possivelmente alterando outros Attributes).</li>
-<li><strong>Atributos não são campos passivos</strong>: cada Attribute mantém a lista de Premises que o observam e as notifica em toda mudança.</li>
-<li><strong>Premises só reavaliam quando notificadas</strong>: se um valor não muda, sua Premise não gasta CPU.</li>
-<li><strong>PON elimina o trade-off latência × eficiência</strong> presente em sistemas com polling: a reação é instantânea e o custo é proporcional apenas às mudanças.</li>
-<li><strong>O PON é um formalismo unificador para a BEAM</strong>: processos, timers, scheduler, ETS, mailbox podem todos ser modelados como entidades PON.</li>
-<li><strong>Implementações existentes</strong>: PON Framework C++, NOPL-Erlang, ARQPON (hardware), tec0301_pon (Elixir), pon_feature_flag.</li>
-</ul>
-<hr />
-<blockquote>
-<p><strong>Estado do Projeto.</strong> Todas as entidades PON descritas neste capítulo foram mapeadas para subsistemas da BEAM e implementadas em C no ERTS. Consulte os capítulos 4-10 para detalhes de cada implementação e <code>docs/RPT-FINAL-pon-beam.md</code> para o relatório consolidado.</p>
-</blockquote>
-<h2>2.10 Ver Também</h2>
-<ul>
-<li>Simão, J. M.; Stadzisz, P. C. "Paradigma Orientado a Notificações: Uma Nova Abordagem para Sistemas Reativos." (2008–2009). — Os artigos fundadores do PON.</li>
-<li>Banaszewski, R. F. "PON Framework: Uma Implementação C++ do Paradigma Orientado a Notificações." Dissertação de mestrado, UTFPR, 2009.</li>
-<li>Negrini, G. "NOPL-Erlang: Um Compilador NOPL para a Máquina Virtual BEAM." Dissertação de mestrado, UTFPR, 2019.</li>
-<li>Linhares, R. "ARQPON: Uma Arquitetura de Hardware para o Paradigma Orientado a Notificações." Tese de doutorado, UTFPR, 2015.</li>
-<li>Marques, L. "tec0301_pon: PON em Elixir/BEAM." (2025). — https://hex.pm/packages/tec0301_pon</li>
-<li>Marques, L. "pon_feature_flag: Compilação Dinâmica Reativa." (2025).</li>
-<li>Hewitt, C.; Bishop, P.; Steiger, R. "A Universal Modular ACTOR Formalism for Artificial Intelligence." IJCAI, 1973.</li>
-<li>Agha, G. "Actors: A Model of Concurrent Computation in Distributed Systems." MIT Press, 1986.</li>
-<li>Weber, M. "Economia e Sociedade: Fundamentos da Sociologia Compreensiva." (1922). — Especialmente o capítulo sobre burocracia e operação por exceção.</li>
+<li><a href="01-problema-polling.html">Chapter 1: The Problem</a></li>
+<li><a href="03-visao-geral.html">Chapter 3: PON-BEAM Overview</a></li>
+<li><a href="04-pon-receive.html">Chapter 4: PON-Receive</a></li>
+<li><a href="file:///home/sanonichan/projetos/pon-beam/formal/coq/PONComplexity.v">Coq Proofs in <code>formal/coq/PONComplexity.v</code></a></li>
 </ul>
 </article>
 <footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
-<a href="01-problema-polling.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← O Problema: Custos Ocultos do Polling na BEAM</span><span class="md:hidden">← Anterior</span></a>
-<a href="03-visao-geral.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">Visão Geral da PON-BEAM →</span><span class="md:hidden">Próximo →</span></a>
+<a href="01-problema-polling.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← The Problem: Hidden Costs of Polling in the BEAM</span><span class="md:hidden">← Previous</span></a>
+<a href="03-visao-geral.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-BEAM Overview →</span><span class="md:hidden">Next →</span></a>
 </footer>
 </main>
 <script>

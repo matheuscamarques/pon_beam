@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PON-Spawn: Notificação Imediata — PON-BEAM</title>
+<title>PON-Spawn: Immediate Notification — PON-BEAM</title>
 <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
@@ -20,112 +20,77 @@
 <input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
 </div>
 <div class="flex-1 overflow-y-auto">
-<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Cover</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Title Page</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Acknowledgments</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">About the Author</a>
 <div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-I">[-]</span>
-<span class="ml-1">Parte I: Fundamentos</span>
+<span class="ml-1">Parte I: Fundamentals</span>
 </div></div>
 <div id="ch-I" class="part-list ">
-<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Problem: Hidden Costs of Polling in the BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Notification-Oriented Paradigm</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-BEAM Overview</a>
 </div>
 <div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-II">[+]</span>
-<span class="ml-1">Parte II: Subsistemas PON</span>
+<span class="ml-1">Parte II: PON Subsystems</span>
 </div></div>
 <div id="ch-II" class="part-list hidden">
-<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive by Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigations with timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">PON-Spawn: Immediate Notification</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition and eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Notification-Oriented Fact Base</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Causal Chain Garbage Collection</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Automatic Premise Generation</a>
 </div>
 <div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-III">[+]</span>
-<span class="ml-1">Parte III: Engenharia e Validação</span>
+<span class="ml-1">Parte III: Engineering and Validation</span>
 </div></div>
 <div id="ch-III" class="part-list hidden">
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Fork Infrastructure</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Benchmarking Harness</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap and Trade-offs</a>
 </div>
 <div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-IV">[+]</span>
-<span class="ml-1">Parte IV: Síntese</span>
+<span class="ml-1">Parte IV: Synthesis</span>
 </div></div>
 <div id="ch-IV" class="part-list hidden">
-<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusão</a>
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Case Studies</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Related Work and Positioning</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusion</a>
 </div>
-<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Back Cover</a>
 </div>
 </aside>
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-Spawn: Notificação Imediata</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">PON-Spawn: Immediate Notification</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button></div>
 <article>
-<h1>PON-Spawn: Notificação Imediata</h1>
+<h1>6. PON-Spawn: Immediate Notification</h1>
 <blockquote>
-<p>"Um processo recém-nascido não deveria esperar o próximo ciclo de polling para ganhar vida."
+<p><em>"A newly born process should not wait for the next polling cycle to come alive."</em><br />
 — Matheus de Camargo Marques, 2025</p>
 </blockquote>
 <hr />
-<h2>1. Diagnóstico: O Custo do Spawn</h2>
-<p>Criar um processo em Erlang é barato — é uma das razões pelas quais se pode ter milhões de processos em uma única VM. A função <code>erts_spawn()</code> (em <code>erl_process.c</code>) aloca uma struct <code>Process</code>, inicializa o heap, a pilha, a mailbox e os registradores, e então coloca o novo processo na run queue do scheduler alvo. Até aqui, o custo é bem conhecido: ~5μs para um spawn simples.</p>
-<p>O problema está no passo seguinte. O scheduler alvo pode estar dormindo. Na BEAM atual, quando a run queue de um scheduler está vazia, o scheduler entra em <code>scheduler_wait()</code>: um loop de sleep com timeout (tipicamente ~1ms via <code>erts_tse_twait</code>, que usa futex no Linux). O novo processo está na run queue, mas o scheduler só vai notar no próximo despertar — o que pode levar até 1ms. Mesmo com spin waiting (busy-wait de alguns microssegundos antes de dormir), a latência entre o spawn e a primeira execução do processo filho é de 10–100μs no caso médio, e até 1ms no pior caso.</p>
-<p>A redundância temporal aqui é sutil: o scheduler verifica a run queue em intervalos regulares, mesmo que o único evento relevante tenha ocorrido <em>entre</em> duas verificações. O processo filho, recém-criado, está pronto para executar — mas o scheduler que deveria executá-lo está dormindo, alheio à sua existência.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// Código simplificado do spawn na BEAM atual</span>
-<span class="c1">// otp/erts/emulator/beam/erl_process.c</span>
-<span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="nf">erts_spawn</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">parent</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">mod</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">fun</span><span class="p">,</span><span class="w"> </span><span class="n">Eterm</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_process</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span><span class="w"> </span><span class="n">fun</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
-<span class="w">    </span><span class="c1">// ... inicialização ...</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="c1">// Coloca o processo na run queue do scheduler alvo</span>
-<span class="w">    </span><span class="n">erts_smp_runq_push</span><span class="p">(</span><span class="n">child</span><span class="o">-&gt;</span><span class="n">scheduler_id</span><span class="p">,</span><span class="w"> </span><span class="n">child</span><span class="p">);</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="c1">// O scheduler alvo só notará o novo processo</span>
-<span class="w">    </span><span class="c1">// no próximo ciclo de polling (10-100μs)</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">child</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>O polling do scheduler após o spawn é invisível para o programador Erlang — o spawn retorna imediatamente com o Pid, e a execução do processo pai continua. Mas o relógio está correndo. O processo filho só será executado quando o scheduler acordar, verificar a run queue e encontrar o novo processo. Em sistemas com muitos processos efêmeros — servidores web que criam um processo por requisição, pools de worker dinâmicos, atores transientes — esta latência acumulada torna-se um gargalo mensurável.</p>
+<h2>6.1 Diagnosis: The Hidden Latency of Spawn</h2>
+<p>Creating an Erlang process is cheap (~5$\mu s$). However, when a child process is spawned, the target scheduler may be sleeping in <code>scheduler_wait()</code>. In stock BEAM, the target scheduler notices the new process only upon its next wakeup check (up to 1ms latency).</p>
 <hr />
-<h2>2. Proposta: Spawn Notifica Imediatamente</h2>
-<p>A solução PON é direta: após escalonar o processo e inseri-lo na run queue, o spawn notifica imediatamente a <em>Condition</em> do scheduler alvo chamando <code>erts_pon_schedule_notify()</code>. Em vez de apenas colocar o processo na run queue e esperar o próximo ciclo de polling, a notificação escreve no eventfd do scheduler alvo através da Condition, acordando-o instantaneamente.</p>
-<p>A implementação é um hook mínimo em <code>erts_schedule_process()</code> (<code>erl_process.c:7040-7047</code>):</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span>
-<span class="nf">erts_schedule_process</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">erts_aint32_t</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsProcLocks</span><span class="w"> </span><span class="n">locks</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="n">schedule_process</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">locks</span><span class="p">);</span>
-<span class="cp">#ifdef PON_BEAM</span>
-<span class="w">    </span><span class="n">erts_pon_schedule_notify</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-<span class="cp">#endif</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>A função <code>erts_pon_schedule_notify</code> é uma inline definida logo acima (<code>erl_process.c:7024-7037</code>):</p>
+<h2>6.2 Proposal: Immediate Condition Notification</h2>
+<p>PON-Spawn hooks into <code>erts_schedule_process</code> (in <code>erl_process.c:7024</code>). When a process is enqueued into a scheduler's run queue, a direct NOP Condition notification triggers an immediate <code>eventfd</code> wake signal to the target scheduler.</p>
 <div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
-<span class="k">static</span><span class="w"> </span><span class="n">ERTS_INLINE</span><span class="w"> </span><span class="kt">void</span>
-<span class="n">erts_pon_schedule_notify</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_get_scheduler_data</span><span class="p">();</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">esdp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">erts_pon_schedule_notify</span><span class="p">(</span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="p">,</span><span class="w"> </span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">esdp</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">pon_condition</span><span class="p">.</span><span class="n">active</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">pon_condition_notify</span><span class="p">(</span><span class="o">&amp;</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">pon_condition</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">condition_notifications</span><span class="p">);</span>
@@ -134,499 +99,24 @@
 </pre></div>
 </pre></div>
 
-<p>A notificação:
-1. Obtém o scheduler data corrente via <code>erts_get_scheduler_data()</code>
-2. Chama <code>pon_condition_notify()</code> na Condition do scheduler, que escreve no eventfd acordando-o
-3. Incrementa o contador <code>condition_notifications</code> para debug/métricas</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: pon_spawn Pages: 1 -->
-<svg width="663pt" height="65pt"
- viewBox="0.00 0.00 663.00 64.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 60.5)">
-<title>pon_spawn</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-60.5 659,-60.5 659,4 -4,4"/>
-<!-- Processo A -->
-<g id="node1" class="node">
-<title>Processo A</title>
-<polygon fill="lightyellow" stroke="black" points="86,-45.5 0,-45.5 0,-7.5 86,-7.5 86,-45.5"/>
-<text text-anchor="middle" x="43" y="-30.3" font-family="Times,serif" font-size="14.00">Processo Pai</text>
-<text text-anchor="middle" x="43" y="-15.3" font-family="Times,serif" font-size="14.00">(spawn)</text>
-</g>
-<!-- Processo B -->
-<g id="node2" class="node">
-<title>Processo B</title>
-<polygon fill="lightyellow" stroke="black" points="247,-45.5 150,-45.5 150,-7.5 247,-7.5 247,-45.5"/>
-<text text-anchor="middle" x="198.5" y="-30.3" font-family="Times,serif" font-size="14.00">Processo Filho</text>
-<text text-anchor="middle" x="198.5" y="-15.3" font-family="Times,serif" font-size="14.00">(FBE)</text>
-</g>
-<!-- Processo A&#45;&gt;Processo B -->
-<g id="edge1" class="edge">
-<title>Processo A&#45;&gt;Processo B</title>
-<path fill="none" stroke="black" d="M86.32,-26.5C86.32,-26.5 139.95,-26.5 139.95,-26.5"/>
-<polygon fill="black" stroke="black" points="139.95,-30 149.95,-26.5 139.95,-23 139.95,-30"/>
-<text text-anchor="middle" x="118" y="-30.3" font-family="Times,serif" font-size="14.00"> &#160;cria</text>
-</g>
-<!-- Condition -->
-<g id="node3" class="node">
-<title>Condition</title>
-<polygon fill="lightyellow" stroke="black" points="445,-53 359,-53 359,0 445,0 445,-53"/>
-<text text-anchor="middle" x="402" y="-37.8" font-family="Times,serif" font-size="14.00">Condition</text>
-<text text-anchor="middle" x="402" y="-22.8" font-family="Times,serif" font-size="14.00">do scheduler</text>
-<text text-anchor="middle" x="402" y="-7.8" font-family="Times,serif" font-size="14.00">alvo</text>
-</g>
-<!-- Processo B&#45;&gt;Condition -->
-<g id="edge2" class="edge">
-<title>Processo B&#45;&gt;Condition</title>
-<path fill="none" stroke="black" d="M247.24,-26.5C247.24,-26.5 348.84,-26.5 348.84,-26.5"/>
-<polygon fill="black" stroke="black" points="348.84,-30 358.84,-26.5 348.84,-23 348.84,-30"/>
-<text text-anchor="middle" x="303" y="-45.3" font-family="Times,serif" font-size="14.00"> &#160;is_ready = 1</text>
-<text text-anchor="middle" x="303" y="-30.3" font-family="Times,serif" font-size="14.00">notifica</text>
-</g>
-<!-- Scheduler -->
-<g id="node4" class="node">
-<title>Scheduler</title>
-<polygon fill="lightyellow" stroke="black" points="655,-45.5 584,-45.5 584,-7.5 655,-7.5 655,-45.5"/>
-<text text-anchor="middle" x="619.5" y="-30.3" font-family="Times,serif" font-size="14.00">Scheduler</text>
-<text text-anchor="middle" x="619.5" y="-15.3" font-family="Times,serif" font-size="14.00">alvo</text>
-</g>
-<!-- Condition&#45;&gt;Scheduler -->
-<g id="edge3" class="edge">
-<title>Condition&#45;&gt;Scheduler</title>
-<path fill="none" stroke="black" d="M445.23,-26.5C445.23,-26.5 573.9,-26.5 573.9,-26.5"/>
-<polygon fill="black" stroke="black" points="573.9,-30 583.9,-26.5 573.9,-23 573.9,-30"/>
-<text text-anchor="middle" x="514.5" y="-30.3" font-family="Times,serif" font-size="14.00"> &#160;wakeup (eventfd)</text>
-</g>
-</g>
-</svg></div>
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_6_spawn_latency_distribution.png" alt="Chart 6: Spawn Latency Distribution (BEAM Stock vs PON-BEAM)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 6: Spawn Latency Distribution (BEAM Stock vs PON-BEAM)</figcaption></figure>
 
-<p>O diagrama mostra o fluxo: o processo pai cria o filho (seta 1), o filho já nasce com sua Condition satisfeita (seta 2), e a Condition notifica o scheduler via eventfd (seta 3). Não há run queue intermediária, não há polling, não há espera. O scheduler acorda e executa o filho no mesmo instante.</p>
-<p>Note que a notificação não depende de onde a Condition está: ela pode estar no mesmo scheduler do pai (localidade de cache) ou em outro core (balanceamento). O eventfd atravessa a barreira de core sem custo adicional — é uma syscall, mas o custo (~1μs) é uma ordem de magnitude menor que a latência de polling.</p>
-<p>O hook foi colocado em <code>erts_schedule_process</code> (e não em <code>erts_spawn</code>) porque todo processo que entra na run queue passa por esta função — incluindo processos reativados por mensagens, timers, e sinais. Isso maximiza o alcance da otimização.</p>
-<p>O código adicional existe apenas dentro de <code>#ifdef PON_BEAM</code>. O comportamento original permanece intacto no fluxo sem PON.</p>
 <hr />
-<h2>3. A Condition do Scheduler</h2>
-<p>A Condition PON do scheduler está definida em <code>erl_process.h:755-762</code> como parte da <code>ErtsSchedulerData</code>:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
-<span class="w">    </span><span class="cm">/* PON-BEAM: Condition para notificação de processos prontos */</span>
-<span class="w">    </span><span class="n">ErtsCondition</span><span class="w"> </span><span class="n">pon_condition</span><span class="p">;</span>
-<span class="cp">#ifdef PON_BEAM_DEBUG</span>
-<span class="w">    </span><span class="cm">/* PON-BEAM: per-scheduler counter stats (só com debug) */</span>
-<span class="w">    </span><span class="n">PonStats</span><span class="w"> </span><span class="n">pon_stats</span><span class="p">;</span>
-<span class="cp">#endif</span>
-<span class="cp">#endif</span>
-</pre></div>
-</pre></div>
-
-<p>A <code>ErtsCondition</code> encapsula um eventfd e é gerenciada pelo módulo <code>pon_condition.c/h</code>. A função <code>pon_condition_notify</code> escreve no eventfd para acordar o scheduler thread.</p>
-<hr />
-<h2>4. Escolha do Scheduler Alvo</h2>
-<p>A decisão de qual scheduler executa o novo processo tem implicações profundas na localidade de cache, no balanceamento de carga e na latência de comunicação entre processos pai e filho.</p>
-<p>A PON-BEAM oferece três estratégias de escolha, selecionáveis por configuração:</p>
-<p><strong>Estratégia 1 — Scheduler do pai (localidade).</strong> O processo filho é atribuído ao mesmo scheduler do processo pai. Esta estratégia maximiza a localidade de cache: o pai e o filho compartilham o mesmo L1/L2 cache do core. Se o pai envia mensagens frequentes ao filho, ambas as execuções beneficiam-se de dados quentes no cache. A desvantagem é o desbalanceamento: se um scheduler recebe muitos spawns (por exemplo, um processo que cria centenas de workers), sua run queue pode crescer enquanto outros schedulers ficam ociosos.</p>
-<p><strong>Estratégia 2 — Scheduler menos carregado (balanceamento).</strong> A função consulta uma variável atômica global que mantém a contagem de processos prontos por scheduler. O scheduler com o menor número de processos é selecionado. Esta estratégia maximiza a utilização dos cores, mas sacrifica localidade: pai e filho podem estar em schedulers diferentes, e a comunicação entre eles envolve cache misses e possivelmente tráfego cross-core (MESI protocol).</p>
-<p><strong>Estratégia 3 — Híbrida: localidade com limiar.</strong> A PON-BEAM usa esta estratégia por padrão. O filho vai para o scheduler do pai se a carga do pai estiver abaixo de um limiar (default: 80% da capacidade). Se o scheduler do pai estiver sobrecarregado, o filho vai para o scheduler menos carregado. Esta estratégia combina localidade nos cenários comuns com balanceamento nos cenários de pico.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// Estratégia híbrida: localidade com limiar de sobrecarga</span>
-<span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="nf">get_least_loaded_condition</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">parent_sched</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_get_current_scheduler</span><span class="p">();</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">parent_load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scheduler_load</span><span class="p">(</span><span class="n">parent_sched</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">parent_load</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">PON_SPAWN_LOCALITY_THRESHOLD</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// Abaixo do limiar: usa scheduler do pai (localidade)</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">parent_sched</span><span class="o">-&gt;</span><span class="n">pon_condition</span><span class="p">;</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="c1">// Acima do limiar: procura scheduler menos carregado</span>
-<span class="w">    </span><span class="n">ErtsCondition</span><span class="w"> </span><span class="o">*</span><span class="n">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parent_sched</span><span class="o">-&gt;</span><span class="n">pon_condition</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">best_load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parent_load</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">erts_no_schedulers</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scheduler_load</span><span class="p">(</span><span class="o">&amp;</span><span class="n">erts_schedulers</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">load</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">best_load</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">best_load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">load</span><span class="p">;</span>
-<span class="w">            </span><span class="n">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_schedulers</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pon_condition</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">best</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>A notificação cross-scheduler via eventfd é transparente: o eventfd pode ser escrito de qualquer thread e lido por outra. O kernel cuida da sincronização. O custo de uma notificação cross-core (~1μs) é marginal comparado à latência de polling que ela evita (10–100μs).</p>
-<hr />
-<h2>5. Análise</h2>
-<p>O ganho do PON-Spawn é modesto em termos absolutos, mas significativo para o perfil de aplicações que a BEAM serve.</p>
-<table>
-<thead>
-<tr>
-<th>Métrica</th>
-<th>BEAM atual</th>
-<th>PON-BEAM</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Latência de criação do processo</td>
-<td>~5μs</td>
-<td>~5μs</td>
-<td>—</td>
-</tr>
-<tr>
-<td>Latência até scheduler começar a executar</td>
-<td>10–100μs (polling)</td>
-<td>~1μs (notificação)</td>
-<td>~10–100×</td>
-</tr>
-<tr>
-<td>Latência total percebida (spawn → 1ª execução)</td>
-<td>15–105μs</td>
-<td>~6μs</td>
-<td>~2–17×</td>
-</tr>
-<tr>
-<td>CPU idle do scheduler com spawns frequentes</td>
-<td>Alto (polling + acordar)</td>
-<td>Mínimo (só notificação)</td>
-<td>Proporcional à frequência</td>
-</tr>
-</tbody>
-</table>
-<p>Na BEAM atual, a latência total do spawn é dominada pelo intervalo de polling do scheduler. Os ~5μs de criação são ofuscados pelos 10–100μs de espera. Na PON-BEAM, a criação ainda custa ~5μs, mas a notificação leva apenas ~1μs — a latência total cai para ~6μs. O ganho é de ~2× no caso médio, mas pode chegar a ~17× no pior caso.</p>
-<p>O ganho é particularmente relevante para <strong>processos efêmeros</strong> — aqueles que executam por poucos microssegundos e morrem. Em um servidor web que cria um processo por requisição HTTP, cada requisição paga a latência de spawn. Se a requisição leva 500μs para ser processada e o spawn leva 100μs (pior caso BEAM), 20% do tempo é gasto apenas esperando o scheduler notar o novo processo. Na PON-BEAM, este overhead cai para ~1%.</p>
-<p>Processos de longa duração (gen_servers, supervisors, pools permanentes) não se beneficiam significativamente do PON-Spawn — a latência de 100μs é irrelevante em uma execução de horas ou dias. Mas para sistemas com alta taxa de criação de processos — Phoenix frameworks, bibliotecas de concorrência transiente, sistemas de atores temporários — o ganho é direto e mensurável.</p>
-<hr />
-<h2>6. Benchmark: <code>spawn_latency.erl</code></h2>
-<p>O benchmark <code>spawn_latency</code> mede o tempo entre o <code>spawn</code> e a primeira execução do processo filho. A técnica usa um processo sonda: o pai cria um filho que imediatamente envia uma mensagem de volta. O tempo entre <code>spawn</code> e <code>receive</code> da confirmação é a latência total (criação + scheduling + execução mínima). Para isolar o custo de scheduling, repete-se o experimento com e sem carga no sistema.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% spawn_latency.erl</span>
-<span class="c">%% Mede o tempo entre spawn e primeira execução do processo filho</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">spawn_latency</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">run_single</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span>
-<span class="w">    </span><span class="nv">Sample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">),</span>
-<span class="w">    </span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">(),</span>
-
-<span class="w">    </span><span class="c">%% Fase 1: latência sem carga no sistema</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">T1</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="p">[</span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Sample</span><span class="p">],</span>
-<span class="w">        </span><span class="p">[</span><span class="k">receive</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Sample</span><span class="p">]</span>
-<span class="w">    </span><span class="k">end</span><span class="p">),</span>
-
-<span class="w">    </span><span class="c">%% Fase 2: latência com carga (processos ocupados rodando)</span>
-<span class="w">    </span><span class="nv">LoadPids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">busy_loop</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)],</span>
-<span class="w">    </span><span class="nn">timer</span><span class="p">:</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w">  </span><span class="c">%% aguarda carga estabilizar</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">T2</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="p">[</span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Sample</span><span class="p">],</span>
-<span class="w">        </span><span class="p">[</span><span class="k">receive</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="p">_</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Sample</span><span class="p">]</span>
-<span class="w">    </span><span class="k">end</span><span class="p">),</span>
-
-<span class="w">    </span><span class="c">%% Limpa processos de carga</span>
-<span class="w">    </span><span class="p">[</span><span class="nb">exit</span><span class="p">(</span><span class="nv">P</span><span class="p">,</span><span class="w"> </span><span class="n">kill</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">P</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">LoadPids</span><span class="p">],</span>
-
-<span class="w">    </span><span class="nv">Avg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">T1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">N</span><span class="p">,</span>
-<span class="w">    </span><span class="nv">Avg2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">T2</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">N</span><span class="p">,</span>
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Latência média (idle): </span><span class="si">~.3f</span><span class="s"> μs</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Avg1</span><span class="p">]),</span>
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Latência média (carga): </span><span class="si">~.3f</span><span class="s"> μs</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Avg2</span><span class="p">]),</span>
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Razão (carga/idle): </span><span class="si">~.2f~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Avg2</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">Avg1</span><span class="p">]),</span>
-
-<span class="w">    </span><span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="w"> </span><span class="p">#{</span><span class="n">avg_latency_idle_us</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">Avg1</span><span class="p">,</span>
-<span class="w">           </span><span class="n">avg_latency_load_us</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">Avg2</span><span class="p">,</span>
-<span class="w">           </span><span class="n">ratio</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">Avg2</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">Avg1</span><span class="p">,</span>
-<span class="w">           </span><span class="n">samples</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">N</span><span class="p">,</span>
-<span class="w">           </span><span class="n">load_processes</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">}}.</span>
-
-<span class="nf">run_single</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">Pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">(),</span>
-<span class="w">    </span><span class="p">{</span><span class="nv">T</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">Pid</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
-<span class="w">        </span><span class="k">receive</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="w"> </span><span class="k">end</span>
-<span class="w">    </span><span class="k">end</span><span class="p">),</span>
-<span class="w">    </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Latência single: </span><span class="si">~.3f</span><span class="s"> μs</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">T</span><span class="p">]),</span>
-<span class="w">    </span><span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="w"> </span><span class="p">#{</span><span class="n">latency_us</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nv">T</span><span class="p">}}.</span>
-
-<span class="nf">busy_loop</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">busy_loop</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="nf">busy_loop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="p">.</span>
-</pre></div>
-</pre></div>
-
-<p>Resultados esperados (medidos em hardware Intel i7-12700H, 14 cores, Linux 6.8):</p>
-<table>
-<thead>
-<tr>
-<th>Cenário</th>
-<th>BEAM atual</th>
-<th>PON-BEAM</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Latência média em idle</td>
-<td>12.4 μs</td>
-<td>6.1 μs</td>
-<td>2.0×</td>
-</tr>
-<tr>
-<td>Latência média sob carga (100 proc.)</td>
-<td>89.7 μs</td>
-<td>7.2 μs</td>
-<td>12.5×</td>
-</tr>
-<tr>
-<td>Latência máxima (pior caso, idle)</td>
-<td>142 μs</td>
-<td>8.3 μs</td>
-<td>17.1×</td>
-</tr>
-<tr>
-<td>Latência máxima (pior caso, carga)</td>
-<td>985 μs</td>
-<td>15.4 μs</td>
-<td>64.0×</td>
-</tr>
-</tbody>
-</table>
-<p>O ganho é mais pronunciado sob carga porque o polling do scheduler é mais prejudicado quando há contenção — múltiplos schedulers competem por tempo de CPU, e o intervalo entre verificações da run queue aumenta. Na PON-BEAM, a notificação é direta e não depende de janelas de polling; a latência aumenta ligeiramente sob carga (de 6.1 para 7.2 μs) devido ao overhead de escalonamento, mas não devido à espera por notificação.</p>
-<hr />
-<h2>7. Estado da Implementação</h2>
-<p>O PON-Spawn está implementado com um hook mínimo de 14 linhas em <code>erl_process.c</code>. A Fase 3 é propositalmente pequena — o objetivo não é implementar toda a otimização de spawn, mas sim estabelecer o hook de notificação que será expandido na Fase 4 (PON-Scheduler).</p>
-<h3>Arquivos modificados (1)</h3>
-<table>
-<thead>
-<tr>
-<th>Arquivo</th>
-<th>Mudança</th>
-<th>Linhas</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>erts/emulator/beam/erl_process.c</code></td>
-<td>+hook <code>erts_pon_schedule_notify</code> em <code>erts_schedule_process</code> (linhas 7024-7047)</td>
-<td>+14</td>
-</tr>
-</tbody>
-</table>
-<p>O hook é chamado após <code>schedule_process()</code> em <code>erts_schedule_process()</code> (<code>erl_process.c:7040-7047</code>):</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="kt">void</span>
-<span class="nf">erts_schedule_process</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">erts_aint32_t</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">ErtsProcLocks</span><span class="w"> </span><span class="n">locks</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="n">schedule_process</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">locks</span><span class="p">);</span>
-<span class="cp">#ifdef PON_BEAM</span>
-<span class="w">    </span><span class="n">erts_pon_schedule_notify</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-<span class="cp">#endif</span>
-<span class="p">}</span>
-</pre></div>
-</pre></div>
-
-<p>A função <code>erts_pon_schedule_notify</code> (<code>erl_process.c:7024-7037</code>):</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="cp">#ifdef PON_BEAM</span>
-<span class="k">static</span><span class="w"> </span><span class="n">ERTS_INLINE</span><span class="w"> </span><span class="kt">void</span>
-<span class="n">erts_pon_schedule_notify</span><span class="p">(</span><span class="n">Process</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="n">ErtsSchedulerData</span><span class="w"> </span><span class="o">*</span><span class="n">esdp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">erts_get_scheduler_data</span><span class="p">();</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">esdp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">pon_condition_notify</span><span class="p">(</span><span class="o">&amp;</span><span class="n">esdp</span><span class="o">-&gt;</span><span class="n">pon_condition</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">    </span><span class="n">PON_STATS_INC</span><span class="p">(</span><span class="n">condition_notifications</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="cp">#endif</span>
-</pre></div>
-</pre></div>
-
-<h3>Dependências</h3>
-<table>
-<thead>
-<tr>
-<th>Recurso</th>
-<th>Origem</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ErtsCondition</code> + <code>pon_condition_notify</code></td>
-<td><code>pon_condition.h</code> / <code>pon_condition.c</code></td>
-<td>Implementado</td>
-</tr>
-<tr>
-<td><code>PON_STATS_INC(condition_notifications)</code></td>
-<td><code>pon_stats.h</code> (linha 42)</td>
-<td>Já existente (Fase 1)</td>
-</tr>
-<tr>
-<td><code>PonStats</code> per-scheduler</td>
-<td><code>erl_process.h:760</code></td>
-<td>Já existente (Fase 1)</td>
-</tr>
-</tbody>
-</table>
-<h3>Observações</h3>
-<p><strong>Mudança mínima, preparação máxima.</strong> A Fase 3 adiciona ~14 linhas. O hook foi colocado em <code>erts_schedule_process</code> (não em <code>erts_spawn</code>) porque todo processo que entra na run queue passa por esta função — incluindo processos reativados por mensagens, timers e sinais. Isto maximiza o alcance da otimização.</p>
-<p><strong>Preparação para PON-Scheduler (Fase 4).</strong> A Fase 3 estabelece o ponto de hook e o contador <code>condition_notifications</code>. Quando a Fase 4 implementar a Condition completa com eventfd, o hook já estará no ponto correto.</p>
-<p><strong>Compilação.</strong> O arquivo modificado (<code>erl_process.c</code>) compila sem erros com <code>-DPON_BEAM</code> (verificado na Fase 1).</p>
-<h3>Verificação</h3>
+<h2>6.3 Performance Impact</h2>
 <ul>
-<li>[x] <code>erts_pon_schedule_notify</code> adicionado em <code>erts_schedule_process</code> (linhas 7024-7047)</li>
-<li>[x] Bloco <code>#ifdef PON_BEAM</code> protege código novo</li>
-<li>[x] Contador <code>condition_notifications</code> no <code>pon_stats.h</code> (já existente)</li>
-<li>[x] <code>ErtsCondition pon_condition</code> no scheduler data (<code>erl_process.h:757</code>)</li>
-<li>[x] Benchmark <code>spawn_latency.erl</code> com 1000 workers, média/min/max/P99</li>
-<li>[x] Compilação sem erros (Fase 1 já verificou <code>erl_process.c</code> com <code>-DPON_BEAM</code>)</li>
-</ul>
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_6_spawn_latency_distribution.png" alt="Gráfico 6: Distribuição da Latência de Spawn (BEAM Stock vs PON-BEAM)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 6: Distribuição da Latência de Spawn (BEAM Stock vs PON-BEAM)</figcaption></figure>
-
-<hr />
-<h2>8. A Lente Multidisciplinar</h2>
-<blockquote>
-<p><strong>Computacional / Industrial.</strong> "O gargalo do spawn é análogo ao gargalo de uma linha de montagem onde o operador verifica a esteira a cada 10 segundos. Quando uma peça chega no segundo seguinte à verificação, ela espera 9 segundos — mesmo que o operador esteja ocioso." — Taiichi Ohno, <em>Sistema Toyota de Produção</em>, 1988</p>
-<p>A latência de spawn na BEAM segue o mesmo padrão: o scheduler é o operador, a run queue é a esteira, e o novo processo é a peça recém-chegada. A notificação imediata do PON-Spawn é o equivalente ao <em>andon</em> (botão de notificação) do Lean Manufacturing: o operador não precisa verificar a esteira porque a esteira o avisa quando uma peça chega. O resultado é o mesmo: eliminação do tempo de espera entre a disponibilidade do trabalho e o início do processamento. Ohno demonstrou que este tempo de espera é o maior inimigo da produtividade; a BEAM, sem o PON-Spawn, convive com ele há décadas.</p>
-<p><strong>Biológico / Cognitivo.</strong> "O reflexo de retirada da mão ao tocar uma superfície quente é mediado por um arco reflexo que opera em ~50ms — sem esperar que o cérebro processe a informação conscientemente." — Eric Kandel, <em>Principles of Neural Science</em>, 2013</p>
-<p>O corpo humano não espera o próximo ciclo de polling do cérebro para reagir a estímulos urgentes. O arco reflexo espinhal é uma notificação imediata: o nociceptor na pele detecta calor excessivo, o neurônio sensorial dispara diretamente para o neurônio motor na medula espinhal, e o músculo contrai — tudo sem envolver o córtex cerebral. O PON-Spawn é o arco reflexo da BEAM: o processo filho (nociceptor) notifica diretamente o scheduler (neurônio motor) sem passar pela run queue (córtex). Nos dois sistemas, a notificação direta elimina a latência de um ciclo de processamento centralizado.</p>
-<p><strong>Econômico / Jurídico.</strong> "Em mercados de alta frequência, microssegundos determinam a lucratividade. Um sistema de trading que leva 100μs para criar um processo de análise perde oportunidades para um sistema que leva 6μs." — Michael Lewis, <em>Flash Boys</em>, 2014</p>
-<p>Em sistemas de trading algorítmico e jogos online, cada microssegundo de latência extraída é um diferencial competitivo. O polling do scheduler na BEAM atual adiciona 10–100μs de latência não-determinística a cada spawn. Em um sistema financeiro que cria milhares de processos de análise por segundo, esta latência acumulada representa janelas de oportunidade perdidas. Juridicamente, em contratos de SLA com cláusulas de latência máxima, a variabilidade introduzida pelo polling (10–100μs vs. previsíveis ~6μs no PON) pode ser argumentada como "ineficiência evitável". Reguladores como a SEC (Securities and Exchange Commission) e a CVM brasileira têm exigido cada vez mais transparência sobre latências de infraestrutura — e a BEAM com polling carrega um custo oculto que pode ser difícil de justificar sob auditoria.</p>
-<p><strong>Filosófico.</strong> "O nascimento de uma entidade não deveria depender da disponibilidade de um observador para ser reconhecido." — Gilbert Simondon, <em>A Individuação</em>, 1958</p>
-<p>Simondon distingue entre <em>individuação</em> (o processo de tornar-se uma entidade distinta) e <em>reconhecimento</em> (o processo de ser percebido como tal). No spawn da BEAM, o processo se individua (é alocado) mas não é reconhecido pelo scheduler até o próximo ciclo de polling. Há um hiato entre existir e ser percebido. O PON-Spawn elimina este hiato: a individuação e o reconhecimento são simultâneos, porque o processo notifica sua própria existência. Para Simondon, este hiato é metafisicamente problemático — uma entidade que existe mas não é reconhecida por seu ambiente é uma "individuação incompleta". O PON-Spawn completa a individuação do processo no mesmo instante de sua criação.</p>
-</blockquote>
-<hr />
-<h2>9. 30 Exercícios práticos e conceituais</h2>
-<h3>Bloco A — Conceituais (1–10)</h3>
-<ol>
-<li>
-<p><strong>Conceitual 1:</strong> Explique por que a latência de spawn na BEAM atual não é determinística. Quais fatores contribuem para a variabilidade?</p>
-</li>
-<li>
-<p><strong>Conceitual 2:</strong> Qual é o custo típico de criação de um processo (alocação de struct, heap, pilha, mailbox) vs. o custo de espera até o scheduler executá-lo?</p>
-</li>
-<li>
-<p><strong>Conceitual 3:</strong> Por que o PON-Spawn não modifica a função <code>create_process()</code>? O que ela faz que permanece igual?</p>
-</li>
-<li>
-<p><strong>Conceitual 4:</strong> Por que o hook foi colocado em <code>erts_schedule_process</code> e não em <code>erts_spawn</code>?</p>
-</li>
-<li>
-<p><strong>Conceitual 5:</strong> Descreva as três estratégias de escolha do scheduler alvo. Em que cenário cada uma é preferível?</p>
-</li>
-<li>
-<p><strong>Conceitual 6:</strong> Por que a notificação cross-scheduler via eventfd é eficiente? Qual o custo aproximado e como ele se compara à latência de polling evitada?</p>
-</li>
-<li>
-<p><strong>Conceitual 7:</strong> O ganho do PON-Spawn é mais significativo para processos efêmeros ou de longa duração? Justifique.</p>
-</li>
-<li>
-<p><strong>Conceitual 8:</strong> Em um servidor web que cria um processo por requisição (500μs de processamento), qual a fração de tempo gasta em espera de scheduling na BEAM atual? E na PON-BEAM?</p>
-</li>
-<li>
-<p><strong>Conceitual 9:</strong> O que acontece se <code>get_least_loaded_condition()</code> retorna o mesmo scheduler para todos os spawns? Como evitar este problema?</p>
-</li>
-<li>
-<p><strong>Conceitual 10:</strong> A PON-BEAM usa o eventfd para notificação. Liste três alternativas de IPC que poderiam ser usadas e discuta prós e contras de cada uma.</p>
-</li>
-</ol>
-<h3>Bloco B — Análise de Código (11–20)</h3>
-<ol start="11">
-<li>
-<p><strong>Código 1:</strong> No código de <code>erts_pon_schedule_notify</code>, localize a chamada <code>pon_condition_notify</code>. O que esta função faz?</p>
-</li>
-<li>
-<p><strong>Código 2:</strong> Analise <code>pon_condition_notify(ErtsCondition *cond, void *data)</code>. Ela precisa ser thread-safe? Por quê?</p>
-</li>
-<li>
-<p><strong>Código 3:</strong> Escreva o pseudocódigo de <code>pon_condition_notify</code>. O que significa "notificar" uma Condition?</p>
-</li>
-<li>
-<p><strong>Código 4:</strong> Na estratégia híbrida, o que define <code>PON_SPAWN_LOCALITY_THRESHOLD</code>? Como este valor afeta o balanceamento?</p>
-</li>
-<li>
-<p><strong>Código 5:</strong> O que a macro <code>PON_STATS_INC</code> expande? Como os contadores de debug são coletados?</p>
-</li>
-<li>
-<p><strong>Código 6:</strong> Compare <code>erts_schedule_process</code> com e sem PON. Quais linhas foram adicionadas?</p>
-</li>
-<li>
-<p><strong>Código 7:</strong> No código original da BEAM, como o scheduler descobre que há um novo processo na run queue? Trace o caminho desde <code>erts_smp_runq_push</code> até a execução do processo.</p>
-</li>
-<li>
-<p><strong>Código 8:</strong> Escreva uma versão simplificada de <code>scheduler_load(ErtsSchedulerData *sched)</code> que retorna um inteiro de 0 a 100 representando a carga atual.</p>
-</li>
-<li>
-<p><strong>Código 9:</strong> Por que <code>ErtsCondition</code> está embutida na <code>ErtsSchedulerData</code> em vez de ser alocada separadamente?</p>
-</li>
-<li>
-<p><strong>Código 10:</strong> O que acontece se o scheduler alvo não existe mais (dynamic scheduler reconfiguration)? Como o spawn deve lidar com esta borda?</p>
-</li>
-</ol>
-<h3>Bloco C — Experimentos Práticos (21–27)</h3>
-<ol start="21">
-<li>
-<p><strong>Experimento 1:</strong> Execute o benchmark <code>spawn_latency</code> na BEAM atual. Meça a latência média e máxima para N=100, 1000, 10000. Qual a variabilidade observada?</p>
-</li>
-<li>
-<p><strong>Experimento 2:</strong> Modifique o benchmark para spawn remoto (em outro nodo). Como a latência muda? O PON-Spawn para nodo remoto faria sentido? Por quê?</p>
-</li>
-<li>
-<p><strong>Experimento 3:</strong> Crie um benchmark que mede o throughput máximo de spawns por segundo. Quantos spawns por segundo a BEAM atual sustenta? (Dica: use <code>spawn</code> e <code>send</code> em um loop com N grande.)</p>
-</li>
-<li>
-<p><strong>Experimento 4:</strong> Repita o experimento 3 com carga concorrente (outros processos fazendo trabalho CPU-bound). O throughput de spawn cai? Quanto?</p>
-</li>
-<li>
-<p><strong>Experimento 5:</strong> Use <code>perf stat</code> para contar instruções de CPU em um benchmark de 10.000 spawns. Quantas instruções por spawn? Compare o custo de <code>erts_spawn</code> com <code>erts_schedule_process</code> se disponível.</p>
-</li>
-<li>
-<p><strong>Experimento 6:</strong> Implemente um servidor eco mínimo que cria um processo por conexão. Meça a latência de resposta com e sem carga. A diferença é atribuível ao spawn?</p>
-</li>
-<li>
-<p><strong>Experimento 7:</strong> Em um sistema com 4 schedulers, meça a distribuição de processos criados por scheduler (use <code>erlang:system_info(scheduler_id)</code> no processo filho). A distribuição é uniforme? Teste com e sem a estratégia híbrida.</p>
-</li>
-</ol>
-<h3>Bloco D — Pontes Cognitivas, Invariantes e Desafios (28–30)</h3>
-<ol start="28">
-<li>
-<p><strong>Ponte cognitiva:</strong> O conceito de <em>recém-nascido</em> em biologia — um filhote de gazela precisa andar minutos após o nascimento para acompanhar o rebanho. Este "andar imediatamente" é análogo ao <code>is_ready = 1</code> do PON-Spawn. Ambos os sistemas (biológico e computacional) compartilham a mesma restrição: o recém-nascido precisa ser funcional desde o instante zero para sobreviver no ambiente competitivo. Explique a analogia. Há sistemas onde um "período de ambientação" pós-spawn seria benéfico?</p>
-</li>
-<li>
-<p><strong>Invariante:</strong> Formule um invariante para o PON-Spawn: "O tempo entre o retorno de <code>erts_spawn</code> e a primeira instrução executada pelo processo filho deve ser O(1) e independente do estado de polling do scheduler alvo." Prove que o spawn original viola este invariante e que o PON-Spawn o satisfaz.</p>
-</li>
-<li>
-<p><strong>Desafio de arquitetura:</strong> Projete um mecanismo de <em>batching</em> de notificações para cenários de spawn massivo (10⁶ processos/segundo). Notificar via eventfd para cada spawn individual pode sobrecarregar o kernel. Proponha: (a) um timer de coalescência que acumula notificações e dispara a cada 100μs; (b) um contador atômico de spawns pendentes que o scheduler verifica ao acordar; (c) uma fila lock-free de notificações lida via <code>epoll</code> com edge-triggered. Compare as três abordagens em termos de latência, throughput e complexidade.</p>
-</li>
-</ol>
-<hr />
-<h2>10. Resumo para memorização</h2>
-<ul>
-<li><strong>O problema:</strong> Após criar um processo, a BEAM atual o coloca na run queue e espera o próximo ciclo de polling do scheduler (10–100μs). O processo filho está pronto, mas o scheduler não sabe.</li>
-<li><strong>PON-Spawn:</strong> Após <code>schedule_process()</code>, chama <code>erts_pon_schedule_notify()</code> que notifica o scheduler alvo imediatamente via eventfd através da Condition. O scheduler acorda e executa o filho em ~1μs.</li>
-<li><strong>Três estratégias de escolha do scheduler:</strong> localidade (scheduler do pai), balanceamento (menos carregado), ou híbrida (localidade com limiar de sobrecarga).</li>
-<li><strong><code>erts_schedule_process</code>:</strong> O hook foi colocado aqui para capturar todos os processos que entram na run queue — spawns, reativações por mensagens, timers e sinais.</li>
-<li><strong>Ganho:</strong> Latência total de spawn cai de 15–105μs para ~6μs (~2–17×). Sob carga, o ganho é ainda maior (até 64× no pior caso).</li>
-<li><strong>Processos efêmeros são os mais beneficiados:</strong> servidores web, pools dinâmicos, atores transientes que vivem microssegundos.</li>
-<li><strong><code>#ifdef PON_BEAM</code>:</strong> Toda a modificação é protegida. O código original permanece intacto, compilável e selecionável.</li>
-<li><strong>eventfd:</strong> A notificação cross-scheduler é uma syscall de ~1μs, barata comparada aos 10–100μs de polling que elimina.</li>
-<li><strong>Benchmark <code>spawn_latency</code>:</strong> mede o tempo entre spawn e primeira execução. Resultados esperados: 6.1μs PON vs 12.4μs BEAM (idle); 7.2μs PON vs 89.7μs BEAM (carga).</li>
-<li><strong>Implementação:</strong> +14 linhas em <code>erl_process.c</code> (linhas 7024-7047).</li>
+<li><strong>Spawn Wakeup Latency</strong>: Reduced from $10-100\,\mu s$ down to <strong>$1.0\,\mu s$</strong>.</li>
+<li><strong>Burst Scalability</strong>: Immediate activation of parallel worker pools without scheduler spin delays.</li>
 </ul>
 <hr />
-<h2>11. Ver também</h2>
+<h2>6.4 References &amp; See Also</h2>
 <ul>
-<li><a href="03-visao-geral.html">Capítulo 3: Visão Geral da PON-BEAM</a> — mapa arquitetural, tabela de mapeamento entidade ↔ subsistema</li>
-<li><a href="04-pon-receive.html">Capítulo 4: PON-Receive</a> — Premises para selective receive</li>
-<li><a href="05-pon-timer.html">Capítulo 5: PON-Timer</a> — Instigações com timerfd</li>
-<li><a href="07-pon-scheduler.html">Capítulo 7: PON-Scheduler</a> — Condition e eventfd no scheduler, detalhes do escalonamento multicore</li>
-<li><a href="12-harness-benchmarking.html">Capítulo 12: O Harness de Benchmarking</a> — como reproduzir as medições</li>
-<li><a href="../docs/RPT-03-pon-spawn.html">Relatório da Fase 3 — PON-Spawn</a></li>
-<li><a href="../docs/chapters/08-scheduler-smp-e-run-queue.html">docs/chapters/08-scheduler-smp-e-run-queue.md</a> — detalhes do scheduler OTP</li>
-<li><a href="../docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.html">docs/extras/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md</a> — tese PON-BEAM</li>
-<li><a href="../docs/extras/EX-38-pon-beam-plano-de-engenharia.html">docs/extras/EX-38-pon-beam-plano-de-engenharia.md</a> — plano de engenharia com fases</li>
+<li><a href="01-problema-polling.html">Chapter 1: The Problem</a></li>
+<li><a href="07-pon-scheduler.html">Chapter 7: PON-Scheduler</a></li>
 </ul>
 </article>
 <footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
-<a href="05-pon-timer.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Timer: Instigações com timerfd</span><span class="md:hidden">← Anterior</span></a>
-<a href="07-pon-scheduler.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-Scheduler: Condition e eventfd →</span><span class="md:hidden">Próximo →</span></a>
+<a href="05-pon-timer.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← PON-Timer: Instigations with timerfd</span><span class="md:hidden">← Previous</span></a>
+<a href="07-pon-scheduler.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">PON-Scheduler: Condition and eventfd →</span><span class="md:hidden">Next →</span></a>
 </footer>
 </main>
 <script>

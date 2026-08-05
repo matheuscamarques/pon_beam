@@ -1,13 +1,13 @@
 ---
 id: agradecimentos
-titulo: Agradecimentos
+titulo: Acknowledgments
 parte: frontmatter
 ---
 
-# Agradecimentos
+# Acknowledgments
 
-Ao **Prof. Jean Marcelo Simão**, por ter dedicado sua carreira a olhar para novos paradigmas quando todos olhavam para os mesmos lugares. O Paradigma Orientado a Notificações não é apenas uma teoria — é uma forma de pensar que desafia décadas de convenções em arquitetura de software. Sem essa visão, este projeto não existiria.
+To **Prof. Jean Marcelo Simão**, for dedicating his career to exploring new paradigms when everyone else was looking in the same direction. The Notification-Oriented Paradigm is not merely a theory — it is a way of thinking that challenges decades of conventions in software architecture. Without this vision, this project would not exist.
 
-Ao **Prof. Adolfo Gustavo Serra Seca Neto**, por ter me apresentado ao Elixir e à BEAM — dois presentes que definiram minha trajetória. Por ter plantado uma semente que, regada pelo PON, floresceu neste projeto. E mais importante, por ter me ensinado que engenharia não se faz de receitas prontas, mas de perguntas certas.
+To **Prof. Adolfo Gustavo Serra Seca Neto**, for introducing me to Elixir and the BEAM — two gifts that shaped my career. For planting a seed that, nurtured by NOP, blossomed into this work. And most importantly, for teaching me that true engineering is not built on ready-made recipes, but on asking the right questions.
 
-> "Treinar um gênio para se tornar um gênio é trabalho de outro. O meu trabalho é tornar um idiota em alguém realmente competente. Isso está no meu nível." — Jiraiya, *Naruto*
+> "Training a genius to become a genius is someone else's job. My job is to turn a fool into someone genuinely competent. That's at my level." — Jiraiya, *Naruto*

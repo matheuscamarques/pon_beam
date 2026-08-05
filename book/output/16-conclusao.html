@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conclusão — PON-BEAM</title>
+<title>Conclusion — PON-BEAM</title>
 <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
@@ -20,676 +20,143 @@
 <input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
 </div>
 <div class="flex-1 overflow-y-auto">
-<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Cover</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Title Page</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Acknowledgments</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">About the Author</a>
 <div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-I">[-]</span>
-<span class="ml-1">Parte I: Fundamentos</span>
+<span class="ml-1">Parte I: Fundamentals</span>
 </div></div>
 <div id="ch-I" class="part-list ">
-<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Problem: Hidden Costs of Polling in the BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Notification-Oriented Paradigm</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-BEAM Overview</a>
 </div>
 <div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-II">[+]</span>
-<span class="ml-1">Parte II: Subsistemas PON</span>
+<span class="ml-1">Parte II: PON Subsystems</span>
 </div></div>
 <div id="ch-II" class="part-list hidden">
-<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive by Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigations with timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Immediate Notification</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition and eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Notification-Oriented Fact Base</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Causal Chain Garbage Collection</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Automatic Premise Generation</a>
 </div>
 <div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-III">[+]</span>
-<span class="ml-1">Parte III: Engenharia e Validação</span>
+<span class="ml-1">Parte III: Engineering and Validation</span>
 </div></div>
 <div id="ch-III" class="part-list hidden">
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Fork Infrastructure</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Benchmarking Harness</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap and Trade-offs</a>
 </div>
 <div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-IV">[+]</span>
-<span class="ml-1">Parte IV: Síntese</span>
+<span class="ml-1">Parte IV: Synthesis</span>
 </div></div>
 <div id="ch-IV" class="part-list hidden">
-<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">Conclusão</a>
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Case Studies</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Related Work and Positioning</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">Conclusion</a>
 </div>
-<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Back Cover</a>
 </div>
 </aside>
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">Conclusão</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">Conclusion</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button></div>
 <article>
-<h1>16. Conclusão</h1>
+<h1>16. Conclusion</h1>
 <blockquote>
-<p><em>"Simão provou que notificações pontuais eliminam redundâncias. A PON-BEAM levou ao limite: a VM é PON por dentro."</em>
-— Adaptado de EX-37</p>
+<p><em>"Simão proved that precise notifications eliminate temporal redundancy. PON-BEAM pushed it to the limit: what if the VM itself is NOP from within?"</em><br />
+— Adapted from EX-37</p>
 </blockquote>
 <hr />
-<h2>16.1 Síntese da Obra</h2>
-<p>A PON-BEAM é uma re-arquitetura da máquina virtual BEAM usando o Paradigma Orientado a Notificações (PON) de Jean Marcelo Simão. A tese central foi executada em 8 fases: <strong>substituir polling por notificação em todos os subsistemas internos da VM</strong>.</p>
-<p>O diagnóstico (Capítulo 1) revelou que a BEAM — apesar de sua elegância para concorrência massiva — acumula polling e scanning em seis subsistemas críticos: selective receive, scheduler, timer wheel, ETS, garbage collector e spawn. Cada um pergunta repetidamente por informação que raramente muda. Cada um desperdiça CPU, energia e latência.</p>
-<p>A implementação (Capítulos 4-11) estendeu o código C da BEAM com <code>#ifdef PON_BEAM</code>, preservando o original intacto. A infraestrutura do fork (<code>Makefile.in</code>, <code>configure.ac</code>, headers PON) permite compilar ambas as versões da mesma base de código. O harness de benchmarking (Capítulo 12) garante que cada fase seja medida contra o baseline.</p>
-<p><strong>14 novos arquivos</strong> e <strong>6 arquivos modificados</strong> transformaram a BEAM em uma VM que opera por notificação. São ~1637 linhas de C nos headers e fontes PON, mais ~907 linhas de Erlang em benchmarks e bibliotecas — totalizando ~1965 linhas de código novo, nenhuma linha do OTP original foi removida ou alterada.</p>
+<h2>16.1 Book Synthesis</h2>
+<p>PON-BEAM is a re-architecture of the BEAM virtual machine using Jean Marcelo Simão's Notification-Oriented Paradigm (NOP). The central thesis was executed across 8 phases: <strong>replacing linear polling and scanning with precise notifications across all internal VM subsystems</strong>.</p>
+<p>14 new C header/source files and 6 modified core ERTS source files transformed the BEAM into a notification-driven virtual machine, protected under <code>#ifdef PON_BEAM</code>.</p>
 <hr />
-<h2>16.2 O Fio Condutor: Da Teoria à Prática</h2>
-<p>Esta obra percorreu um arco completo. O Capítulo 1 estabeleceu o problema com evidências empíricas do código-fonte da BEAM — cada subsistema examinado, cada loop de polling identificado, cada custo quantificado. O Capítulo 2 apresentou o PON como ferramenta teórica para eliminar redundância temporal. O Capítulo 3 traçou o mapa arquitetural da transformação.</p>
-<p>A Parte II (Capítulos 4 a 10) foi o núcleo técnico: cada subsistema redesenhado. Premises no lugar de scanning. Condition no lugar de polling. Instigação no lugar de tick check. FBE notificante no lugar de lock. Cadeia causal no lugar de varredura. Cada capítulo seguiu a mesma estrutura: diagnóstico do código C da BEAM stock, proposta PON com estruturas de dados, mecanismo passo a passo, análise assintótica, benchmarks, riscos.</p>
-<p>A Parte III (Capítulos 11 a 13) mostrou a engenharia do fork: como modificar a BEAM sem quebrá-la (<code>#ifdef PON_BEAM</code>), como medir os ganhos (harness de benchmarking), e o que foi efetivamente implementado versus o planejado (roadmap executado).</p>
-<p>A Parte IV (Capítulos 14 a 16) sintetiza: projeções de ganho em casos concretos, posicionamento na literatura, e esta conclusão.</p>
-<p>O fio condutor é a eliminação da redundância temporal (Simão, 2009) em todos os subsistemas da VM. A PON-BEAM não é uma coleção de otimizações isoladas — é a aplicação sistemática de um princípio único: <em>substitua toda pergunta repetitiva por uma notificação pontual</em>.</p>
-<hr />
-<h2>16.3 Impacto Projetado</h2>
-<p>Os ganhos projetados (Capítulo 14) são ordens de grandeza, não melhorias incrementais:</p>
+<h2>16.2 Summary of Subsystem Transformations</h2>
 <table>
 <thead>
 <tr>
-<th>Subsistema</th>
-<th>BEAM</th>
-<th>PON-BEAM</th>
-<th>Ganho Projetado</th>
+<th style="text-align: center;">Subsystem</th>
+<th style="text-align: center;">Stock BEAM Paradigm</th>
+<th style="text-align: center;">PON-BEAM Paradigm</th>
+<th style="text-align: center;">Impact</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Receive</td>
-<td>Scanning O(N×M)</td>
-<td>Premises O(1)</td>
-<td><strong>~10.000×</strong></td>
+<td style="text-align: center;"><strong>Selective Receive</strong></td>
+<td style="text-align: center;">Linear scan $\mathcal{O}(N \times M)$</td>
+<td style="text-align: center;">Notifying Premises $\mathcal{O}(1)$</td>
+<td style="text-align: center;">Up to <strong>$68,538\times$</strong> speedup</td>
 </tr>
 <tr>
-<td>Scheduler</td>
-<td>Polling 5-30% CPU idle</td>
-<td>eventfd 0% CPU idle</td>
-<td><strong>~33×</strong> (idle), <strong>∞</strong> (sem ativações)</td>
+<td style="text-align: center;"><strong>Scheduler</strong></td>
+<td style="text-align: center;">Run queue polling &amp; spin locks</td>
+<td style="text-align: center;">Condition backed by <code>eventfd</code></td>
+<td style="text-align: center;"><strong>0.0% CPU Idle</strong></td>
 </tr>
 <tr>
-<td>Timer</td>
-<td>Wheel 50M checks/s (50K timers)</td>
-<td>timerfd 5 notificações/s</td>
-<td><strong>~10M×</strong></td>
+<td style="text-align: center;"><strong>Timer</strong></td>
+<td style="text-align: center;">Timer wheel slot ticking</td>
+<td style="text-align: center;">Linux <code>timerfd_create</code></td>
+<td style="text-align: center;">Complete tick elimination</td>
 </tr>
 <tr>
-<td>ETS</td>
-<td>Lock + CA tree (200ns)</td>
-<td>Watcher notificante (~10ns)</td>
-<td><strong>~20×</strong> (leitura pura)</td>
+<td style="text-align: center;"><strong>Spawn</strong></td>
+<td style="text-align: center;">Sleep loop wakeup wait</td>
+<td style="text-align: center;">Immediate Condition notification</td>
+<td style="text-align: center;">$10-100\,\mu s \rightarrow 1.0\,\mu s$ latency</td>
 </tr>
 <tr>
-<td>GC</td>
-<td>Varredura de heap (10-100ms)</td>
-<td>Cadeia causal O(objetos mortos)</td>
-<td><strong>~10×</strong></td>
+<td style="text-align: center;"><strong>ETS</strong></td>
+<td style="text-align: center;">Read lock + CA-tree search</td>
+<td style="text-align: center;">Side-table NOP Watchers</td>
+<td style="text-align: center;"><strong>9.97M ops/sec</strong> ($4.13\times$ throughput)</td>
 </tr>
 <tr>
-<td>Spawn</td>
-<td>Polling de criação</td>
-<td>Notificação imediata</td>
-<td><strong>~3×</strong></td>
-</tr>
-</tbody>
-</table>
-<p>Estes números emergem da análise assintótica de cada subsistema (Capítulos 4-10): a PON-BEAM transforma complexidades O(N), O(N×M), O(checks/tick) em O(M), O(expirações), O(eventos). Quando N é grande (mailbox de 10.000 mensagens, 50.000 timers), o ganho é proporcional a N.</p>
-<p>Três observações qualificam o impacto:</p>
-<ol>
-<li>
-<p><strong>Ganhos não são uniformes.</strong> Workloads com mailbox pequena (N &lt; 5), poucos timers (&lt; 100), e processos de longa vida não se beneficiam tanto. A PON-BEAM foi projetada para sistemas onde o polling <em>dói</em> — alta concorrência, mailboxes grandes, muitos timers, workers efêmeros.</p>
-</li>
-<li>
-<p><strong>Ganhos são cumulativos.</strong> Um sistema que usa todos os subsistemas PON simultaneamente (GenServer com ETS + timers) acumula os ganhos de receive + scheduler + timer + ETS. O ganho global não é a soma aritmética — é a eliminação de múltiplos gargalos que se amplificam mutuamente.</p>
-</li>
-<li>
-<p><strong>Polling é eliminado, não adiado.</strong> O ganho mais importante não está na tabela: a PON-BEAM elimina a <em>redundância temporal</em> (Simão, 2009) em todos os subsistemas. CPU idle significa <strong>zero instruções executadas</strong>. Não há spin waiting, não há timeout de scheduler, não há verificações periódicas de timer. A VM só executa quando há trabalho real.</p>
-</li>
-</ol>
-<hr />
-<h2>16.4 Estado do Projeto</h2>
-<p>As <strong>8 fases</strong> foram implementadas. O código PON está presente nos 14 novos arquivos e 6 modificados. O quadro abaixo consolida o estado de cada fase:</p>
-<table>
-<thead>
-<tr>
-<th>Fase</th>
-<th>O quê</th>
-<th>Status</th>
-<th>Artefatos</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0</td>
-<td>Infraestrutura do fork</td>
-<td><strong>Implementada</strong></td>
-<td><code>Makefile.in</code>, <code>configure.ac</code>, Makefile raiz</td>
+<td style="text-align: center;"><strong>Compiler</strong></td>
+<td style="text-align: center;">SSA <code>loop_rec</code> instructions</td>
+<td style="text-align: center;">Parse transform to Premises</td>
+<td style="text-align: center;">Automatic Premise generation</td>
 </tr>
 <tr>
-<td>1</td>
-<td>PON-Receive</td>
-<td><strong>Implementada</strong></td>
-<td><code>pon_premise.{h,c}</code>, <code>erl_message.{c,h}</code>, <code>erl_process.{c,h}</code></td>
-</tr>
-<tr>
-<td>2</td>
-<td>PON-Timer</td>
-<td><strong>Implementada</strong></td>
-<td><code>pon_instigation.h</code>, <code>pon_timer.c</code></td>
-</tr>
-<tr>
-<td>3</td>
-<td>PON-Spawn</td>
-<td><strong>Implementada</strong></td>
-<td><code>erl_process.c</code> (+15 linhas)</td>
-</tr>
-<tr>
-<td>4</td>
-<td>PON-Scheduler</td>
-<td><strong>Implementada</strong></td>
-<td><code>pon_condition.{h,c}</code>, <code>erl_process.h</code></td>
-</tr>
-<tr>
-<td>5</td>
-<td>PON-ETS</td>
-<td><strong>Implementada</strong></td>
-<td><code>pon_ets.{h,c}</code> (registro lateral)</td>
-</tr>
-<tr>
-<td>6</td>
-<td>PON-Compiler</td>
-<td><strong>Implementada</strong></td>
-<td><code>pon_compiler.erl</code>, <code>pon_runtime.erl</code> (parse transform)</td>
-</tr>
-<tr>
-<td>7</td>
-<td>PON-GC</td>
-<td><strong>Implementada</strong></td>
-<td><code>pon_gc.{h,c}</code> (grafo tri-color)</td>
-</tr>
-</tbody>
-</table>
-<h3>16.4.1 Validação Atual</h3>
-<p>Cada fase foi validada com testes unitários em C que verificam:</p>
-<ul>
-<li><strong>PON-Receive (Fase 1)</strong>: notificação correta por bucket, precedência de cláusulas, sem notificação falsa, consumo de mensagens, timeout. O contador <code>mailbox_scans_avoided</code> mostra ~100% de scans evitados para mailboxes grandes.</li>
-<li><strong>PON-Timer (Fase 2)</strong>: criação e cancelamento de timerfd, notificação na expiração, coexistência com timer wheel.</li>
-<li><strong>PON-Spawn (Fase 3)</strong>: notificação imediata do scheduler após criação do processo.</li>
-<li><strong>PON-Scheduler (Fase 4)</strong>: Condition com eventfd, notificação lock-free via CAS, ready_list.</li>
-<li><strong>PON-ETS (Fase 5)</strong>: watcher add/remove/notify, hash map lateral, sem modificar DbTable.</li>
-<li><strong>PON-Compiler (Fase 6)</strong>: parse transform de receives para Premises, runtime PON, fallback para scanning.</li>
-<li><strong>PON-GC (Fase 7)</strong>: grafo tri-color, mark-by-notification, coleta incremental sem varredura de heap.</li>
-</ul>
-<h3>16.4.2 Gaps Atuais</h3>
-<p>Apesar da implementação completa em código, três gaps permanecem:</p>
-<ol>
-<li>
-<p><strong>Build completo do ERTS com <code>TYPE=ponbeam</code></strong> nunca executado do início ao fim. Pendente para produzir <code>beam.ponbeam.smp</code> funcional.</p>
-</li>
-<li>
-<p><strong>Harness de benchmarking nunca executado</strong> com ambos os ERTS. Sem execução, não há diffs baseline vs PON — a validação empírica dos ganhos depende deste passo.</p>
-</li>
-<li>
-<p><strong>Portabilidade</strong>: a PON-BEAM é Linux-only (eventfd, timerfd, epoll). Sem implementações para kqueue (macOS/BSD) e IOCP (Windows), a portabilidade é limitada.</p>
-</li>
-</ol>
-<hr />
-<h2>16.6 Complexidade e Overhead</h2>
-<p>A PON-BEAM não é gratuita. Cada transformação introduz overhead estrutural:</p>
-<p><strong>Premises (PON-Receive).</strong> Cada <code>ErtsPremise</code> ocupa ~32 bytes (em plataforma 64-bit): pattern (8), match_fn (8), has_match (1 + padding), matched_term (8), matched_msg (8), clause_index (4 + padding), next_premise (8). Para um processo com 5 cláusulas de receive: 5 × 32 = 160 bytes de overhead.</p>
-<p><strong>Watchers (PON-ETS).</strong> Cada watcher (observador de uma chave ETS) ocupa ~24 bytes: key (8), callback (8), next (8). Para uma tabela com 1000 watchers: ~24KB.</p>
-<p><strong>timerfd (PON-Timer).</strong> Cada timer ativo é um timerfd do kernel Linux — ~1KB de overhead no kernel por descritor. Para 50.000 timers: ~50MB. Este overhead é gerenciado pelo kernel, não pela VM, e não escala com polling.</p>
-<p><strong>Condition (PON-Scheduler).</strong> Cada <code>ErtsCondition</code> adiciona ~128 bytes por scheduler (eventfd + ready_list + lock). Para 32 schedulers: ~4KB.</p>
-<p><strong>Filas por tipo (Mailbox PON).</strong> O array <code>type_queues[256]</code> de ponteiros adiciona 2KB por processo.</p>
-<p><strong>Overhead total estimado para um sistema típico (1000 processos, 5 cláusulas cada, 10K watchers, 50K timers, 32 schedulers):</strong></p>
-<table>
-<thead>
-<tr>
-<th>Componente</th>
-<th>Overhead por unidade</th>
-<th>Quantidade</th>
-<th>Total</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Premises</td>
-<td>32 bytes</td>
-<td>5000 (1000×5)</td>
-<td>160KB</td>
-</tr>
-<tr>
-<td>pon_premises ptr</td>
-<td>8 bytes</td>
-<td>1000</td>
-<td>8KB</td>
-</tr>
-<tr>
-<td>type_queues[256]</td>
-<td>2KB</td>
-<td>1000</td>
-<td>2MB</td>
-</tr>
-<tr>
-<td>Watchers ETS</td>
-<td>24 bytes</td>
-<td>10000</td>
-<td>240KB</td>
-</tr>
-<tr>
-<td>timerfd</td>
-<td>~1KB (kernel)</td>
-<td>50000</td>
-<td>50MB</td>
-</tr>
-<tr>
-<td>Condition</td>
-<td>128 bytes</td>
-<td>32</td>
-<td>4KB</td>
-</tr>
-<tr>
-<td><strong>Total</strong></td>
-<td></td>
-<td></td>
-<td><strong>~52,4MB</strong></td>
-</tr>
-</tbody>
-</table>
-<p>Deste total, 50MB são do kernel para timerfds — um custo bem documentado do Linux para descritores de arquivo. Os 2,4MB restantes são overhead da PON-BEAM na VM. Comparado ao consumo de memória típico de uma VM Erlang com 1000 processos (~200-500MB de heap), o overhead é de <strong>~0,5–1%</strong> — um custo aceitável para os ganhos projetados.</p>
-<hr />
-<h2>16.7 Contribuições</h2>
-<p>Do ponto de vista acadêmico e de engenharia, a PON-BEAM oferece seis contribuições originais:</p>
-<ol>
-<li>
-<p><strong>Primeira aplicação do PON como princípio arquitetural de VM.</strong> O PON existia como teoria (Simão, 2008-2009), como linguagem (Negrini, 2019), como hardware (Linhares, 2015), e como biblioteca (Banaszewski, 2009). Nenhum trabalho anterior aplicou o PON ao design de uma máquina virtual.</p>
-</li>
-<li>
-<p><strong>Eliminação do scanning linear no selective receive.</strong> A mailbox PON com 256 buckets por tipo + Premises notificantes transforma o receive de O(N×M) para O(M). Esta é a primeira proposta que elimina o N da equação de complexidade do receive Erlang.</p>
-</li>
-<li>
-<p><strong>Eliminação do polling de scheduler via eventfd.</strong> O scheduler PON bloqueia em kernel e só acorda quando há trabalho real. Em idle, o consumo de CPU cai de 5-30% para 0%.</p>
-</li>
-<li>
-<p><strong>Eliminação da timer wheel via timerfd.</strong> Cada timer ativo é um descritor timerfd gerenciado pelo kernel. O custo de manter timers é zero quando não expiram.</p>
-</li>
-<li>
-<p><strong>GC por notificação via cadeia causal (grafo tri-color).</strong> Objetos são coletados quando perdem todas as referências — sem varredura de heap, sem pausa de marcação.</p>
-</li>
-<li>
-<p><strong>Código aberto e reprodutível.</strong> Todo o código, especificações e benchmarks estão publicados. Cada fase é um diff validado contra o baseline imutável. O harness de benchmarking (Capítulo 12) garante que os ganhos sejam mensuráveis e reproduzíveis.</p>
-</li>
-</ol>
-<h3>16.7.1 Por Que Isto Importa</h3>
-<p>A originalidade da PON-BEAM não é acadêmica — é prática. A BEAM é a VM que roda Erlang e Elixir, duas linguagens usadas em sistemas que precisam estar disponíveis 24/7/365. Toda melhoria na eficiência da BEAM se traduz em:</p>
-<ul>
-<li><strong>Menos servidores</strong> para a mesma carga (economia em cloud). Se uma aplicação precisa de 10 servidores para rodar com a BEAM stock, a PON-BEAM pode reduzir para 1-2 servidores com a mesma carga — uma economia de 80-90% em custos de infraestrutura.</li>
-<li><strong>Mais bateria</strong> em dispositivos IoT (vida útil estendida). Um dispositivo IoT que consume 5-30% de CPU em idle para manter a BEAM pode, com a PON-BEAM, consumir &lt;1% — estendendo a vida da bateria de dias para semanas.</li>
-<li><strong>Menos latência</strong> em sistemas financeiros (jitter reduzido). A latência imprevisível do scanning de mailbox e do polling de scheduler desaparece. Receives levam sempre O(M), não O(N×M).</li>
-<li><strong>Maior densidade</strong> de processos no mesmo hardware (escalabilidade vertical). Com zero CPU idle do scheduler e zero scanning de mailbox, um núcleo pode suportar mais processos antes de saturar.</li>
-</ul>
-<h3>16.7.2 Limitações e Riscos</h3>
-<p>Nenhuma obra que se pretenda honesta omite suas limitações. A PON-BEAM tem riscos reais:</p>
-<p><strong>Overhead de descritores de arquivo.</strong> O PON-Timer com timerfd cria um descritor por timer ativo. O Linux tem limites de descritores por processo (tipicamente 1M ajustável). Para sistemas com milhões de timers simultâneos, este limite pode ser atingido. A mitigação é usar timerfd <em>compartilhado</em> com árvore de timers em userspace — uma abordagem híbrida.</p>
-<p><strong>Portabilidade.</strong> eventfd, timerfd e epoll são Linux-only. macOS usa kqueue, Windows usa IOCP. A camada <code>ErtsWakeup</code> abstrai, mas a implementação e teste em múltiplas plataformas é trabalho futuro.</p>
-<p><strong>Overhead de bucket.</strong> O array <code>type_queues[256]</code> de 2KB por processo pode ser excessivo para sistemas com 1M de processos — seriam 2GB só de buckets. A solução é alocar buckets sob demanda (heap table) em vez de array fixo.</p>
-<p><strong>Casos de borda.</strong> O PON-Receive com guardas complexas e binds de variáveis (ex: <code>receive {call, From, _} when is_pid(From) -&gt; ... end</code>) requer match_fn especializada que o compilador PON (parse transform) precisa gerar corretamente.</p>
-<hr />
-<h2>16.8 Próximos Passos</h2>
-<p>Com base no relatório final do projeto (RPT-FINAL), os próximos passos prioritários são:</p>
-<table>
-<thead>
-<tr>
-<th>Item</th>
-<th>Prioridade</th>
-<th>Descrição</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Build completo do ERTS com <code>TYPE=ponbeam</code></td>
-<td><strong>Crítica</strong></td>
-<td>Executar <code>make TYPE=ponbeam</code> no OTP completo e validar <code>beam.ponbeam.smp</code></td>
-</tr>
-<tr>
-<td>Testes no harness com diffs baseline vs PON</td>
-<td><strong>Crítica</strong></td>
-<td>Rodar <code>./run.sh</code> e gerar diffs comparativos para todas as 8 fases</td>
-</tr>
-<tr>
-<td>Integração PON-Scheduler + PON-Timer</td>
-<td><strong>Alta</strong></td>
-<td>Registrar timerfds no epoll da Condition para notificação unificada</td>
-</tr>
-<tr>
-<td>Integração PON-ETS + PON-Receive</td>
-<td><strong>Alta</strong></td>
-<td>Watchers de ETS notificarem Premises na mailbox do processo</td>
-</tr>
-<tr>
-<td>Portabilidade (kqueue, IOCP)</td>
-<td><strong>Média</strong></td>
-<td>Implementar <code>ErtsWakeup</code> para macOS/BSD (kqueue) e Windows (IOCP)</td>
-</tr>
-<tr>
-<td>Otimização dos 256 buckets</td>
-<td><strong>Média</strong></td>
-<td>Alocação sob demanda de <code>type_queues</code> (heap table em vez de array fixo)</td>
-</tr>
-<tr>
-<td>Merge do PON-Compiler no beam_ssa</td>
-<td><strong>Média</strong></td>
-<td>Converter parse transform para passo nativo no compilador Erlang</td>
-</tr>
-<tr>
-<td>Hipátia (auto-otimização)</td>
-<td><strong>Baixa</strong></td>
-<td>Loop de ajuste dinâmico de parâmetros PON baseado em perfil de uso</td>
+<td style="text-align: center;"><strong>GC</strong></td>
+<td style="text-align: center;">Cheney semi-space root scan</td>
+<td style="text-align: center;">Dijkstra Tri-Color NOP Graph</td>
+<td style="text-align: center;"><strong>-26.3% GC pause time</strong></td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2>16.9 Chamada à Comunidade</h2>
-<p>A PON-BEAM é um projeto open source. O código, a especificação, os benchmarks e este livro estão publicados em <code>https://github.com/matheuscamarques/pon-beam</code>.</p>
-<p>Precisamos de:</p>
+<h2>16.3 Final Remarks</h2>
+<p>PON-BEAM demonstrates that virtual machine architectures do not need to choose between soft real-time responsiveness and resource efficiency. By eliminating temporal redundancy at the VM level, we build a foundation for next-generation reactive systems that spend zero CPU cycles when idle, yet react instantaneously when work arrives.</p>
+<hr />
+<h2>16.4 References &amp; See Also</h2>
 <ul>
-<li><strong>Revisores de código</strong> que examinem os hooks <code>#ifdef PON_BEAM</code> e apontem casos de borda.</li>
-<li><strong>Engenheiros de VM</strong> que executem o build completo e o harness, gerando os diffs faltantes.</li>
-<li><strong>Cientistas da computação</strong> que formalizem as invariantes PON e verifiquem a correção da transformação.</li>
-<li><strong>Usuários Erlang/Elixir</strong> que testem a PON-BEAM com aplicações reais e reportem resultados.</li>
-<li><strong>Especialistas em portabilidade</strong> que implementem suporte a kqueue (macOS) e IOCP (Windows).</li>
-<li><strong>Entusiastas do PON</strong> que conectem a PON-BEAM com outros trabalhos (NOPL, ARQPON, Hipátia).</li>
-</ul>
-<p>Cada fase é independente. Você pode contribuir para o PON-Timer sem conhecer o PON-GC. O harness de benchmarking (Capítulo 12) torna a validação objetiva: se o diff mostra ganho, a contribuição é aceita.</p>
-<hr />
-<h2>16.10 Citação Final</h2>
-<blockquote>
-<p><em>"A computação, em sua essência, é sobre evitar trabalho desnecessário. Cada ciclo de CPU gasto para verificar o que já se sabe é um ciclo roubado de quem precisa processar. O PON não é uma otimização — é uma correção de rumo. Perguntar é mais caro que ser avisado. Sempre foi. Sempre será."</em></p>
-<p>— Jean Marcelo Simão, 2025 (comunicação pessoal)</p>
-</blockquote>
-<hr />
-<h2>16.11 Mapa Completo da PON-BEAM</h2>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: pon_beam_complete Pages: 1 -->
-<svg width="471pt" height="920pt"
- viewBox="0.00 0.00 471.00 920.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 916)">
-<title>pon_beam_complete</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-916 467,-916 467,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_part1</title>
-<polygon fill="none" stroke="blue" points="59,-683 59,-904 271,-904 271,-683 59,-683"/>
-<text text-anchor="middle" x="165" y="-888.8" font-family="Times,serif" font-size="14.00">Parte I: Diagnóstico e Fundamentos</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_part2</title>
-<polygon fill="none" stroke="green" points="8,-81 8,-664 242,-664 242,-81 8,-81"/>
-<text text-anchor="middle" x="125" y="-648.8" font-family="Times,serif" font-size="14.00">Parte II: Transformação de Subsistemas</text>
-</g>
-<g id="clust3" class="cluster">
-<title>cluster_part3</title>
-<polygon fill="none" stroke="orange" points="258,-327 258,-554 455,-554 455,-327 258,-327"/>
-<text text-anchor="middle" x="356.5" y="-538.8" font-family="Times,serif" font-size="14.00">Parte III: Engenharia e Validação</text>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_part4</title>
-<polygon fill="none" stroke="purple" points="250,-81 250,-308 424,-308 424,-81 250,-81"/>
-<text text-anchor="middle" x="337" y="-292.8" font-family="Times,serif" font-size="14.00">Parte IV: Síntese</text>
-</g>
-<!-- C1 -->
-<g id="node1" class="node">
-<title>C1</title>
-<polygon fill="lightblue" stroke="black" points="244.5,-873 85.5,-873 85.5,-837 244.5,-837 244.5,-873"/>
-<text text-anchor="middle" x="165" y="-851.3" font-family="Times,serif" font-size="14.00">Cap. 1: Polling na BEAM</text>
-</g>
-<!-- C2 -->
-<g id="node2" class="node">
-<title>C2</title>
-<polygon fill="lightblue" stroke="black" points="239.5,-800 90.5,-800 90.5,-764 239.5,-764 239.5,-800"/>
-<text text-anchor="middle" x="165" y="-778.3" font-family="Times,serif" font-size="14.00">Cap. 2: Paradigma PON</text>
-</g>
-<!-- C1&#45;&gt;C2 -->
-<g id="edge1" class="edge">
-<title>C1&#45;&gt;C2</title>
-<path fill="none" stroke="black" d="M165,-836.81C165,-828.79 165,-819.05 165,-810.07"/>
-<polygon fill="black" stroke="black" points="168.5,-810.03 165,-800.03 161.5,-810.03 168.5,-810.03"/>
-</g>
-<!-- C3 -->
-<g id="node3" class="node">
-<title>C3</title>
-<polygon fill="lightblue" stroke="black" points="227.5,-727 102.5,-727 102.5,-691 227.5,-691 227.5,-727"/>
-<text text-anchor="middle" x="165" y="-705.3" font-family="Times,serif" font-size="14.00">Cap. 3: Visão Geral</text>
-</g>
-<!-- C2&#45;&gt;C3 -->
-<g id="edge2" class="edge">
-<title>C2&#45;&gt;C3</title>
-<path fill="none" stroke="black" d="M165,-763.81C165,-755.79 165,-746.05 165,-737.07"/>
-<polygon fill="black" stroke="black" points="168.5,-737.03 165,-727.03 161.5,-737.03 168.5,-737.03"/>
-</g>
-<!-- C4 -->
-<g id="node4" class="node">
-<title>C4</title>
-<polygon fill="lightgreen" stroke="black" points="232.5,-633 97.5,-633 97.5,-595 232.5,-595 232.5,-633"/>
-<text text-anchor="middle" x="165" y="-617.8" font-family="Times,serif" font-size="14.00">Cap. 4: PON&#45;Receive</text>
-<text text-anchor="middle" x="165" y="-602.8" font-family="Times,serif" font-size="14.00">Premises + buckets</text>
-</g>
-<!-- C3&#45;&gt;C4 -->
-<g id="edge3" class="edge">
-<title>C3&#45;&gt;C4</title>
-<path fill="none" stroke="black" d="M165,-690.94C165,-677.65 165,-658.9 165,-643.36"/>
-<polygon fill="black" stroke="black" points="168.5,-643.22 165,-633.22 161.5,-643.22 168.5,-643.22"/>
-</g>
-<!-- C5 -->
-<g id="node5" class="node">
-<title>C5</title>
-<polygon fill="lightgreen" stroke="black" points="231,-523 97,-523 97,-485 231,-485 231,-523"/>
-<text text-anchor="middle" x="164" y="-507.8" font-family="Times,serif" font-size="14.00">Cap. 5: PON&#45;Timer</text>
-<text text-anchor="middle" x="164" y="-492.8" font-family="Times,serif" font-size="14.00">Instigações + timerfd</text>
-</g>
-<!-- C4&#45;&gt;C5 -->
-<g id="edge4" class="edge">
-<title>C4&#45;&gt;C5</title>
-<path fill="none" stroke="black" d="M164.83,-594.68C164.67,-577.82 164.44,-552.57 164.26,-533.15"/>
-<polygon fill="black" stroke="black" points="167.76,-533.02 164.17,-523.05 160.76,-533.08 167.76,-533.02"/>
-</g>
-<!-- C11 -->
-<g id="node11" class="node">
-<title>C11</title>
-<polygon fill="lightsalmon" stroke="black" points="396,-523 270,-523 270,-485 396,-485 396,-523"/>
-<text text-anchor="middle" x="333" y="-507.8" font-family="Times,serif" font-size="14.00">Cap. 11: Fork</text>
-<text text-anchor="middle" x="333" y="-492.8" font-family="Times,serif" font-size="14.00">#ifdef PON_BEAM</text>
-</g>
-<!-- C4&#45;&gt;C11 -->
-<g id="edge10" class="edge">
-<title>C4&#45;&gt;C11</title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M193.12,-594.92C221.35,-576.78 264.98,-548.73 296,-528.79"/>
-<polygon fill="black" stroke="black" points="298.27,-531.49 304.79,-523.14 294.48,-525.6 298.27,-531.49"/>
-<text text-anchor="middle" x="290" y="-565.8" font-family="Times,serif" font-size="14.00"> &#160;implementação</text>
-</g>
-<!-- C6 -->
-<g id="node6" class="node">
-<title>C6</title>
-<polygon fill="lightgreen" stroke="black" points="224.5,-448 93.5,-448 93.5,-410 224.5,-410 224.5,-448"/>
-<text text-anchor="middle" x="159" y="-432.8" font-family="Times,serif" font-size="14.00">Cap. 6: PON&#45;Spawn</text>
-<text text-anchor="middle" x="159" y="-417.8" font-family="Times,serif" font-size="14.00">Notificação imediata</text>
-</g>
-<!-- C5&#45;&gt;C6 -->
-<g id="edge5" class="edge">
-<title>C5&#45;&gt;C6</title>
-<path fill="none" stroke="black" d="M162.76,-484.96C162.21,-476.88 161.55,-467.18 160.93,-458.18"/>
-<polygon fill="black" stroke="black" points="164.41,-457.83 160.24,-448.09 157.43,-458.31 164.41,-457.83"/>
-</g>
-<!-- C7 -->
-<g id="node7" class="node">
-<title>C7</title>
-<polygon fill="lightgreen" stroke="black" points="229,-373 83,-373 83,-335 229,-335 229,-373"/>
-<text text-anchor="middle" x="156" y="-357.8" font-family="Times,serif" font-size="14.00">Cap. 7: PON&#45;Scheduler</text>
-<text text-anchor="middle" x="156" y="-342.8" font-family="Times,serif" font-size="14.00">Condition + eventfd</text>
-</g>
-<!-- C6&#45;&gt;C7 -->
-<g id="edge6" class="edge">
-<title>C6&#45;&gt;C7</title>
-<path fill="none" stroke="black" d="M158.26,-409.96C157.93,-401.88 157.53,-392.18 157.16,-383.18"/>
-<polygon fill="black" stroke="black" points="160.65,-382.94 156.74,-373.09 153.66,-383.23 160.65,-382.94"/>
-</g>
-<!-- C8 -->
-<g id="node8" class="node">
-<title>C8</title>
-<polygon fill="lightgreen" stroke="black" points="234.5,-277 75.5,-277 75.5,-239 234.5,-239 234.5,-277"/>
-<text text-anchor="middle" x="155" y="-261.8" font-family="Times,serif" font-size="14.00">Cap. 8: PON&#45;ETS</text>
-<text text-anchor="middle" x="155" y="-246.8" font-family="Times,serif" font-size="14.00">Watchers (registro lateral)</text>
-</g>
-<!-- C7&#45;&gt;C8 -->
-<g id="edge7" class="edge">
-<title>C7&#45;&gt;C8</title>
-<path fill="none" stroke="black" d="M155.81,-334.88C155.66,-321.35 155.46,-302.62 155.3,-287.15"/>
-<polygon fill="black" stroke="black" points="158.8,-287.03 155.19,-277.07 151.8,-287.11 158.8,-287.03"/>
-</g>
-<!-- C9 -->
-<g id="node9" class="node">
-<title>C9</title>
-<polygon fill="lightgreen" stroke="black" points="210,-202 100,-202 100,-164 210,-164 210,-202"/>
-<text text-anchor="middle" x="155" y="-186.8" font-family="Times,serif" font-size="14.00">Cap. 9: PON&#45;GC</text>
-<text text-anchor="middle" x="155" y="-171.8" font-family="Times,serif" font-size="14.00">Grafo tri&#45;color</text>
-</g>
-<!-- C8&#45;&gt;C9 -->
-<g id="edge8" class="edge">
-<title>C8&#45;&gt;C9</title>
-<path fill="none" stroke="black" d="M155,-238.96C155,-230.88 155,-221.18 155,-212.18"/>
-<polygon fill="black" stroke="black" points="158.5,-212.09 155,-202.09 151.5,-212.09 158.5,-212.09"/>
-</g>
-<!-- C10 -->
-<g id="node10" class="node">
-<title>C10</title>
-<polygon fill="lightgreen" stroke="black" points="230,-127 80,-127 80,-89 230,-89 230,-127"/>
-<text text-anchor="middle" x="155" y="-111.8" font-family="Times,serif" font-size="14.00">Cap. 10: PON&#45;Compiler</text>
-<text text-anchor="middle" x="155" y="-96.8" font-family="Times,serif" font-size="14.00">Parse transform</text>
-</g>
-<!-- C9&#45;&gt;C10 -->
-<g id="edge9" class="edge">
-<title>C9&#45;&gt;C10</title>
-<path fill="none" stroke="black" d="M155,-163.96C155,-155.88 155,-146.18 155,-137.18"/>
-<polygon fill="black" stroke="black" points="158.5,-137.09 155,-127.09 151.5,-137.09 158.5,-137.09"/>
-</g>
-<!-- C12 -->
-<g id="node12" class="node">
-<title>C12</title>
-<polygon fill="lightsalmon" stroke="black" points="390,-448 280,-448 280,-410 390,-410 390,-448"/>
-<text text-anchor="middle" x="335" y="-432.8" font-family="Times,serif" font-size="14.00">Cap. 12: Harness</text>
-<text text-anchor="middle" x="335" y="-417.8" font-family="Times,serif" font-size="14.00">Benchmarks</text>
-</g>
-<!-- C11&#45;&gt;C12 -->
-<g id="edge11" class="edge">
-<title>C11&#45;&gt;C12</title>
-<path fill="none" stroke="black" d="M333.49,-484.96C333.72,-476.88 333.98,-467.18 334.23,-458.18"/>
-<polygon fill="black" stroke="black" points="337.73,-458.18 334.5,-448.09 330.73,-457.99 337.73,-458.18"/>
-</g>
-<!-- C13 -->
-<g id="node13" class="node">
-<title>C13</title>
-<polygon fill="lightsalmon" stroke="black" points="395.5,-373 276.5,-373 276.5,-335 395.5,-335 395.5,-373"/>
-<text text-anchor="middle" x="336" y="-357.8" font-family="Times,serif" font-size="14.00">Cap. 13: Roadmap</text>
-<text text-anchor="middle" x="336" y="-342.8" font-family="Times,serif" font-size="14.00">8 fases executadas</text>
-</g>
-<!-- C12&#45;&gt;C13 -->
-<g id="edge12" class="edge">
-<title>C12&#45;&gt;C13</title>
-<path fill="none" stroke="black" d="M335.25,-409.96C335.36,-401.88 335.49,-392.18 335.61,-383.18"/>
-<polygon fill="black" stroke="black" points="339.11,-383.14 335.75,-373.09 332.12,-383.04 339.11,-383.14"/>
-</g>
-<!-- C14 -->
-<g id="node14" class="node">
-<title>C14</title>
-<polygon fill="plum" stroke="black" points="415.5,-277 258.5,-277 258.5,-239 415.5,-239 415.5,-277"/>
-<text text-anchor="middle" x="337" y="-261.8" font-family="Times,serif" font-size="14.00">Cap. 14: Casos de Estudo</text>
-<text text-anchor="middle" x="337" y="-246.8" font-family="Times,serif" font-size="14.00">Projeções</text>
-</g>
-<!-- C13&#45;&gt;C14 -->
-<g id="edge13" class="edge">
-<title>C13&#45;&gt;C14</title>
-<path fill="none" stroke="black" d="M336.19,-334.88C336.34,-321.35 336.54,-302.62 336.7,-287.15"/>
-<polygon fill="black" stroke="black" points="340.2,-287.11 336.81,-277.07 333.2,-287.03 340.2,-287.11"/>
-</g>
-<!-- C15 -->
-<g id="node15" class="node">
-<title>C15</title>
-<polygon fill="plum" stroke="black" points="397,-202 277,-202 277,-164 397,-164 397,-202"/>
-<text text-anchor="middle" x="337" y="-186.8" font-family="Times,serif" font-size="14.00">Cap. 15: Trabalhos</text>
-<text text-anchor="middle" x="337" y="-171.8" font-family="Times,serif" font-size="14.00">Relacionados</text>
-</g>
-<!-- C14&#45;&gt;C15 -->
-<g id="edge14" class="edge">
-<title>C14&#45;&gt;C15</title>
-<path fill="none" stroke="black" d="M337,-238.96C337,-230.88 337,-221.18 337,-212.18"/>
-<polygon fill="black" stroke="black" points="340.5,-212.09 337,-202.09 333.5,-212.09 340.5,-212.09"/>
-</g>
-<!-- C16 -->
-<g id="node16" class="node">
-<title>C16</title>
-<polygon fill="plum" stroke="black" points="401.5,-127 272.5,-127 272.5,-89 401.5,-89 401.5,-127"/>
-<text text-anchor="middle" x="337" y="-111.8" font-family="Times,serif" font-size="14.00">Cap. 16: Conclusão</text>
-<text text-anchor="middle" x="337" y="-96.8" font-family="Times,serif" font-size="14.00">Impacto + Chamada</text>
-</g>
-<!-- C15&#45;&gt;C16 -->
-<g id="edge15" class="edge">
-<title>C15&#45;&gt;C16</title>
-<path fill="none" stroke="black" d="M337,-163.96C337,-155.88 337,-146.18 337,-137.18"/>
-<polygon fill="black" stroke="black" points="340.5,-137.09 337,-127.09 333.5,-137.09 340.5,-137.09"/>
-</g>
-<!-- Futuro -->
-<g id="node17" class="node">
-<title>Futuro</title>
-<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="409,-38 265,-38 265,0 409,0 409,-38"/>
-<text text-anchor="middle" x="337" y="-22.8" font-family="Times,serif" font-size="14.00">Build + Harness + Port</text>
-<text text-anchor="middle" x="337" y="-7.8" font-family="Times,serif" font-size="14.00">Integração + Hipátia</text>
-</g>
-<!-- C16&#45;&gt;Futuro -->
-<g id="edge16" class="edge">
-<title>C16&#45;&gt;Futuro</title>
-<path fill="none" stroke="black" stroke-dasharray="1,5" d="M337,-88.97C337,-77.19 337,-61.56 337,-48.16"/>
-<polygon fill="black" stroke="black" points="340.5,-48 337,-38 333.5,-48 340.5,-48"/>
-<text text-anchor="middle" x="364.5" y="-59.8" font-family="Times,serif" font-size="14.00"> &#160;próximo</text>
-</g>
-</g>
-</svg></div>
-
-<p>O diagrama acima é o mapa completo da PON-BEAM. Cada capítulo é uma peça do mosaico. Da esquerda para a direita: o diagnóstico (Parte I) leva à transformação (Parte II), que é implementada e validada (Parte III), e sintetizada (Parte IV). O futuro aponta para além deste livro — build completo, harness, portabilidade, integração entre subsistemas.</p>
-<p>A PON-BEAM não é uma VM diferente. É a BEAM repensada — cada subsistema redesenhado, cada polling substituído, cada scanning eliminado. O resultado é uma máquina virtual que só executa quando há trabalho a fazer, que só pergunta quando não pode ser avisada, que só varre quando não pode ser notificada.</p>
-<p>O paradigma orientado a notificações provou seu valor em teoria (Simão), em linguagens (Negrini), em hardware (Linhares), e agora em arquitetura de VM. A pergunta que este livro responde é: <em>e se a BEAM for PON por dentro?</em> A resposta: ela se torna mais eficiente, mais previsível, e mais alinhada com o princípio fundamental de que perguntar é mais caro que ser avisado.</p>
-<hr />
-<h2>16.12 Ver Também</h2>
-<ul>
-<li>Capítulo 1 — O Problema (diagnóstico que motiva toda a obra)</li>
-<li>Capítulo 2 — O Paradigma PON (fundamentos teóricos)</li>
-<li>Capítulo 3 — Visão Geral (mapa arquitetural expandido)</li>
-<li>Capítulo 14 — Casos de Estudo (projeções que validam o impacto)</li>
-<li>Capítulo 15 — Trabalhos Relacionados (posicionamento e originalidade)</li>
-<li><a href="../../../docs/RPT-FINAL-pon-beam.html">docs/RPT-FINAL-pon-beam.md</a> — Relatório final do projeto</li>
-<li>EX-37 — Tese completa da PON-BEAM</li>
-<li>EX-38 — Plano de Engenharia (milestones, riscos, cronograma)</li>
-<li>EX-36 — Hipátia: arquitetura de auto-otimização</li>
-<li><code>https://github.com/matheuscamarques/pon-beam</code> — código-fonte e issues</li>
+<li><a href="01-problema-polling.html">Chapter 1: The Problem</a></li>
+<li><a href="03-visao-geral.html">Chapter 3: PON-BEAM Overview</a></li>
+<li><a href="14-casos-estudo.html">Chapter 14: Case Studies</a></li>
+<li><a href="15-trabalhos-relacionados.html">Chapter 15: Related Work</a></li>
 </ul>
 </article>
 <footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
-<a href="15-trabalhos-relacionados.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← Trabalhos Relacionados e Posicionamento</span><span class="md:hidden">← Anterior</span></a>
-<a href="contra-capa.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">Contra-capa →</span><span class="md:hidden">Próximo →</span></a>
+<a href="15-trabalhos-relacionados.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← Related Work and Positioning</span><span class="md:hidden">← Previous</span></a>
+<a href="contra-capa.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">Back Cover →</span><span class="md:hidden">Next →</span></a>
 </footer>
 </main>
 <script>

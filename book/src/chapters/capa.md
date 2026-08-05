@@ -4,7 +4,7 @@ MATHEUS DE CAMARGO MARQUES
 
 # PON-BEAM
 
-**Uma Máquina Virtual Orientada a Notificações**
+**A Notification-Oriented Virtual Machine**
 
 <br>
 

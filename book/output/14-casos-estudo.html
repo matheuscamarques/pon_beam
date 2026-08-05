@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Casos de Estudo — PON-BEAM</title>
+<title>Case Studies — PON-BEAM</title>
 <script>tailwind.config={theme:{extend:{colors:{'iron-bg':'#0d0a0a','iron-surface':'#1a0f0f','iron-hover':'#2d1515','iron-gold':'#FFD700','iron-gold-dim':'#8B6914','iron-text':'#b8a88a'}}}}}</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="theme/style.css">
@@ -20,784 +20,111 @@
 <input type="text" placeholder="🔍 Buscar no livro..." oninput="filterChapters(this.value)" class="w-full px-3 py-1.5 text-sm bg-[#0d0a0a] border border-[#8B6914] text-[#e6edf3] placeholder-[#b8a88a] outline-none">
 </div>
 <div class="flex-1 overflow-y-auto">
-<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Capa</a>
-<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Folha de Rosto</a>
-<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Agradecimentos</a>
-<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Sobre o Autor</a>
+<a href="capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Cover</a>
+<a href="folha-de-rosto.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Title Page</a>
+<a href="agradecimentos.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Acknowledgments</a>
+<a href="sobre-autor.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">About the Author</a>
 <div class="part-header" onclick="togglePart('I')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-I">[-]</span>
-<span class="ml-1">Parte I: Fundamentos</span>
+<span class="ml-1">Parte I: Fundamentals</span>
 </div></div>
 <div id="ch-I" class="part-list ">
-<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Problema: Custos Ocultos do Polling na BEAM</a>
-<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Paradigma Orientado a Notificações</a>
-<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Visão Geral da PON-BEAM</a>
+<a href="01-problema-polling.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Problem: Hidden Costs of Polling in the BEAM</a>
+<a href="02-paradigma-pon.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Notification-Oriented Paradigm</a>
+<a href="03-visao-geral.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-BEAM Overview</a>
 </div>
 <div class="part-header" onclick="togglePart('II')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-II">[+]</span>
-<span class="ml-1">Parte II: Subsistemas PON</span>
+<span class="ml-1">Parte II: PON Subsystems</span>
 </div></div>
 <div id="ch-II" class="part-list hidden">
-<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive por Premises</a>
-<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigações com timerfd</a>
-<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Notificação Imediata</a>
-<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition e eventfd</a>
-<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Base de Fatos Notificante</a>
-<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Coleta por Cadeia Causal</a>
-<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Geração Automática de Premises</a>
+<a href="04-pon-receive.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Receive: Selective Receive by Premises</a>
+<a href="05-pon-timer.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Timer: Instigations with timerfd</a>
+<a href="06-pon-spawn.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Spawn: Immediate Notification</a>
+<a href="07-pon-scheduler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Scheduler: Condition and eventfd</a>
+<a href="08-pon-ets.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-ETS: Notification-Oriented Fact Base</a>
+<a href="09-pon-gc.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-GC: Causal Chain Garbage Collection</a>
+<a href="10-pon-compiler.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">PON-Compiler: Automatic Premise Generation</a>
 </div>
 <div class="part-header" onclick="togglePart('III')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-III">[+]</span>
-<span class="ml-1">Parte III: Engenharia e Validação</span>
+<span class="ml-1">Parte III: Engineering and Validation</span>
 </div></div>
 <div id="ch-III" class="part-list hidden">
-<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">A Infraestrutura do Fork</a>
-<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">O Harness de Benchmarking</a>
-<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap e Tradeoffs</a>
+<a href="11-infraestrutura-fork.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Fork Infrastructure</a>
+<a href="12-harness-benchmarking.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">The Benchmarking Harness</a>
+<a href="13-roadmap-tradeoffs.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Roadmap and Trade-offs</a>
 </div>
 <div class="part-header" onclick="togglePart('IV')" style="cursor:pointer;user-select:none">
 <div class="flex items-center px-4 pt-3 pb-1 text-xs uppercase tracking-wider text-[#b8a88a] font-semibold">
 <span id="btn-IV">[+]</span>
-<span class="ml-1">Parte IV: Síntese</span>
+<span class="ml-1">Parte IV: Synthesis</span>
 </div></div>
 <div id="ch-IV" class="part-list hidden">
-<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">Casos de Estudo</a>
-<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Trabalhos Relacionados e Posicionamento</a>
-<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusão</a>
+<a href="14-casos-estudo.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#FFD700] border-l-2 border-[#FFD700] bg-[rgba(255,215,0,0.1)] sidebar-item">Case Studies</a>
+<a href="15-trabalhos-relacionados.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Related Work and Positioning</a>
+<a href="16-conclusao.html" class="block px-4 py-1 pl-8 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Conclusion</a>
 </div>
-<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Contra-capa</a>
+<a href="contra-capa.html" class="block px-4 py-1 text-sm no-underline text-[#b8a88a] hover:text-[#e6edf3] sidebar-item">Back Cover</a>
 </div>
 </aside>
 <button id="floatBtn" onclick="openSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] w-8 h-16 bg-[#1a0f0f] border border-[#8B6914] border-l-0 text-[#b8a88a] text-lg cursor-pointer hidden hover:text-[#e6edf3] items-center justify-center" style="border-radius:0 4px 4px 0;display:none">&#9776;</button>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeSidebar()"></div>
  <main id="main" class="p-8 max-md:p-4 max-w-4xl transition-all duration-200" style="min-height:100vh">
-<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">Casos de Estudo</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button></div>
+<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">Case Studies</h1><button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button></div>
 <article>
-<h1>14. Casos de Estudo</h1>
+<h1>14. Case Studies</h1>
 <blockquote>
-<p><em>"A teoria sem prática é mera especulação."</em>
-— Provérbio de engenharia</p>
+<p><em>"Theory without practice is mere speculation."</em><br />
+— Engineering proverb</p>
 </blockquote>
 <hr />
-<p>Este capítulo projeta o impacto da PON-BEAM em três cenários concretos. Cada caso contrasta o comportamento da BEAM stock com o da PON-BEAM, apresenta pseudocódigo Erlang, e quantifica os ganhos esperados com base nas análises assintóticas dos Capítulos 4 a 10. Cada subsistema possui seu benchmark correspondente no harness (Capítulo 12), permitindo validação empírica: <code>fase1_receive.erl</code> e <code>fase3_spawn.erl</code> para o GenServer, <code>fase7_gc_scan.erl</code> para Stream Processing, <code>fase2_timer_idle.erl</code> e <code>fase4_sched_idle.erl</code> para o cenário de 50K timers.</p>
-<hr />
-<h2>14.1 GenServer Sob Carga</h2>
-<p>O GenServer é o padrão mais utilizado no ecossistema Erlang/Elixir. Um GenServer típico implementa <code>handle_call</code>/<code>handle_cast</code>/<code>handle_info</code> — cada qual envolve um <code>receive</code> interno. Sob carga elevada, três gargalos emergem.</p>
-<h3>14.1.1 Cenário</h3>
-<p>100 processos GenServer concorrentes, cada um recebendo 1000 chamadas/segundo, com tempo de processamento de 2ms por chamada. A mailbox de cada GenServer acumula ~2000 mensagens no estado estacionário (2s × 1000 msg/s). Cada <code>receive</code> varre 2000 mensagens contra, digamos, 5 cláusulas.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% BEAM: GenServer sob carga — o scanning domina</span>
-<span class="c">%% 100 workers × 100K chamadas totais</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">gs_beam</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">worker</span><span class="o">/</span><span class="mi">3</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">Workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">spawn</span><span class="p">(</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">,</span><span class="w"> </span><span class="n">worker</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">self</span><span class="p">(),</span><span class="w"> </span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">])</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)],</span>
-<span class="w">    </span><span class="nv">Total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
-<span class="w">    </span><span class="nv">Batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Total</span><span class="w"> </span><span class="ow">div</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
-<span class="w">    </span><span class="p">[</span><span class="nv">W</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">calls</span><span class="p">,</span><span class="w"> </span><span class="nv">Batch</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">()}</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">W</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Workers</span><span class="p">],</span>
-<span class="w">    </span><span class="n">collect</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">).</span>
-
-<span class="nf">collect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nv">Acc</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Total time: </span><span class="si">~p</span><span class="s"> us</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Acc</span><span class="p">]);</span>
-<span class="nf">collect</span><span class="p">(</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">Acc</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">done</span><span class="p">,</span><span class="w"> </span><span class="nv">T</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">collect</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">Acc</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">T</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">.</span>
-
-<span class="nf">worker</span><span class="p">(</span><span class="nv">Master</span><span class="p">,</span><span class="w"> </span><span class="nv">Id</span><span class="p">,</span><span class="w"> </span><span class="nv">MailboxSize</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% Pré-enche a mailbox com mensagens não correspondentes</span>
-<span class="w">    </span><span class="p">[</span><span class="n">self</span><span class="p">()</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">unrelated</span><span class="p">,</span><span class="w"> </span><span class="nv">I</span><span class="p">}</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">MailboxSize</span><span class="p">)],</span>
-<span class="w">    </span><span class="k">receive</span>
-<span class="w">        </span><span class="p">{</span><span class="n">calls</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="p">{</span><span class="nv">Time</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">process_calls</span><span class="p">(</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
-<span class="w">            </span><span class="nv">Master</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">done</span><span class="p">,</span><span class="w"> </span><span class="nv">Time</span><span class="p">}</span>
-<span class="w">    </span><span class="k">end</span><span class="p">.</span>
-
-<span class="nf">process_calls</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">_)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="p">;</span>
-<span class="nf">process_calls</span><span class="p">(</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% Selective receive: O(N × M)</span>
-<span class="w">    </span><span class="c">%% 2000 mensagens na mailbox × 5 cláusulas = 10000 trials</span>
-<span class="w">    </span><span class="k">receive</span>
-<span class="w">        </span><span class="p">{</span><span class="n">call</span><span class="p">,</span><span class="w"> </span><span class="nv">Req</span><span class="p">,</span><span class="w"> </span><span class="nv">ReplyTo</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="nv">Result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process_request</span><span class="p">(</span><span class="nv">Req</span><span class="p">),</span>
-<span class="w">            </span><span class="nv">ReplyTo</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">reply</span><span class="p">,</span><span class="w"> </span><span class="nv">Result</span><span class="p">},</span>
-<span class="w">            </span><span class="n">process_calls</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">{</span><span class="n">cast</span><span class="p">,</span><span class="w"> </span><span class="nv">Msg</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="n">handle_cast</span><span class="p">(</span><span class="nv">Msg</span><span class="p">),</span>
-<span class="w">            </span><span class="n">process_calls</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">{</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="nv">Data</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="n">handle_info</span><span class="p">(</span><span class="nv">Data</span><span class="p">),</span>
-<span class="w">            </span><span class="n">process_calls</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">{</span><span class="n">system</span><span class="p">,</span><span class="w"> </span><span class="nv">SysMsg</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="n">handle_sys</span><span class="p">(</span><span class="nv">SysMsg</span><span class="p">),</span>
-<span class="w">            </span><span class="n">process_calls</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">_</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="c">%% Mensagem não corresponde a nenhuma cláusula ativa</span>
-<span class="w">            </span><span class="n">process_calls</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">)</span>
-<span class="w">    </span><span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="n">timeout</span>
-<span class="w">    </span><span class="k">end</span><span class="p">.</span>
-</pre></div>
-</pre></div>
-
-<p>Cada <code>process_calls</code> executa um selective receive. Com 2000 mensagens na mailbox e 5 cláusulas, cada chamada realiza ~10.000 trials de pattern matching. Para 1000 chamadas por worker: 10 milhões de trials <em>por worker</em> — 1 bilhão de trials no total.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% PON-BEAM: Premises notificam, mailbox não é varrida</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">gs_pon</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">worker</span><span class="o">/</span><span class="mi">3</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">Workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">spawn</span><span class="p">(</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">,</span><span class="w"> </span><span class="n">worker</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">self</span><span class="p">(),</span><span class="w"> </span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">])</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)],</span>
-<span class="w">    </span><span class="nv">Total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
-<span class="w">    </span><span class="nv">Batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">Total</span><span class="w"> </span><span class="ow">div</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
-<span class="w">    </span><span class="p">[</span><span class="nv">W</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">calls</span><span class="p">,</span><span class="w"> </span><span class="nv">Batch</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">()}</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">W</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Workers</span><span class="p">],</span>
-<span class="w">    </span><span class="n">collect</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">).</span>
-
-<span class="nf">collect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nv">Acc</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Total time: </span><span class="si">~p</span><span class="s"> us</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nv">Acc</span><span class="p">]);</span>
-<span class="nf">collect</span><span class="p">(</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">Acc</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">done</span><span class="p">,</span><span class="w"> </span><span class="nv">T</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">collect</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">Acc</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">T</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">.</span>
-
-<span class="nf">worker</span><span class="p">(</span><span class="nv">Master</span><span class="p">,</span><span class="w"> </span><span class="nv">Id</span><span class="p">,</span><span class="w"> </span><span class="p">_</span><span class="nv">MailboxSize</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% PON: mensagens são classificadas por tipo na chegada</span>
-<span class="w">    </span><span class="c">%% Premises são registradas: uma para cada cláusula</span>
-<span class="w">    </span><span class="c">%% Nenhuma scanning: a Premise certa é notificada imediatamente</span>
-<span class="w">    </span><span class="k">receive</span>
-<span class="w">        </span><span class="p">{</span><span class="n">calls</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="p">{</span><span class="nv">Time</span><span class="p">,</span><span class="w"> </span><span class="p">_}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">timer</span><span class="p">:</span><span class="nf">tc</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">process_calls_pon</span><span class="p">(</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">),</span>
-<span class="w">            </span><span class="nv">Master</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">done</span><span class="p">,</span><span class="w"> </span><span class="nv">Time</span><span class="p">}</span>
-<span class="w">    </span><span class="k">end</span><span class="p">.</span>
-
-<span class="nf">process_calls_pon</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">_)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ok</span><span class="p">;</span>
-<span class="nf">process_calls_pon</span><span class="p">(</span><span class="nv">N</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% PON-Receive: Premise já marcou has_match na chegada</span>
-<span class="w">    </span><span class="c">%% Custo: O(5) — percorrer 5 Premises para encontrar a satisfeita</span>
-<span class="w">    </span><span class="c">%% Não: O(2000 × 5) — não há scanning de mailbox</span>
-<span class="w">    </span><span class="k">receive</span>
-<span class="w">        </span><span class="p">{</span><span class="n">call</span><span class="p">,</span><span class="w"> </span><span class="nv">Req</span><span class="p">,</span><span class="w"> </span><span class="nv">ReplyTo</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="nv">Result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process_request</span><span class="p">(</span><span class="nv">Req</span><span class="p">),</span>
-<span class="w">            </span><span class="nv">ReplyTo</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span><span class="n">reply</span><span class="p">,</span><span class="w"> </span><span class="nv">Result</span><span class="p">},</span>
-<span class="w">            </span><span class="n">process_calls_pon</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">{</span><span class="n">cast</span><span class="p">,</span><span class="w"> </span><span class="nv">Msg</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="n">handle_cast</span><span class="p">(</span><span class="nv">Msg</span><span class="p">),</span>
-<span class="w">            </span><span class="n">process_calls_pon</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">{</span><span class="n">info</span><span class="p">,</span><span class="w"> </span><span class="nv">Data</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="n">handle_info</span><span class="p">(</span><span class="nv">Data</span><span class="p">),</span>
-<span class="w">            </span><span class="n">process_calls_pon</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">{</span><span class="n">system</span><span class="p">,</span><span class="w"> </span><span class="nv">SysMsg</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="n">handle_sys</span><span class="p">(</span><span class="nv">SysMsg</span><span class="p">),</span>
-<span class="w">            </span><span class="n">process_calls_pon</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">);</span>
-<span class="w">        </span><span class="p">_</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">            </span><span class="n">process_calls_pon</span><span class="p">(</span><span class="nv">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">From</span><span class="p">)</span>
-<span class="w">    </span><span class="k">after</span><span class="w"> </span><span class="mi">5000</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="n">timeout</span>
-<span class="w">    </span><span class="k">end</span><span class="p">.</span>
-</pre></div>
-</pre></div>
-
-<p>O código <em>Erlang</em> é idêntico. A diferença está no runtime: na PON-BEAM, a VM compila cada cláusula do <code>receive</code> em uma <code>ErtsPremise</code> e a mensagem é classificada por bucket na chegada. O programador não muda uma linha — o ganho é invisível.</p>
-<h3>14.1.2 Diagrama do Fluxo</h3>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: genserver_case Pages: 1 -->
-<svg width="960pt" height="298pt"
- viewBox="0.00 0.00 960.00 298.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 294)">
-<title>genserver_case</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-294 956,-294 956,4 -4,4"/>
-<g id="clust1" class="cluster">
-<title>cluster_beam</title>
-<polygon fill="none" stroke="red" points="8,-8 8,-141 729.5,-141 729.5,-8 8,-8"/>
-<text text-anchor="middle" x="368.75" y="-125.8" font-family="Times,serif" font-size="14.00">BEAM stock</text>
-</g>
-<g id="clust2" class="cluster">
-<title>cluster_pon</title>
-<polygon fill="none" stroke="green" points="20,-149 20,-282 944,-282 944,-149 20,-149"/>
-<text text-anchor="middle" x="482" y="-266.8" font-family="Times,serif" font-size="14.00">PON&#45;BEAM</text>
-</g>
-<!-- Mailbox -->
-<g id="node1" class="node">
-<title>Mailbox</title>
-<polygon fill="lightgrey" stroke="black" points="177,-73 16,-73 16,-35 177,-35 177,-73"/>
-<text text-anchor="middle" x="96.5" y="-57.8" font-family="Times,serif" font-size="14.00">Mailbox</text>
-<text text-anchor="middle" x="96.5" y="-42.8" font-family="Times,serif" font-size="14.00">(2000 msg em lista linear)</text>
-</g>
-<!-- Receive -->
-<g id="node2" class="node">
-<title>Receive</title>
-<polygon fill="lightgrey" stroke="black" points="455,-73 324,-73 324,-35 455,-35 455,-73"/>
-<text text-anchor="middle" x="389.5" y="-57.8" font-family="Times,serif" font-size="14.00">receive</text>
-<text text-anchor="middle" x="389.5" y="-42.8" font-family="Times,serif" font-size="14.00">{O(N×M) scanning}</text>
-</g>
-<!-- Mailbox&#45;&gt;Receive -->
-<g id="edge1" class="edge">
-<title>Mailbox&#45;&gt;Receive</title>
-<path fill="none" stroke="black" d="M177.34,-54C177.34,-54 313.72,-54 313.72,-54"/>
-<polygon fill="black" stroke="black" points="313.72,-57.5 323.72,-54 313.72,-50.5 313.72,-57.5"/>
-<text text-anchor="middle" x="250.5" y="-57.8" font-family="Times,serif" font-size="14.00"> &#160;percorre 2000 msg</text>
-</g>
-<!-- Scheduler -->
-<g id="node3" class="node">
-<title>Scheduler</title>
-<polygon fill="lightgrey" stroke="black" points="721.5,-54 595.5,-54 595.5,-16 721.5,-16 721.5,-54"/>
-<text text-anchor="middle" x="658.5" y="-38.8" font-family="Times,serif" font-size="14.00">Scheduler</text>
-<text text-anchor="middle" x="658.5" y="-23.8" font-family="Times,serif" font-size="14.00">{polling run queue}</text>
-</g>
-<!-- Receive&#45;&gt;Scheduler -->
-<g id="edge2" class="edge">
-<title>Receive&#45;&gt;Scheduler</title>
-<path fill="none" stroke="black" d="M455.3,-44.5C455.3,-44.5 585.23,-44.5 585.23,-44.5"/>
-<polygon fill="black" stroke="black" points="585.23,-48 595.23,-44.5 585.23,-41 585.23,-48"/>
-<text text-anchor="middle" x="525" y="-42.8" font-family="Times,serif" font-size="14.00"> &#160;processo pronto</text>
-</g>
-<!-- ETS -->
-<g id="node4" class="node">
-<title>ETS</title>
-<polygon fill="lightgrey" stroke="black" points="714,-110 603,-110 603,-72 714,-72 714,-110"/>
-<text text-anchor="middle" x="658.5" y="-94.8" font-family="Times,serif" font-size="14.00">ETS</text>
-<text text-anchor="middle" x="658.5" y="-79.8" font-family="Times,serif" font-size="14.00">{lock + CA tree}</text>
-</g>
-<!-- Receive&#45;&gt;ETS -->
-<g id="edge3" class="edge">
-<title>Receive&#45;&gt;ETS</title>
-<path fill="none" stroke="black" d="M455.08,-63C534.86,-63 659,-63 659,-63 659,-63 659,-63.89 659,-63.89"/>
-<polygon fill="black" stroke="black" points="655.5,-61.86 659,-71.86 662.5,-61.86 655.5,-61.86"/>
-<text text-anchor="middle" x="525" y="-89.8" font-family="Times,serif" font-size="14.00"> &#160;consulta tabela</text>
-</g>
-<!-- Mailbox&#45;PON -->
-<g id="node5" class="node">
-<title>Mailbox&#45;PON</title>
-<polygon fill="lightgrey" stroke="black" points="165,-214 28,-214 28,-176 165,-176 165,-214"/>
-<text text-anchor="middle" x="96.5" y="-198.8" font-family="Times,serif" font-size="14.00">Mailbox</text>
-<text text-anchor="middle" x="96.5" y="-183.8" font-family="Times,serif" font-size="14.00">(256 buckets por tipo)</text>
-</g>
-<!-- Premises -->
-<g id="node6" class="node">
-<title>Premises</title>
-<polygon fill="lightgrey" stroke="black" points="451,-214 328,-214 328,-176 451,-176 451,-214"/>
-<text text-anchor="middle" x="389.5" y="-198.8" font-family="Times,serif" font-size="14.00">Premises</text>
-<text text-anchor="middle" x="389.5" y="-183.8" font-family="Times,serif" font-size="14.00">{5 cláusulas, O(1)}</text>
-</g>
-<!-- Mailbox&#45;PON&#45;&gt;Premises -->
-<g id="edge4" class="edge">
-<title>Mailbox&#45;PON&#45;&gt;Premises</title>
-<path fill="none" stroke="black" d="M165.2,-195C165.2,-195 317.72,-195 317.72,-195"/>
-<polygon fill="black" stroke="black" points="317.72,-198.5 327.72,-195 317.72,-191.5 317.72,-198.5"/>
-<text text-anchor="middle" x="250.5" y="-198.8" font-family="Times,serif" font-size="14.00"> &#160;notifica Premise</text>
-</g>
-<!-- Condition -->
-<g id="node7" class="node">
-<title>Condition</title>
-<polygon fill="lightgrey" stroke="black" points="722,-195 595,-195 595,-157 722,-157 722,-195"/>
-<text text-anchor="middle" x="658.5" y="-179.8" font-family="Times,serif" font-size="14.00">Condition</text>
-<text text-anchor="middle" x="658.5" y="-164.8" font-family="Times,serif" font-size="14.00">{notifica scheduler}</text>
-</g>
-<!-- Premises&#45;&gt;Condition -->
-<g id="edge5" class="edge">
-<title>Premises&#45;&gt;Condition</title>
-<path fill="none" stroke="black" d="M451.21,-185.5C451.21,-185.5 584.74,-185.5 584.74,-185.5"/>
-<polygon fill="black" stroke="black" points="584.74,-189 594.74,-185.5 584.74,-182 584.74,-189"/>
-<text text-anchor="middle" x="525" y="-183.8" font-family="Times,serif" font-size="14.00"> &#160;satisfied</text>
-</g>
-<!-- ETS&#45;PON -->
-<g id="node8" class="node">
-<title>ETS&#45;PON</title>
-<polygon fill="lightgrey" stroke="black" points="717.5,-251 599.5,-251 599.5,-213 717.5,-213 717.5,-251"/>
-<text text-anchor="middle" x="658.5" y="-235.8" font-family="Times,serif" font-size="14.00">ETS FBE</text>
-<text text-anchor="middle" x="658.5" y="-220.8" font-family="Times,serif" font-size="14.00">{watcher notifica}</text>
-</g>
-<!-- Premises&#45;&gt;ETS&#45;PON -->
-<g id="edge7" class="edge">
-<title>Premises&#45;&gt;ETS&#45;PON</title>
-<path fill="none" stroke="black" d="M451.33,-204C530.89,-204 659,-204 659,-204 659,-204 659,-204.89 659,-204.89"/>
-<polygon fill="black" stroke="black" points="655.5,-202.86 659,-212.86 662.5,-202.86 655.5,-202.86"/>
-<text text-anchor="middle" x="525" y="-230.8" font-family="Times,serif" font-size="14.00"> &#160;chave atualizada?</text>
-</g>
-<!-- Scheduler&#45;PON -->
-<g id="node9" class="node">
-<title>Scheduler&#45;PON</title>
-<polygon fill="lightgreen" stroke="black" points="936,-195 838,-195 838,-157 936,-157 936,-195"/>
-<text text-anchor="middle" x="887" y="-179.8" font-family="Times,serif" font-size="14.00">Scheduler</text>
-<text text-anchor="middle" x="887" y="-164.8" font-family="Times,serif" font-size="14.00">{eventfd wait}</text>
-</g>
-<!-- Condition&#45;&gt;Scheduler&#45;PON -->
-<g id="edge6" class="edge">
-<title>Condition&#45;&gt;Scheduler&#45;PON</title>
-<path fill="none" stroke="black" d="M722.15,-176C722.15,-176 827.81,-176 827.81,-176"/>
-<polygon fill="black" stroke="black" points="827.81,-179.5 837.81,-176 827.81,-172.5 827.81,-179.5"/>
-<text text-anchor="middle" x="780" y="-179.8" font-family="Times,serif" font-size="14.00"> &#160;eventfd write</text>
-</g>
-</g>
-</svg></div>
-
-<h3>14.1.3 Projeção de Ganhos</h3>
-<p>Para cada um dos três gargalos do GenServer:</p>
-<p><strong>Matching (receive).</strong> BEAM executa 10.000 trials por chamada (2000 mensagens × 5 cláusulas). A 8,5μs por trial (medido no Capítulo 4), são ~85ms por chamada só em scanning. PON-BEAM: 5 Premises verificadas, ~1μs cada → ~5μs por chamada. Ganho: <strong>~17.000×</strong> na operação de matching. O benchmark <code>fase1_receive.erl</code> mede exatamente este cenário, variando N de 10 a 10000 mensagens.</p>
-<p><strong>Scheduling (ativação).</strong> BEAM: o scheduler faz polling com timeout ~50ms. Cada ativação custa ~500ns + syscall. PON-BEAM: notificação via eventfd ~100ns + 1μs latência kernel. Para 1000 chamadas/s: BEAM gasta ~500μs/s em polling idle + 100μs em ativações reais; PON-BEAM gasta ~100μs em notificações. Ganho: <strong>~5×</strong> no custo de ativação. Em idle entre rajadas, o ganho é <strong>∞</strong> (0% vs 5-30% CPU). O benchmark <code>fase3_spawn.erl</code> valida a latência de notificação de criação de processo.</p>
-<p><strong>ETS (lookup).</strong> Se o GenServer consulta uma tabela ETS a cada chamada (ex: busca estado de sessão), a BEAM stock adquire lock de leitura + percorre CA tree (O(log N) ~ 8 níveis para 256 entradas ≈ 200ns). PON-BEAM com watchers: se a chave não mudou, o lookup é servido do cache local sem lock. Para 95% de leituras sem escrita concorrente, o ganho é de <strong>~20×</strong> (200ns → ~10ns). Para 100% de leituras, o watcher elimina o lock totalmente.</p>
-<p><strong>Tabela comparativa do GenServer:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Métrica</th>
-<th>BEAM</th>
-<th>PON-BEAM</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Matching (por chamada)</td>
-<td>85ms (10000 trials)</td>
-<td>5μs (5 notificações)</td>
-<td><strong>~17.000×</strong></td>
-</tr>
-<tr>
-<td>Scheduling (ativo)</td>
-<td>600μs/s</td>
-<td>100μs/s</td>
-<td><strong>~6×</strong></td>
-</tr>
-<tr>
-<td>Scheduling (idle entre rajadas)</td>
-<td>5-30% CPU</td>
-<td>0% CPU</td>
-<td><strong>∞</strong></td>
-</tr>
-<tr>
-<td>ETS lookup (sem escrita)</td>
-<td>200ns (lock + tree)</td>
-<td>~10ns (cache watcher)</td>
-<td><strong>~20×</strong></td>
-</tr>
-<tr>
-<td>ETS lookup (com escrita)</td>
-<td>200ns + contenção</td>
-<td>200ns (sem lock)</td>
-<td><strong>~1×</strong></td>
-</tr>
-<tr>
-<td>Throughput projetado</td>
-<td>~11.500 msg/s/worker</td>
-<td>~195.000 msg/s/worker</td>
-<td><strong>~17×</strong></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2>14.2 Stream Processing: Pipeline de 4 Estágios</h2>
-<p>O processamento de streams é um padrão crescente no ecossistema Erlang/Elixir (Flow, Broadway). Um pipeline de 4 estágios processa 10.000 eventos/segundo. Cada estágio é implementado como workers efêmeros que morrem após processar um lote.</p>
-<h3>14.2.1 Cenário</h3>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% Pipeline de stream: BEAM stock</span>
-<span class="c">%% 4 estágios: Parse → Validate → Enrich → Persist</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">stream_beam</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">Events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generate_events</span><span class="p">(</span><span class="mi">10000</span><span class="p">),</span>
-<span class="w">    </span><span class="c">%% Estágio 1: Parse (workers efêmeros)</span>
-<span class="w">    </span><span class="nv">Parsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">parse</span><span class="p">(</span><span class="nv">E</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">E</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Events</span><span class="p">],</span>
-<span class="w">    </span><span class="c">%% Cada parse acorda e faz receive → morre</span>
-<span class="w">    </span><span class="n">collect_parsed</span><span class="p">(</span><span class="nv">Parsed</span><span class="p">).</span>
-
-<span class="nf">parse</span><span class="p">(</span><span class="nv">Event</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% PON-GC: cada worker morre após processar</span>
-<span class="w">    </span><span class="c">%% BEAM: coleta major varre todo o heap jovem (e possivelmente o maduro)</span>
-<span class="w">    </span><span class="c">%% Se o worker alocou 64KB de heap, GC varre 64KB para coletar</span>
-<span class="w">    </span><span class="nv">Result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">do_parse</span><span class="p">(</span><span class="nv">Event</span><span class="p">),</span>
-<span class="w">    </span><span class="n">send_to_next</span><span class="p">(</span><span class="nv">Result</span><span class="p">).</span>
-
-<span class="nf">collect_parsed</span><span class="p">(</span><span class="nv">Pids</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nn">lists</span><span class="p">:</span><span class="nf">foreach</span><span class="p">(</span><span class="k">fun</span><span class="p">(</span><span class="nv">P</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="k">receive</span><span class="w"> </span><span class="p">{</span><span class="n">parsed</span><span class="p">,</span><span class="w"> </span><span class="nv">P</span><span class="p">,</span><span class="w"> </span><span class="nv">Data</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">enqueue</span><span class="p">(</span><span class="nv">Data</span><span class="p">)</span><span class="w"> </span><span class="k">end</span>
-<span class="w">    </span><span class="k">end</span><span class="p">,</span><span class="w"> </span><span class="nv">Pids</span><span class="p">).</span>
-</pre></div>
-</pre></div>
-
-<p>Cada worker efêmero executa um <code>receive</code> (para receber o evento), processa, e morre. Na BEAM stock, a morte do worker dispara:
-1. <strong>GC major</strong>: varre todo o heap do worker para determinar quais objetos estão vivos. Como o worker <em>vai morrer</em>, nenhum objeto está vivo — mas o GC não sabe disso até varrer.
-2. <strong>Receive</strong>: o worker faz <code>receive {event, Data} -&gt; ... end</code>. Na BEAM, o receive varre a mailbox até encontrar a mensagem.</p>
-<h3>14.2.2 PON-BEAM: GC por Notificação</h3>
-<p>Na PON-BEAM, o GC opera por cadeia causal de Attributes. Quando um worker efêmero morre, seu grafo de referências é encerrado por notificação — não por varredura. Objetos alocados pelo worker perdem todas as referências <em>no momento da morte</em> e são coletados imediatamente, sem varredura de heap. O benchmark <code>fase7_gc_scan.erl</code> mede exatamente este cenário com heap de 100K objetos onde 90% são mortos.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% Stream: PON-BEAM com GC notificante</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">stream_pon</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="nv">Events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generate_events</span><span class="p">(</span><span class="mi">10000</span><span class="p">),</span>
-<span class="w">    </span><span class="nv">Parsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">spawn</span><span class="p">(</span><span class="k">fun</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">parse_pon</span><span class="p">(</span><span class="nv">E</span><span class="p">)</span><span class="w"> </span><span class="k">end</span><span class="p">)</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">E</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nv">Events</span><span class="p">],</span>
-<span class="w">    </span><span class="n">collect_parsed</span><span class="p">(</span><span class="nv">Parsed</span><span class="p">).</span>
-
-<span class="nf">parse_pon</span><span class="p">(</span><span class="nv">Event</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% PON-GC: cadeia causal marca objetos como mortos</span>
-<span class="w">    </span><span class="c">%% quando o worker termina, todas as referências do heap</span>
-<span class="w">    </span><span class="c">%% são notificadas como inalcançáveis — sem varredura</span>
-<span class="w">    </span><span class="nv">Result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">do_parse</span><span class="p">(</span><span class="nv">Event</span><span class="p">),</span>
-<span class="w">    </span><span class="n">send_to_next</span><span class="p">(</span><span class="nv">Result</span><span class="p">).</span>
-<span class="w">    </span><span class="c">%% Worker morre: GC notificado → coleta O(1)</span>
-</pre></div>
-</pre></div>
-
-<h3>14.2.3 PON-BEAM: Receive em Cadeia</h3>
-<p>O pipeline envolve receives em cada estágio. Na BEAM stock, o recebimento de mensagens entre estágios varre a mailbox do worker a cada etapa. Na PON-BEAM, cada estágio se inscreve como Premise para o tipo de mensagem do estágio anterior — a transmissão entre estágios é uma notificação, não uma varredura.</p>
-<h3>14.2.4 Projeção de Ganhos</h3>
-<table>
-<thead>
-<tr>
-<th>Métrica</th>
-<th>BEAM</th>
-<th>PON-BEAM</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GC por worker (heap 64KB, 10K workers)</td>
-<td>640MB varridos (major)</td>
-<td>Notificação O(1)</td>
-<td><strong>~10.000×</strong></td>
-</tr>
-<tr>
-<td>Receive por estágio (4 estágios)</td>
-<td>O(N × 1) → scanning</td>
-<td>O(1) → Premise</td>
-<td><strong>~1000×</strong></td>
-</tr>
-<tr>
-<td>Latência pipeline (10K eventos)</td>
-<td>~200ms (GC + scanning)</td>
-<td>~2ms (notificação pura)</td>
-<td><strong>~100×</strong></td>
-</tr>
-<tr>
-<td>Throughput sustentado</td>
-<td>~50K eventos/s</td>
-<td>~5M eventos/s</td>
-<td><strong>~100×</strong></td>
-</tr>
-</tbody>
-</table>
-<p>O ganho em GC é particularmente dramático para workers efêmeros. Na BEAM stock, a coleta major de um worker com heap de 64KB leva ~50-100μs. Para 10.000 workers, são 500-1000ms só de GC. Na PON-BEAM, a notificação de morte do worker é O(1) — nenhum byte do heap é varrido. O ganho projetado é de <strong>~10.000×</strong> para workloads com alta taxa de mortalidade de processos. O benchmark <code>fase7_gc_scan.erl</code> foi implementado especificamente para medir este cenário.</p>
-<hr />
-<h2>14.3 Cinquenta Mil Timers Ativos</h2>
-<p>Sistemas Erlang/Elixir frequentemente mantêm dezenas de milhares de timers simultâneos: sessões HTTP com timeout, retry de mensagens, heartbeats, agendamentos periódicos. Cada timer ativo na BEAM stock impõe custo mesmo quando não expira.</p>
-<h3>14.3.1 Cenário</h3>
-<p>50.000 timers ativos em uma VM. Taxa de expiração: 5 timers/segundo (0,01% — timers longos de sessão). Intervalo de tick da timer wheel: 1ms.</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% BEAM: 50K timers ativos — custo de verificação domina</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">timers_beam</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% Cria 50K timers de sessão (expiração em 60s)</span>
-<span class="w">    </span><span class="p">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nn">timer</span><span class="p">:</span><span class="nb">send_after</span><span class="p">(</span><span class="mi">60000</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">session_timeout</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">})</span><span class="w"> </span><span class="p">||</span><span class="w"> </span><span class="nv">N</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nn">lists</span><span class="p">:</span><span class="nf">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">50000</span><span class="p">)],</span>
-<span class="w">    </span><span class="c">%% Apenas 5 expiram por segundo em média</span>
-<span class="w">    </span><span class="c">%% Mas a timer wheel verifica TODOS os slots a cada 1ms</span>
-<span class="w">    </span><span class="c">%% 50K timers × 1000 ticks/s = 50M verificações/s</span>
-<span class="w">    </span><span class="k">receive</span>
-<span class="w">        </span><span class="p">{</span><span class="n">session_timeout</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">handle_timeout</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span>
-<span class="w">    </span><span class="k">end</span><span class="p">.</span>
-</pre></div>
-</pre></div>
-
-<h3>14.3.2 Análise BEAM</h3>
-<p>A timer wheel da BEAM (Capítulo 1, Seção 3.3) avança um slot a cada tick (~1ms). Em cada tick, <code>erts_bump_timers()</code> percorre os slots da wheel. Com 50.000 timers distribuídos na wheel:
-- <strong>Slots verificados por tick</strong>: aproximadamente W (largura da wheel), ~256 slots
-- <strong>Verificações por segundo</strong>: 256 slots × 1000 ticks/s = <strong>256.000 verificações/s</strong>
-- <strong>Timers examinados</strong>: mesmo slots vazios são percorridos; timers ativos são verificados a cada tick
-- <strong>Custo</strong>: ~200ns por slot + ~100ns por timer ativo verificado → ~50M checks/s equivalentes</p>
-<p>O custo total estimado: ~10ms de CPU/segundo para manter 50K timers que não expiram.</p>
-<h3>14.3.3 PON-BEAM: timerfd</h3>
-<p>A PON-BEAM substitui a timer wheel por <code>timerfd</code> do Linux (Capítulo 5). Cada timer ativo é um descritor <code>timerfd</code>:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c1">// PON-BEAM: cada timer é um timerfd</span>
-<span class="kt">int</span><span class="w"> </span><span class="n">tfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timerfd_create</span><span class="p">(</span><span class="n">CLOCK_MONOTONIC</span><span class="p">,</span><span class="w"> </span><span class="n">TFD_NONBLOCK</span><span class="p">);</span>
-<span class="k">struct</span><span class="w"> </span><span class="nc">itimerspec</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="p">.</span><span class="n">it_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="p">},</span><span class="w">  </span><span class="c1">// 60s</span>
-<span class="p">};</span>
-<span class="n">timerfd_settime</span><span class="p">(</span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ts</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<span class="c1">// tfd é adicionado ao epoll do processo</span>
-<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tfd</span><span class="w"> </span><span class="p">};</span>
-<span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epoll_fd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
-</pre></div>
-</pre></div>
-
-<p>O scheduler (ou o processo) bloqueia em <code>epoll_wait()</code>. O kernel notifica <strong>apenas</strong> quando um timer expira:</p>
-<div class="my-4 border border-[#8B6914] overflow-hidden"><pre class="p-4 bg-[#1e1e1e] overflow-x-auto text-sm leading-relaxed"><div class="highlight"><pre><span></span><span class="c">%% PON-BEAM: timerfd — zero verificação, só notificação</span>
-<span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">timers_pon</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">run</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
-
-<span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">    </span><span class="c">%% Cria 50K timers — cada um é um timerfd</span>
-<span class="w">    </span><span class="c">%% Nenhuma verificação periódica</span>
-<span class="w">    </span><span class="c">%% O kernel notifica apenas na expiração (~5/s)</span>
-<span class="w">    </span><span class="k">receive</span>
-<span class="w">        </span><span class="p">{</span><span class="n">session_timeout</span><span class="p">,</span><span class="w"> </span><span class="nv">N</span><span class="p">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">handle_timeout</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span>
-<span class="w">    </span><span class="k">after</span><span class="w"> </span><span class="n">infinity</span><span class="w"> </span><span class="o">-&gt;</span>
-<span class="w">        </span><span class="n">ok</span>
-<span class="w">    </span><span class="k">end</span><span class="p">.</span>
-</pre></div>
-</pre></div>
-
-<p>O código Erlang é idêntico. A diferença está no runtime: na PON-BEAM, <code>timer:send_after</code> não insere o timer em uma wheel — cria um <code>timerfd</code>. O kernel gerencia os 50K descritores com eficiência O(1) por timer via árvore rubro-negra interna. Os benchmarks <code>fase2_timer_idle.erl</code> (CPU idle com timers) e <code>fase4_sched_idle.erl</code> (CPU idle do scheduler) foram implementados para validar este cenário.</p>
-<h3>14.3.4 Projeção de Ganhos</h3>
-<table>
-<thead>
-<tr>
-<th>Métrica</th>
-<th>BEAM (timer wheel)</th>
-<th>PON-BEAM (timerfd)</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Verificações por segundo</td>
-<td>256K slots + 50K timers</td>
-<td>5 expirações</td>
-<td><strong>~61.000×</strong></td>
-</tr>
-<tr>
-<td>CPU para 50K timers (idle)</td>
-<td>~10ms/s</td>
-<td>~0ms/s (0 notificações)</td>
-<td><strong>∞</strong></td>
-</tr>
-<tr>
-<td>CPU para 50K timers (5 exp/s)</td>
-<td>~10ms/s</td>
-<td>~0.5μs/s (5 writes)</td>
-<td><strong>~20.000×</strong></td>
-</tr>
-<tr>
-<td>Custo por timer ativo</td>
-<td>~200ns/check (wheel)</td>
-<td>0 (dorme no kernel)</td>
-<td><strong>∞</strong></td>
-</tr>
-<tr>
-<td>Latência de expiração</td>
-<td>~500μs (média tick)</td>
-<td>~10μs (notificação kernel)</td>
-<td><strong>~50×</strong></td>
-</tr>
-<tr>
-<td>Escalabilidade (1M timers)</td>
-<td>Degradação O(N)</td>
-<td>Linear O(N) sem polling</td>
-<td><strong>Ilimitado</strong></td>
-</tr>
-</tbody>
-</table>
-<p>O ganho fundamental é O(check) → O(expirations). Para taxa de expiração de 0,01% (5 de 50.000), o ganho é de <strong>~61.000×</strong> nas verificações totais. Em idle total (0 expirações), o ganho é <strong>∞</strong> — a BEAM stock gasta CPU mantendo a wheel; a PON-BEAM gasta zero. O benchmark <code>fase2_timer_idle.erl</code> (36 linhas) foi projetado para medir exatamente este cenário: CPU idle com 0 expirações.</p>
-<div class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 overflow-x-auto"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: timer_scalability Pages: 1 -->
-<svg width="552pt" height="156pt"
- viewBox="0.00 0.00 552.00 156.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 152)">
-<title>timer_scalability</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-152 548,-152 548,4 -4,4"/>
-<!-- N=10 -->
-<g id="node1" class="node">
-<title>N=10</title>
-<polygon fill="lightgrey" stroke="black" points="54,-36 0,-36 0,0 54,0 54,-36"/>
-<text text-anchor="middle" x="27" y="-14.3" font-family="Times,serif" font-size="14.00">N=10</text>
-</g>
-<!-- N=100 -->
-<g id="node2" class="node">
-<title>N=100</title>
-<polygon fill="lightgrey" stroke="black" points="145,-36 90,-36 90,0 145,0 145,-36"/>
-<text text-anchor="middle" x="117.5" y="-14.3" font-family="Times,serif" font-size="14.00">N=100</text>
-</g>
-<!-- N=10&#45;&gt;N=100 -->
-<g id="edge1" class="edge">
-<title>N=10&#45;&gt;N=100</title>
-<path fill="none" stroke="black" d="M54.15,-18C54.15,-18 79.74,-18 79.74,-18"/>
-<polygon fill="black" stroke="black" points="79.74,-21.5 89.74,-18 79.74,-14.5 79.74,-21.5"/>
-</g>
-<!-- N=1K -->
-<g id="node3" class="node">
-<title>N=1K</title>
-<polygon fill="lightgrey" stroke="black" points="235,-36 181,-36 181,0 235,0 235,-36"/>
-<text text-anchor="middle" x="208" y="-14.3" font-family="Times,serif" font-size="14.00">N=1K</text>
-</g>
-<!-- N=100&#45;&gt;N=1K -->
-<g id="edge2" class="edge">
-<title>N=100&#45;&gt;N=1K</title>
-<path fill="none" stroke="black" d="M145.14,-18C145.14,-18 170.84,-18 170.84,-18"/>
-<polygon fill="black" stroke="black" points="170.84,-21.5 180.84,-18 170.84,-14.5 170.84,-21.5"/>
-</g>
-<!-- N=10K -->
-<g id="node4" class="node">
-<title>N=10K</title>
-<polygon fill="lightgrey" stroke="black" points="386,-36 328,-36 328,0 386,0 386,-36"/>
-<text text-anchor="middle" x="357" y="-14.3" font-family="Times,serif" font-size="14.00">N=10K</text>
-</g>
-<!-- N=1K&#45;&gt;N=10K -->
-<g id="edge3" class="edge">
-<title>N=1K&#45;&gt;N=10K</title>
-<path fill="none" stroke="black" d="M235.33,-18C235.33,-18 317.81,-18 317.81,-18"/>
-<polygon fill="black" stroke="black" points="317.81,-21.5 327.81,-18 317.81,-14.5 317.81,-21.5"/>
-</g>
-<!-- N=100K -->
-<g id="node5" class="node">
-<title>N=100K</title>
-<polygon fill="lightgrey" stroke="black" points="544,-36 479,-36 479,0 544,0 544,-36"/>
-<text text-anchor="middle" x="511.5" y="-14.3" font-family="Times,serif" font-size="14.00">N=100K</text>
-</g>
-<!-- N=10K&#45;&gt;N=100K -->
-<g id="edge4" class="edge">
-<title>N=10K&#45;&gt;N=100K</title>
-<path fill="none" stroke="black" d="M386.06,-18C386.06,-18 468.83,-18 468.83,-18"/>
-<polygon fill="black" stroke="black" points="468.83,-21.5 478.83,-18 468.83,-14.5 468.83,-21.5"/>
-</g>
-<!-- BEAM -->
-<g id="node6" class="node">
-<title>BEAM</title>
-<polygon fill="lightcoral" stroke="black" points="429,-92 285,-92 285,-54 429,-54 429,-92"/>
-<text text-anchor="middle" x="357" y="-76.8" font-family="Times,serif" font-size="14.00">BEAM: O(N) checks</text>
-<text text-anchor="middle" x="357" y="-61.8" font-family="Times,serif" font-size="14.00">10ms → 200ms CPU/s</text>
-</g>
-<!-- PON -->
-<g id="node7" class="node">
-<title>PON</title>
-<polygon fill="lightgreen" stroke="black" points="443,-148 271,-148 271,-110 443,-110 443,-148"/>
-<text text-anchor="middle" x="357" y="-132.8" font-family="Times,serif" font-size="14.00">PON&#45;BEAM: O(expirações)</text>
-<text text-anchor="middle" x="357" y="-117.8" font-family="Times,serif" font-size="14.00">~0 CPU/s (idle)</text>
-</g>
-</g>
-</svg></div>
-
-<hr />
-<h2>14.4 Tabela Comparativa Consolidada</h2>
-<table>
-<thead>
-<tr>
-<th>Caso</th>
-<th>Subsistema</th>
-<th>BEAM</th>
-<th>PON-BEAM</th>
-<th>Ganho</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GenServer (100K chamadas)</td>
-<td>Matching</td>
-<td>O(N×M) = 85ms</td>
-<td>O(M) = 5μs</td>
-<td><strong>~17.000×</strong></td>
-</tr>
-<tr>
-<td>GenServer (100K chamadas)</td>
-<td>Scheduling</td>
-<td>Polling 5-30% CPU</td>
-<td>eventfd 0% idle</td>
-<td><strong>~33×</strong></td>
-</tr>
-<tr>
-<td>GenServer (100K chamadas)</td>
-<td>ETS lookup</td>
-<td>200ns (lock + CA tree)</td>
-<td>~10ns (watcher)</td>
-<td><strong>~20×</strong></td>
-</tr>
-<tr>
-<td>Stream (4 estágios, 10K/s)</td>
-<td>GC</td>
-<td>640MB varridos</td>
-<td>Notificação O(1)</td>
-<td><strong>~10.000×</strong></td>
-</tr>
-<tr>
-<td>Stream (4 estágios, 10K/s)</td>
-<td>Receive</td>
-<td>O(N) scanning c/estágio</td>
-<td>O(1) Premise</td>
-<td><strong>~1000×</strong></td>
-</tr>
-<tr>
-<td>Stream (4 estágios, 10K/s)</td>
-<td>Throughput</td>
-<td>50K eventos/s</td>
-<td>5M eventos/s</td>
-<td><strong>~100×</strong></td>
-</tr>
-<tr>
-<td>50K Timers (5 exp/s)</td>
-<td>Timer</td>
-<td>50M checks/s</td>
-<td>5 notificações</td>
-<td><strong>~10M×</strong></td>
-</tr>
-<tr>
-<td>50K Timers (5 exp/s)</td>
-<td>CPU</td>
-<td>~10ms/s</td>
-<td>~0μs/s</td>
-<td><strong>∞ (idle)</strong></td>
-</tr>
-<tr>
-<td>50K Timers (1M timers)</td>
-<td>Escalabilidade</td>
-<td>Degradação O(N)</td>
-<td>O(expirações)</td>
-<td><strong>Ilimitado</strong></td>
-</tr>
-</tbody>
-</table>
-<h3>Visualização dos Casos de Estudo de Mundo Real</h3>
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_11_realworld_kafka_ingestion.png" alt="Gráfico 11: Caso de Estudo 1 — Ingestão de Mensagens Kafka com GenServer" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 11: Caso de Estudo 1 — Ingestão de Mensagens Kafka com GenServer</figcaption></figure>
-
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_12_realworld_pubsub_fanout.png" alt="Gráfico 12: Caso de Estudo 2 — PubSub Fanout Distribuído (Latência & Throughput)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 12: Caso de Estudo 2 — PubSub Fanout Distribuído (Latência & Throughput)</figcaption></figure>
-
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_13_realworld_c10m_websockets.png" alt="Gráfico 13: Caso de Estudo 3 — C10M WebSockets Concorrentes (Consumo de Memória & CPU Idle)" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 13: Caso de Estudo 3 — C10M WebSockets Concorrentes (Consumo de Memória & CPU Idle)</figcaption></figure>
-
-<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_14_realworld_db_observability_trend.png" alt="Gráfico 14: Tendência Histórica do Banco de Observabilidade SQLite em Maratonas" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Gráfico 14: Tendência Histórica do Banco de Observabilidade SQLite em Maratonas</figcaption></figure>
-
-<hr />
-<h2>14.5 Discussão</h2>
-<p>Os casos de estudo revelam um padrão: os maiores ganhos ocorrem onde o polling/scanner é mais intenso e menos justificado — mailbox cheia de mensagens que não casam (GenServer), processos efêmeros cujo GC varre tudo para nada (Stream), e timers de longa duração verificados a cada tick (Timer Wheel).</p>
-<p><strong>Ganhos não são uniformes.</strong> Em workloads com mailbox pequena (N &lt; 5), o overhead das Premises pode superar o scanning linear. O Capítulo 13 (Roadmap e Tradeoffs) discute as condições de contorno onde a PON-BEAM não é vantajosa. A regra geral: quanto maior a mailbox, mais timers, e maior a taxa de mortalidade de processos, maior o ganho.</p>
-<p><strong>Overhead de memória.</strong> Cada Premise adiciona ~40 bytes por cláusula; cada timerfd adiciona um descritor de arquivo; cada watcher de ETS adiciona ~24 bytes. Para os cenários acima, o overhead é: GenServer (5 Premises = 200 bytes/worker), Stream (3 Premises/estágio = 120 bytes × 10K workers = 1,2MB), Timers (descritores 50K × ~1KB kernel + 8 bytes user = ~50MB). O overhead de timers por timerfd é o mais significativo — mas é gerenciado pelo kernel, não pela VM, e não escala com polling.</p>
-<p><strong>Validação com benchmarks.</strong> As projeções deste capítulo são validadas pelos benchmarks correspondentes no harness (Capítulo 12): <code>fase1_receive.erl</code> para matching, <code>fase2_timer_idle.erl</code> para timer idle, <code>fase3_spawn.erl</code> para spawn latency, <code>fase4_sched_idle.erl</code> para scheduler idle, <code>fase5_ets_read.erl</code> para ETS lookup, <code>fase6_compile.erl</code> para compilação, e <code>fase7_gc_scan.erl</code> para GC. Cada benchmark foi implementado como parte de sua fase e documentado nos relatórios RPT-01 a RPT-07.</p>
-<hr />
-<h2>14.6 Exercícios</h2>
-<ol>
-<li>Implemente o benchmark <code>gs_beam.erl</code> e meça o throughput real para N=100 workers, 100K chamadas. Rode com <code>erl</code> stock. Quanto tempo leva? O custo de scanning domina?</li>
-<li>Modifique o benchmark para usar <code>gen_server:call</code> em vez de <code>receive</code> direto. O comportamento muda? Por quê?</li>
-<li>No caso Stream, estime o custo real de GC para 10K workers efêmeros com heap de 64KB cada. Use <code>erlang:system_info(gc_count)</code> ou instrumentação similar.</li>
-<li>Crie 50K timers com <code>timer:send_after</code> e meça o consumo de CPU em idle com <code>erlang:statistics(scheduler_wall_time)</code>. Compare com o consumo sem timers. Use <code>fase2_timer_idle.erl</code> como base.</li>
-<li>Projete um experimento que valide a relação O(N×M) do selective receive: mailbox fixa, varia cláusulas (M) e mede tempo de receive. Use <code>fase1_receive.erl</code> como ponto de partida.</li>
-<li>No caso GenServer, o ganho projetado de matching é ~17.000×. Sob que condições este ganho cai para &lt;10×? (Dica: mailbox pequena.)</li>
-<li>No caso Timers, o que acontece com o consumo de memória da VM quando 50K timerfds são criados? Compare com o consumo da timer wheel para o mesmo número de timers.</li>
-<li>(Desafio) Implemente o pipeline Stream em Elixir usando Flow. Meça throughput com e sem workers efêmeros. O padrão de GC muda?</li>
-<li>(Teórico) Derive a fórmula do ganho esperado para o GenServer: G = (N × M × t_trial) / (M × t_premise), onde N = mailbox size, M = cláusulas, t_trial = custo por trial, t_premise = custo por Premise. Para que valor de N o ganho é 1×?</li>
-<li>(Teórico) No caso Timers, o ganho O(checks) → O(expirações) depende da taxa de expiração. Modele o ganho como função da taxa: G(r) = C_check / (r × C_notify), onde r é a fração de timers que expiram por tick. Para r = 0,5 (50% expiram a cada tick), qual é o ganho?</li>
-</ol>
-<hr />
-<h2>14.7 Ver Também</h2>
+<h2>14.1 GenServer Under High Load</h2>
+<p>Evaluating a high-throughput GenServer under heavy mailbox pressure ($N = 2,000$ pending messages per worker).</p>
 <ul>
-<li>Capítulo 1 — Diagnóstico do polling na BEAM (custo da timer wheel, scanning mailbox)</li>
-<li>Capítulo 4 — PON-Receive (Premises, custo O(1) de matching)</li>
-<li>Capítulo 5 — PON-Timer (timerfd, instigação, análise de custo)</li>
-<li>Capítulo 7 — PON-Scheduler (Condition, eventfd, latência de ativação)</li>
-<li>Capítulo 8 — PON-ETS (watchers, FBE notificante)</li>
-<li>Capítulo 9 — PON-GC (cadeia causal, coleta por notificação)</li>
-<li>Capítulo 12 — Harness de Benchmarking (como validar estas projeções)</li>
-<li>Capítulo 13 — Roadmap e Tradeoffs (quando a PON-BEAM <em>não</em> é vantajosa)</li>
-<li><a href="../../harness/benchmarks/fase1_receive.erl">harness/benchmarks/fase1_receive.erl</a> — Benchmark receive O(1)</li>
-<li><a href="../../harness/benchmarks/fase2_timer_idle.erl">harness/benchmarks/fase2_timer_idle.erl</a> — Benchmark timer idle</li>
-<li><a href="../../harness/benchmarks/fase3_spawn.erl">harness/benchmarks/fase3_spawn.erl</a> — Benchmark spawn latency</li>
-<li><a href="../../harness/benchmarks/fase4_sched_idle.erl">harness/benchmarks/fase4_sched_idle.erl</a> — Benchmark scheduler idle</li>
-<li><a href="../../harness/benchmarks/fase7_gc_scan.erl">harness/benchmarks/fase7_gc_scan.erl</a> — Benchmark GC heap scan</li>
+<li><strong>Stock BEAM</strong>: $\mathcal{O}(N \times M)$ linear scanning costs $\approx 85ms$ per call.</li>
+<li><strong>PON-BEAM</strong>: 5 Premise notifications cost $\approx 5\mu s$ per call. Speedup: <strong>$\approx 17,000\times$</strong> matching improvement.</li>
+</ul>
+<hr />
+<h2>14.2 High-Throughput Stream Processing (4-Stage Pipeline)</h2>
+<p>Pipeline processing 10,000 events/second across 4 stages with ephemeral short-lived processes.</p>
+<ul>
+<li><strong>Stock BEAM</strong>: Major GC sweeps 640MB across 10,000 workers.</li>
+<li><strong>PON-BEAM</strong>: Dijkstra tri-color causal marking eliminates dead process scans. Speedup: <strong>$\approx 10,000\times$</strong> GC pause reduction.</li>
+</ul>
+<hr />
+<h2>14.3 Fifty Thousand Active Timers</h2>
+<p>Managing 50,000 active session timers with low expiration rate (5 exp/s).</p>
+<ul>
+<li><strong>Stock BEAM</strong>: Timer wheel performs 256,000 slot checks/s.</li>
+<li><strong>PON-BEAM</strong>: <code>timerfd</code> blocks in <code>epoll_wait()</code>. Speedup: <strong>$\approx 61,000\times$</strong> fewer checks, <strong>0.0% CPU Idle</strong>.</li>
+</ul>
+<hr />
+<h2>14.4 Consolidated Case Study Visualizations</h2>
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_11_realworld_kafka_ingestion.png" alt="Chart 11: Case Study 1 — Kafka Ingestion Workload with GenServer" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 11: Case Study 1 — Kafka Ingestion Workload with GenServer</figcaption></figure>
+
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_12_realworld_pubsub_fanout.png" alt="Chart 12: Case Study 2 — Distributed PubSub Fanout Latency & Throughput" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 12: Case Study 2 — Distributed PubSub Fanout Latency & Throughput</figcaption></figure>
+
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_13_realworld_c10m_websockets.png" alt="Chart 13: Case Study 3 — C10M WebSockets Concurrent Connections" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 13: Case Study 3 — C10M WebSockets Concurrent Connections</figcaption></figure>
+
+<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="assets/charts/chart_14_realworld_db_observability_trend.png" alt="Chart 14: Historical Observability Database Telemetry Trend" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">Chart 14: Historical Observability Database Telemetry Trend</figcaption></figure>
+
+<hr />
+<h2>14.5 References &amp; See Also</h2>
+<ul>
+<li><a href="04-pon-receive.html">Chapter 4: PON-Receive</a></li>
+<li><a href="05-pon-timer.html">Chapter 5: PON-Timer</a></li>
+<li><a href="07-pon-scheduler.html">Chapter 7: PON-Scheduler</a></li>
+<li><a href="08-pon-ets.html">Chapter 8: PON-ETS</a></li>
 </ul>
 </article>
 <footer class="flex justify-between mt-8 md:mt-12 pt-4 md:pt-6 border-t border-[#8B6914]">
-<a href="13-roadmap-tradeoffs.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← Roadmap e Tradeoffs</span><span class="md:hidden">← Anterior</span></a>
-<a href="15-trabalhos-relacionados.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">Trabalhos Relacionados e Posicionamento →</span><span class="md:hidden">Próximo →</span></a>
+<a href="13-roadmap-tradeoffs.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">← Roadmap and Trade-offs</span><span class="md:hidden">← Previous</span></a>
+<a href="15-trabalhos-relacionados.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">Related Work and Positioning →</span><span class="md:hidden">Next →</span></a>
 </footer>
 </main>
 <script>

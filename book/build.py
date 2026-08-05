@@ -17,7 +17,7 @@ TWC = '<script>tailwind.config={theme:{extend:{colors:{\'iron-bg\':\'#0d0a0a\',\
 TWD = '<script src="https://cdn.tailwindcss.com"></script>'
 TW = TWC + '\n' + TWD
 
-PARTS = {"I":"Fundamentos","II":"Subsistemas PON","III":"Engenharia e Valida\u00e7\u00e3o","IV":"S\u00edntese"}
+PARTS = {"I":"Fundamentals","II":"PON Subsystems","III":"Engineering and Validation","IV":"Synthesis"}
 
 
 def load_config():
@@ -224,7 +224,7 @@ def render_page(ch, body_html, config):
     sidebar = make_sidebar(chapters, ch["id"])
     hide_hdr = ch["id"] in ("capa","folha-de-rosto","contra-capa")
     
-    pdf_btn = '<button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Gerar PDF</button>'
+    pdf_btn = '<button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Export PDF</button>'
     
     if not hide_hdr:
         ch_hdr = f'<div class="flex items-center justify-between mb-6 pb-4 border-b border-[#8B6914]"><h1 class="text-2xl max-md:text-xl font-bold m-0 text-[#FFD700]">{ch["title"]}</h1>{pdf_btn}</div>'
@@ -237,8 +237,8 @@ def render_page(ch, body_html, config):
             if i>0: prev_ch=chapters[i-1]
             if i<len(chapters)-1: next_ch=chapters[i+1]
             break
-    prev_s = f'<a href="{prev_ch["id"]}.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">\u2190 {prev_ch["title"]}</span><span class="md:hidden">\u2190 Anterior</span></a>' if prev_ch else '<span></span>'
-    next_s = f'<a href="{next_ch["id"]}.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">{next_ch["title"]} \u2192</span><span class="md:hidden">Pr\u00f3ximo \u2192</span></a>' if next_ch else '<span></span>'
+    prev_s = f'<a href="{prev_ch["id"]}.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">\u2190 {prev_ch["title"]}</span><span class="md:hidden">\u2190 Previous</span></a>' if prev_ch else '<span></span>'
+    next_s = f'<a href="{next_ch["id"]}.html" class="px-3 md:px-4 py-2 border border-[#8B6914] text-sm text-[#b8a88a] hover:text-[#e6edf3] hover:bg-[#2d1515] no-underline max-md:text-xs"><span class="max-md:hidden">{next_ch["title"]} \u2192</span><span class="md:hidden">Next \u2192</span></a>' if next_ch else '<span></span>'
 
     capa_style = ''
     if ch["id"]=="capa": capa_style=' style="text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center"'
@@ -246,7 +246,7 @@ def render_page(ch, body_html, config):
     elif ch["id"]=="contra-capa": capa_style=' style="text-align:center"'
 
     return f'''<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -283,17 +283,17 @@ def render_index(config):
 
     parts_html = ''
     for pn,pname in PARTS.items():
-        parts_html += f'<section class="mb-8"><h2 class="text-xl font-bold text-[#FFD700] mb-2">Parte {pn}: {pname}</h2><ol class="list-none p-0">'
+        parts_html += f'<section class="mb-8"><h2 class="text-xl font-bold text-[#FFD700] mb-2">Part {pn}: {pname}</h2><ol class="list-none p-0">'
         for ch in chs.get(pn,[]):
             parts_html += f'<li class="my-1"><a href="{ch["id"]}.html" class="text-[#FFD700] no-underline hover:underline">{ch["title"]}</a></li>'
         parts_html += '</ol></section>'
 
     return f'''<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PON-BEAM — Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</title>
+<title>PON-BEAM — A Notification-Oriented Virtual Machine</title>
 {TW}
 <link rel="stylesheet" href="theme/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -306,20 +306,20 @@ def render_index(config):
 <div class="flex justify-end mb-4 no-print">
   <button onclick="exportPDF()" class="no-print flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#FFD700] bg-[#1a0f0f] border border-[#8B6914] hover:bg-[#2d1515] hover:border-[#FFD700] transition cursor-pointer rounded">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-    Exportar PDF do Livro
+    Export Book PDF
   </button>
 </div>
 <h1 class="text-3xl md:text-4xl font-extrabold text-[#FFD700] mb-2">PON-BEAM</h1>
-<p class="text-lg md:text-xl text-[#b8a88a] font-light mb-1">Uma M\u00e1quina Virtual Orientada a Notifica\u00e7\u00f5es</p>
+<p class="text-lg md:text-xl text-[#b8a88a] font-light mb-1">A Notification-Oriented Virtual Machine</p>
 <p class="text-sm text-[#b8a88a]">{config["author"]}</p>
 </header>
 <section class="mb-8 p-4 md:p-6 bg-[#1a0f0f] border border-[#8B6914]">
-<h2 class="text-lg font-bold mb-2">Sobre este livro</h2>
-<p class="text-[#b8a88a] leading-relaxed">A <strong class="text-[#e6edf3]">PON-BEAM</strong> \u00e9 uma re-arquitetura da m\u00e1quina virtual BEAM usando o <strong class="text-[#e6edf3]">Paradigma Orientado a Notifica\u00e7\u00f5es (PON)</strong> de Jean Marcelo Sim\u00e3o.</p>
+<h2 class="text-lg font-bold mb-2">About this book</h2>
+<p class="text-[#b8a88a] leading-relaxed"><strong class="text-[#e6edf3]">PON-BEAM</strong> is a re-architecture of the BEAM virtual machine using Jean Marcelo Simão's <strong class="text-[#e6edf3]">Notification-Oriented Paradigm (NOP)</strong>.</p>
 </section>
 {parts_html}
 <footer class="text-center text-sm text-[#b8a88a] mt-8 pt-4 border-t border-[#8B6914]">
-<p>Reposit\u00f3rio: <a href="{config["repo"]}" class="text-[#FFD700]">{config["repo"]}</a></p>
+<p>Repository: <a href="{config["repo"]}" class="text-[#FFD700]">{config["repo"]}</a></p>
 </footer>
 </main>
 <script src="theme/search.js"></script>
