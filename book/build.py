@@ -66,6 +66,13 @@ def process_body(body):
         cap = f'<p class="text-xs text-[#b8a88a] mb-1 font-mono">{title}</p>' if title else ''
         return f'{cap}<pre class="my-4 p-4 bg-[#1e1e1e] border border-[#8B6914] overflow-x-auto text-sm"><code>{code}</code></pre>'
     body = re.sub(r'```(\w*)([^\n]*)\n(.*?)```', rep, body, flags=re.DOTALL)
+
+    def img_rep(m):
+        alt = m.group(1).strip()
+        src = m.group(2).strip()
+        clean_src = re.sub(r'^.*?docs/assets/charts/', 'assets/charts/', src)
+        return f'<figure class="my-6 text-center bg-[#1a0f0f] border border-[#8B6914] p-4 rounded"><img src="{clean_src}" alt="{alt}" class="mx-auto max-w-full h-auto rounded shadow-lg mb-2"><figcaption class="text-center text-sm text-[#b8a88a] italic">{alt}</figcaption></figure>'
+    body = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', img_rep, body)
     return body
 
 
@@ -333,6 +340,14 @@ def build():
     if not (OUTPUT/"theme"/"pygments.css").exists():
         with open(OUTPUT/"theme"/"pygments.css",'w') as f:
             f.write(HtmlFormatter(style='monokai').get_style_defs('.code-block'))
+
+    # Copiar gráficos mestres de docs/assets/charts/ para a saída do livro
+    charts_src = ROOT.parent / "docs" / "assets" / "charts"
+    for dst_dir in [OUTPUT / "assets" / "charts", OUTPUT / "docs" / "assets" / "charts"]:
+        dst_dir.mkdir(parents=True, exist_ok=True)
+        if charts_src.exists():
+            for img in charts_src.glob("*.png"):
+                shutil.copy(img, dst_dir / img.name)
 
     data = []
     raws = []

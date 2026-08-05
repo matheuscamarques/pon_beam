@@ -52,6 +52,8 @@ A BEAM sofre de redundância temporal em múltiplos subsistemas. Considere:
 
 **Selective receive.** Em toda instrução `receive`, a BEAM percorre a mailbox linearmente, do início ao fim, comparando cada mensagem com cada cláusula. Mensagens que já foram examinadas em receives anteriores e não corresponderam são reexaminadas do zero. Se um processo tem 10.000 mensagens na mailbox e faz 10 receives, cada mensagem é percorrida 10 vezes — 100.000 comparações no total. Tudo redundante.
 
+![Gráfico 1: Análise Big-O de Tempo de Busca na Mailbox (BEAM Stock vs PON-BEAM)](assets/charts/chart_1_big_o_mailbox.png)
+
 **Timer wheel.** Em `time.c:784`, `erts_bump_timers()` é chamado a cada tick do scheduler (~1ms). A função percorre os slots da timer wheel verificando se há timers expirados. Se não há timers ativos — o que é comum — a verificação inteira é redundante. Com 32 schedulers, são 32.000 verificações por segundo sem nenhum timer.
 
 **ETS.** Operações de lookup em ETS adquirem locks de leitura e percorrem a CA tree (uma árvore balanceada) para encontrar a entrada. Em tabelas que raramente mudam, o lock e a busca são redundantes: os dados são os mesmos da última consulta.
