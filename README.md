@@ -3,6 +3,9 @@
 Uma re-arquitetura da BEAM (Erlang/OTP) usando o Paradigma Orientado a
 Notificações (PON) de Jean Marcelo Simão.
 
+📖 **[Leia a Saga da PON-BEAM (Storytelling Completo da Evolução)](docs/STORYTELLING.md)**  
+📋 **[Plano Mestre do Projeto & Expectativas de Conclusão](docs/PROJECT_PLAN.md)**
+
 ## Pré-requisitos
 
 - Erlang/OTP já instalado (para bootstrap)
@@ -56,13 +59,13 @@ pon-beam/
 | Fase | O quê | Status |
 |------|-------|--------|
 | 0 | Infraestrutura | ✅ Feito |
-| 1 | PON-Receive | ⏳ Pendente |
-| 2 | PON-Timer | ⏳ Pendente |
-| 3 | PON-Spawn | ⏳ Pendente |
-| 4 | PON-Scheduler | ⏳ Pendente |
-| 5 | PON-ETS | ⏳ Pendente |
-| 6 | PON-Compiler | ⏳ Pendente |
-| 7 | PON-GC | ⏳ Pendente |
+| 1 | PON-Receive | ✅ Concluído |
+| 2 | PON-Timer | ✅ Concluído |
+| 3 | PON-Spawn | ✅ Concluído |
+| 4 | PON-Scheduler | ✅ Concluído |
+| 5 | PON-ETS | ✅ Concluído |
+| 6 | PON-Compiler | ✅ Concluído |
+| 7 | PON-GC | ✅ Concluído |
 
 ## Licença
 

@@ -32,7 +32,13 @@ otp/erts/etc/unix/werl
 book/output/
 formal/
 
+# Generated OTP lib Makefiles & DB
+otp/lib/*/Makefile
+otp/lib/*/config.h.in
+harness/db/*.db
+
 # Session exports
 opencode-session-export.json
 *.jsonl
+
 
