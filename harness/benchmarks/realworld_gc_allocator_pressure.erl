@@ -13,7 +13,7 @@ run() ->
     {T0, _} = erlang:statistics(runtime),
     
     lists:foreach(fun(_I) ->
-        Bin = <<0:(1024*1024*8)>>, # 1MB binary
+        Bin = <<0:(1024*1024*8)>>, % 1MB binary
         _Sub = binary:part(Bin, 0, 100),
         erlang:garbage_collect(self())
     end, lists:seq(1, ?ALLOC_CYCLES)),

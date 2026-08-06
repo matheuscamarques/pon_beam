@@ -24,7 +24,7 @@ PREFIX_PON   = /opt/erlang-30-pon
 BUILD_OPTS = --without-javac --without-odbc --without-wx
 MAKE_OPTS  = -j$$(nproc)
 
-.PHONY: all build-stock build-pon build-all benchmark benchmark-list report status clean emulator-stock emulator-pon docker-build bench-docker bench-docker-run bench-docker-copy verify-tla verify-proper verify-c verify-all
+.PHONY: all build-stock build-pon build-all benchmark benchmark-fair benchmark-list report status clean emulator-stock emulator-pon docker-build bench-docker bench-docker-run bench-docker-copy verify-tla verify-proper verify-c verify-all
 
 all: build-stock build-pon
 
@@ -69,6 +69,9 @@ benchmark-fase%:
 
 benchmark-only-%:
 	cd $(HARNESS_DIR) && ./run.sh --only=$*
+
+benchmark-fair:
+	cd $(HARNESS_DIR) && ./run.sh --only=fair
 
 benchmark-list:
 	cd $(HARNESS_DIR) && ./run.sh --list

@@ -317,7 +317,71 @@ def chart_14_realworld_db_observability_trend():
     plt.close()
     print("Gerado: chart_14_realworld_db_observability_trend.png")
 
+def chart_15_fair_parity():
+    """15. Suíte Fair (FORTALEZA da BEAM): ratios REAIS lidos dos resultados."""
+    import glob
+    import json
+    import subprocess
+
+    root = os.path.realpath(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "../results/latest"))
+    if not os.path.isdir(os.path.join(root, "baseline")) or \
+       not os.path.isdir(os.path.join(root, "ponbeam")):
+        print("chart_15_fair_parity: sem resultados, omitido")
+        return
+
+    erl = "/home/sanonichan/erlang-30-stock/lib/erlang/bin/erl"
+    lib_dir = os.path.realpath(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "../benchmarks/lib"))
+    try:
+        subprocess.run(
+            [erl, "-noshell", "+S", "1:1", "-pa", lib_dir,
+             "-eval", f'fair_json:dump("{root}"), halt().'],
+            check=True, capture_output=True, timeout=120)
+    except Exception as exc:
+        print(f"chart_15_fair_parity: falha no fair_json ({exc}), omitido")
+        return
+
+    fair_path = os.path.join(root, "fair_data.json")
+    if not os.path.exists(fair_path):
+        print("chart_15_fair_parity: fair_data.json ausente, omitido")
+        return
+    with open(fair_path, "r", encoding="utf-8") as f:
+        rows = json.load(f)
+    rows = [r for r in rows if r.get("ratio") is not None]
+    if not rows:
+        print("chart_15_fair_parity: nenhum ratio, omitido")
+        return
+
+    names = [r["name"] for r in rows]
+    ratios = [r["ratio"] for r in rows]
+    colors = [COLOR_PON if r > 1.05 else (COLOR_BASELINE if r < 0.95 else "#8b949e")
+              for r in ratios]
+
+    fig, ax = plt.subplots(figsize=(11, max(4, 0.45 * len(names))))
+    bars = ax.barh(names, ratios, color=colors, edgecolor="black", alpha=0.9)
+    ax.axvline(1.0, color="#c9d1d9", linestyle="--", linewidth=1.5,
+               label="Paridade 1.0×")
+    for bar, r in zip(bars, ratios):
+        ax.annotate(f'{r:.2f}×', xy=(r, bar.get_y() + bar.get_height() / 2),
+                    xytext=(4 if r >= 1 else -4, 0),
+                    textcoords="offset points", ha="left" if r >= 1 else "right",
+                    va="center", fontsize=9, fontweight="bold",
+                    color=COLOR_PON if r >= 1 else COLOR_BASELINE)
+    ax.set_xlabel('Ratio de Tempo (Baseline / PON-BEAM)', fontsize=11, fontweight='bold')
+    ax.set_title('15. Suíte Fair — Cenários de Fortaleza da BEAM Original\n'
+                 '(dados reais; >1× = PON mais rápido, <1× = regressão do PON)',
+                 fontsize=12, fontweight='bold', pad=15)
+    ax.legend(loc='lower right', fontsize=10, frameon=True)
+    ax.grid(axis='x', linestyle=':', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(os.path.join(OUTPUT_DIR, "chart_15_fair_parity.png"), dpi=300)
+    plt.close()
+    print("Gerado: chart_15_fair_parity.png")
+
+
 if __name__ == '__main__':
+    print("Gerando todos os gráficos PON-BEAM...")
     chart_1_big_o_mailbox()
     chart_2_energy_cpu_idle()
     chart_3_ets_throughput()
@@ -332,4 +396,5 @@ if __name__ == '__main__':
     chart_12_realworld_pubsub_fanout()
     chart_13_realworld_c10m_websockets()
     chart_14_realworld_db_observability_trend()
-    print("\nTodos os 14 gráficos essenciais e do mundo real foram gerados com sucesso!")
+    chart_15_fair_parity()
+    print("\nTodos os 15 gráficos essenciais e do mundo real foram gerados com sucesso!")

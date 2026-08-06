@@ -178,6 +178,7 @@ The PON-BEAM project is validated against 5 core engineering pillars:
 
 - **PON-BEAM Thesis**: [`docs/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md`](file:///home/sanonichan/projetos/pon-beam/docs/EX-37-pon-beam-arquitetura-orientada-a-notificacoes.md)
 - **Engineering Plan**: [`docs/EX-38-pon-beam-plano-de-engenharia.md`](file:///home/sanonichan/projetos/pon-beam/docs/EX-38-pon-beam-plano-de-engenharia.md)
+- **Mapping & Fluxes Spec**: [`docs/EX-39-pon-beam-mapeamento-arquitetura-e-fluxos.md`](file:///home/sanonichan/projetos/pon-beam/docs/EX-39-pon-beam-mapeamento-arquitetura-e-fluxos.md)
 - **Evolution Saga**: [`docs/STORYTELLING.md`](file:///home/sanonichan/projetos/pon-beam/docs/STORYTELLING.md)
 - **Final Project Report**: [`docs/RPT-FINAL-pon-beam.md`](file:///home/sanonichan/projetos/pon-beam/docs/RPT-FINAL-pon-beam.md)
 - **Agentic Guidelines**: [`AGENTS.md`](file:///home/sanonichan/projetos/pon-beam/AGENTS.md)
