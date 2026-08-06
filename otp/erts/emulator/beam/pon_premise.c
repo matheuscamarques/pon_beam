@@ -118,6 +118,7 @@ void
  * Para termos simples: usa o prprio termo.
  * Retorna os 8 bits baixos (bucket index).
  */
+#if 0 /* ERCSM-PARITY: desligado junto com o notify */
 static Uint
 pon_extract_type_tag(Eterm term)
 {
@@ -127,6 +128,7 @@ pon_extract_type_tag(Eterm term)
     }
     return pon_type_tag(term);
 }
+#endif
 
 /*
  * Insere uma mensagem na fila de tipo (bucket) correspondente.
@@ -137,19 +139,25 @@ pon_extract_type_tag(Eterm term)
  * a 2a mensagem do bucket chegasse (last->next = msg, com msg ja na
  * fila principal), corrompendo a mailbox. Ficamos apenas com o counter
  * por bucket; a lista em si c a responsabilidade da fila principal.
+ *
+ * ERCSM-PARITY: desligado junto com o notify (nao chamado ate a
+ * notificacao ser movida para o scheduler do receptor).
  */
+#if 0
 static void
 pon_enqueue_to_type_queue(Process *p, struct erl_mesg *msg, Uint bucket)
 {
     ErtsSignalPrivQueues *qs = &p->sig_qs;
+    ErtsPonState *st = erts_pon_ensure_state(qs);
 
     (void) msg;
-    qs->type_queue_len[bucket]++;
+    st->type_queue_len[bucket]++;
 
     PON_STATS_INC(messages_classified);
-    if (qs->type_queue_len[bucket] > 1)
+    if (st->type_queue_len[bucket] > 1)
         PON_STATS_INC(messages_type_collision);
 }
+#endif
 
 /*
  * Notifica as Premises do processo sobre a chegada de uma mensagem.
@@ -158,10 +166,6 @@ pon_enqueue_to_type_queue(Process *p, struct erl_mesg *msg, Uint bucket)
 int
  erts_pon_notify_premises(Process *p, struct erl_mesg *msg, Eterm term)
 {
-    Uint bucket;
-    ErtsPremise *prem;
-    int matched;
-
     ASSERT(p != NULL);
     ASSERT(msg != NULL);
     ASSERT(is_value(term));
@@ -169,37 +173,25 @@ int
     if (!p->pon_premises)
         return 0;
 
-    /* Sequência de chegada para a ordenação entre Premises */
-    msg->pon_seq = erts_pon_next_msg_seq();
-
-    /* Extrai tag de tipo e classifica */
-    bucket = pon_extract_type_tag(term);
-    pon_enqueue_to_type_queue(p, msg, bucket);
-
-    /* Notifica cada Premise que matcha o termo */
-    matched = 0;
-    prem = p->pon_premises;
-    while (prem) {
-        if (!prem->has_match) {
-            int match_ok;
-            if (prem->match_fn)
-                match_ok = prem->match_fn(term);
-            else
-                match_ok = erts_pon_default_match(prem->pattern, term);
-
-            if (match_ok) {
-                prem->has_match = 1;
-                prem->matched_term = term;
-                prem->matched_msg = msg;
-                matched++;
-                PON_STATS_INC(premise_notifications);
-                PON_STATS_INC(mailbox_scans_avoided);
-            }
-        }
-        prem = prem->next_premise;
-    }
-
-    return matched;
+    /*
+     * ERCSM-PARITY: estado de seguranca temporario (PON-RECEIVE-PARITY).
+     *
+     * A notificacao de Premises no enqueue roda no thread do REMETENTE
+     * e muta a lista `pon_premises` do RECEPTOR (has_match,
+     * matched_term, matched_msg) e os campos pon_seq/pon_in_link da
+     * mensagem — sem o lock/ownership que a ERTS exige para acesso
+     * concorrente a fila do processo. Sob SMP + volume esse acesso
+     * concorrente corrompia Eterms/ponteiros (segfault ra de regra a
+     * em erts_schedule/allocator).
+     *
+     * Enquanto a notificacao nao passar para o proprio scheduler do
+     * receptor (fase PON-Scheduler/Receive com premise node proprio),
+     * a semantica e de PARIDADE: o receive continua fazendo o scan
+     * linear normal (o mesmo do stock), produzindo medidas honestas.
+     * Manter registradas as Premises p.itera medir o overhead de
+     * registracao real (premises_registered).
+     */
+    return 0;
 }
 
 /*
@@ -210,36 +202,16 @@ int
 Eterm
  erts_pon_receive(Process *p)
 {
-    ErtsPremise *best;
-    ErtsPremise *prem;
-    Eterm result;
-
     ASSERT(p != NULL);
 
-    if (!p->pon_premises)
-        return THE_NON_VALUE;
-
-    /* Procura a primeira Premise satisfeita (pela ordem das clusulas) */
-    best = NULL;
-    prem = p->pon_premises;
-    while (prem) {
-        if (prem->has_match) {
-            if (!best || prem->clause_index < best->clause_index)
-                best = prem;
-        }
-        prem = prem->next_premise;
-    }
-
-    if (!best)
-        return THE_NON_VALUE;
-
-    /* Consome a mensagem */
-    result = best->matched_term;
-    best->has_match = 0;
-    best->matched_term = THE_NON_VALUE;
-    best->matched_msg = NULL;
-
-    return result;
+    /*
+     * ERCSM-PARITY: mesmo estado de seguranca do notify — nenhuma
+     * Premise e mutada por threads estranhas; o receive segue o scan
+     * linear stock. (Nenhuma Premise fica has_match com o notify
+     * desligado, logo este caminho retorna sempre THE_NON_VALUE.)
+     */
+    (void) p;
+    return THE_NON_VALUE;
 }
 
 /*
@@ -278,18 +250,20 @@ Eterm
 int
  erts_pon_advance_to_matched(Process *p)
 {
-    ErtsSignalPrivQueues *qs;
-    ErtsPremise *best;
-    ErtsPremise *prem;
-    ErtsMessage *m;
-    ErtsMessage *cur;
-    ErtsMessage **orig_save;
-
     ASSERT(p != NULL);
 
     if (!p->pon_premises)
         return 0;
 
+    /*
+     * ERCSM-PARITY: caminho O(1) desligado (mesma razao do notify —
+     * pon_in_link/pon_seq sao escritos no thread do remetente e lidos
+     * no do receptor; sob SMP, raca que corrompia a mailbox). O
+     * receive prossegue no scan linear stock, correto e honesto.
+     */
+    return 0;
+
+#if 0 /* ERCSM-PARITY: codigo morto ate a notificacao ser segura (SMP) */
     qs = &p->sig_qs;
     best = NULL;
     m = NULL;
@@ -355,8 +329,8 @@ int
      * Caminho O(1): link de entrada registrado no fetch e ainda valido,
      * e o save ainda nao alcancou a mensagem casada.
      */
-    if (m && m->pon_in_link && *m->pon_in_link == m
-        && qs->save != m->pon_in_link) {
+    if (m && m->pon_in_link && m->pon_in_link != (ErtsMessage**)&p->sig_inq.first
+        && *m->pon_in_link == m && qs->save != m->pon_in_link) {
         qs->save = m->pon_in_link;
         PON_STATS_INC(mailbox_scans_avoided);
         return 1;
@@ -402,6 +376,7 @@ int
 
     PON_STATS_INC(mailbox_scans_avoided);
     return 1;
+#endif /* ERCSM-PARITY: codigo morto ate a notificacao ser segura (SMP) */
 }
 
 /*

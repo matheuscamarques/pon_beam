@@ -2415,32 +2415,6 @@ erts_msgq_set_save_next(Process *c_p)
         if (erts_pon_advance_to_matched(c_p))
             return;
     }
-#ifdef PON_DBG_HOOK
-    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)) {
-        static int pon_hook_n = 0;
-        if (pon_hook_n < 50) {
-            pon_hook_n++;
-            fprintf(stderr, "PON-HOOK #%d p=%p prem=%p save_info=%d "
-                    "save=%p first=%p\n", pon_hook_n, (void*) c_p,
-                    (void*) c_p->pon_premises,
-                    (int) ERTS_MQ_GET_SAVE_INFO(c_p),
-                    (void*) c_p->sig_qs.save, (void*) c_p->sig_qs.first);
-        }
-    }
-#else
-#define PON_DBG_HOOK 1
-    if (ERTS_UNLIKELY(c_p->pon_premises != NULL)) {
-        static int pon_hook_n = 0;
-        if (pon_hook_n < 50) {
-            pon_hook_n++;
-            fprintf(stderr, "PON-HOOK #%d p=%p prem=%p save_info=%d "
-                    "save=%p first=%p\n", pon_hook_n, (void*) c_p,
-                    (void*) c_p->pon_premises,
-                    (int) ERTS_MQ_GET_SAVE_INFO(c_p),
-                    (void*) c_p->sig_qs.save, (void*) c_p->sig_qs.first);
-        }
-    }
-#endif
 #endif
     if (sigp && ERTS_SIG_IS_RECV_MARKER(sigp))
         sigpp = erts_msgq_pass_recv_markers(c_p, sigpp);

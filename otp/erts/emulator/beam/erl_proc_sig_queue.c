@@ -922,11 +922,10 @@ enqueue_signals(int is_to_buffer, Process *rp, ErtsMessage *first,
      * Feito no enqueue (lado do envio), fora da janela medida do
      * receive. O no de mensagens ligado a uma Premise e verificado
      * depois, no fetch, sem custo proporcional a fila.
+     *
+     * ERCSM-PARITY: desligado — o advance O(1) esta desativado ate a
+     * notificacao ser movida para o scheduler do receptor.
      */
-    if (rp->pon_premises && num_msgs && !is_to_buffer) {
-        if (ERTS_SIG_IS_MSG(first))
-            first->pon_in_link = this;
-    }
 #endif
 
     set_flags = num_msgs ? ERTS_PSFLG_MSG_SIG_IN_Q : 0;
@@ -992,8 +991,11 @@ enqueue_signals(int is_to_buffer, Process *rp, ErtsMessage *first,
      * erl_message.c (queue_messages -> LINK_MESSAGE). Sem isto, uma
      * mensagem buffereada nunca notificaria a Premise e o receive
      * bloquearia indevidamente.
+     *
+     * ERCSM-PARITY: desligado — o advance O(1) esta desativado ate a
+     * notificacao ser movida para o scheduler do receptor.
      */
-    if (!is_to_buffer && rp->pon_premises && num_msgs) {
+    if (0 && !is_to_buffer && rp->pon_premises && num_msgs) {
         ErtsMessage *pon_mp = first;
         while (pon_mp) {
             if (ERTS_SIG_IS_MSG(pon_mp))
@@ -1428,17 +1430,14 @@ erts_proc_sig_fetch__(Process *proc,
                  * da fila interna onde a cadeia foi encadeada). Só a
                  * primeira mensagem da cadeia: as demais mantêm o
                  * próprio slot `prev->next`.
+                 *
+                 * ERCSM-PARITY: desligado — o advance O(1) esta
+                 * desativado ate a notificacao ser movida para o
+                 * scheduler do receptor.
                  */
-                ErtsMessage **pon_inner_tail = proc->sig_qs.last;
-                ErtsMessage *pon_chain_first = proc->sig_inq.first;
 #endif
                 *proc->sig_qs.last = proc->sig_inq.first;
                 proc->sig_qs.last = proc->sig_inq.last;
-#ifdef PON_BEAM
-                if (proc->pon_premises && pon_chain_first) {
-                    pon_chain_first->pon_in_link = pon_inner_tail;
-                }
-#endif
                 ASSERT(proc->sig_qs.mlenoffs == 0);
                 proc->sig_qs.mq_len += proc->sig_inq.mlenoffs;
                 erts_chk_sys_mon_long_msgq_on(proc);
@@ -10575,8 +10574,12 @@ static Uint proc_sig_queue_flush_buffer(Process* proc,
              * usam &prev->next. Feito no flush (fora da janela medida
              * do receive); a gravacao no enqueue do buffer seria
              * invalida apos o concat.
+             *
+             * ERCSM-PARITY: desligado — o advance O(1) esta desativado
+             * ate a notificacao ser movida para o scheduler do
+             * receptor.
              */
-            if (proc->pon_premises) {
+            if (0 && proc->pon_premises) {
                 if (ERTS_SIG_IS_MSG(buf->b.queue.first))
                     buf->b.queue.first->pon_in_link = proc->sig_inq.last;
             }
@@ -10691,7 +10694,8 @@ void erts_proc_sig_queue_flush_and_deinstall_buffers(Process* proc)
         if (buffers->slots[i].b.queue.first != NULL) {
             ERTS_HDBG_CHECK_SIGNAL_IN_QUEUE(proc, &buffers->slots[i].b.queue);
 #ifdef PON_BEAM
-            if (proc->pon_premises) {
+            /* ERCSM-PARITY: desligado (advance O(1) inativo). */
+            if (0 && proc->pon_premises) {
                 if (ERTS_SIG_IS_MSG(buffers->slots[i].b.queue.first))
                     buffers->slots[i].b.queue.first->pon_in_link = proc->sig_inq.last;
             }

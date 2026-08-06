@@ -7057,17 +7057,15 @@ schedule_process(Process *p, erts_aint32_t in_state, ErtsProcLocks locks)
 static ERTS_INLINE void
 erts_pon_schedule_notify(Process *p)
 {
+    /*
+     * Noop seguro: implementacao de ready_list com node proprio
+     * (nao embutido no Process) + consumer real no scheduler
+     * (pon_condition_wait) chega na fase PON-Scheduler.
+     * Ate la, apenas incrementamos os stats a fim de medir
+     * a frequencia de schedule via `erts_pon_schedule_notify`.
+     */
     PON_STATS_INC(condition_notifications);
-    if (p) {
-        ErtsSchedulerData *esdp = erts_proc_sched_data(p);
-        if (!esdp) {
-            esdp = erts_get_scheduler_data();
-        }
-        if (esdp && esdp->pon_condition.epoll_fd != -1) {
-            pon_condition_notify(&esdp->pon_condition, (void *)p);
-            PON_STATS_INC(condition_wakeups);
-        }
-    }
+    (void) p;
 }
 #endif
 
@@ -9721,7 +9719,7 @@ Process *erts_schedule(ErtsSchedulerData *esdp, Process *p, int calls)
             esdp = p->scheduler_data;
 	    ASSERT(!ERTS_SCHEDULER_IS_DIRTY(esdp));
 
-            if (esdp->pending_signal.sig) {
+            if (esdp && esdp->pending_signal.sig) {
                 erts_proc_sig_send_pending(p, esdp);
             }
 	}
@@ -12615,19 +12613,10 @@ erl_create_process(Process* parent, /* Parent of process (default group leader).
 
     p->static_flags = 0;
 #ifdef PON_BEAM
-    /* PON-BEAM: Premises comecam desregistradas; type_queues zeradas.
-     * (o allocator do ERTS nao zera memoria — sem isso o hook de
-     * erl_message.c poderia ler ponteiro lixo e corromper termos) */
+    /* PON-BEAM: Estado Lazy (alocado sob demanda apenas se o processo usar PON). */
     p->pon_premises = NULL;
     p->pon_gc = NULL;
-    {
-        int bi;
-        for (bi = 0; bi < PON_NUM_TYPE_BUCKETS; bi++) {
-            p->sig_qs.type_queues[bi] = NULL;
-            p->sig_qs.type_queue_len[bi] = 0;
-            p->sig_qs.type_save[bi] = NULL;
-        }
-    }
+    p->sig_qs.pon_state = NULL;
 #endif
     if (so->flags & SPO_SYSTEM_PROC)
 	p->static_flags |= ERTS_STC_FLG_SYSTEM_PROC;
@@ -13332,6 +13321,11 @@ void erts_init_empty_process(Process *p)
     p->sig_qs.mlenoffs = 0;
     p->sig_qs.nmsigs.next = NULL;
     p->sig_qs.nmsigs.last = NULL;
+#ifdef PON_BEAM
+    p->pon_premises = NULL;
+    p->pon_gc = NULL;
+    p->sig_qs.pon_state = NULL;
+#endif
     p->sig_inq_contention_counter = 0;
     p->sig_inq.first = NULL;
     p->sig_inq.last = &p->sig_inq.first;
@@ -13487,6 +13481,9 @@ delete_process(Process* p)
 
     /* PON-BEAM: libera o estado do GC por notificação. */
     erts_pon_gc_destroy_state(p);
+
+    /* PON-BEAM: libera o estado lazy de type_queues se alocado. */
+    erts_pon_free_state(&p->sig_qs);
 #endif
 
     /* Cleanup psd */

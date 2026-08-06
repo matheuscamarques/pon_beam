@@ -631,4 +631,7 @@ ifneq ($(MAKECMDGOALS),clean)
 endif
 endif
 
+# fecha a cadeia ifeq ($(TYPE),debug)/else do topo do arquivo
+endif
+
 # eof

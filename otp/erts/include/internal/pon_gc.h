@@ -163,5 +163,10 @@ void pon_gc_reset(PonGcState *gc);
 void pon_gc_stats(PonGcState *gc, uint64_t *live, uint64_t *dead,
                   uint64_t *notifications, uint64_t *scanned);
 
+struct process;
+PonGcState *erts_pon_gc_state(struct process *p);
+void erts_pon_gc_destroy_state(struct process *p);
+void erts_pon_gc_process_gc(struct process *p);
+
 #endif /* PON_BEAM */
 #endif /* PON_GC_H__ */

@@ -516,37 +516,19 @@ erts_pon_gc_process_gc(Process *p)
     if (!p)
         return;
 
-    PonGcState *gc = erts_pon_gc_state(p);
-    if (!gc)
-        return;
-
-    if (gc->total_nodes == 0) {
-        size_t heap_words = (p->htop > p->heap) ? (p->htop - p->heap) : 0;
-        size_t stack_words = (STACK_START(p) > p->stop) ? (STACK_START(p) - p->stop) : 0;
-        size_t total_words = heap_words + stack_words;
-
-        if (total_words > 0) {
-            PonGcNode *root = pon_gc_node_create(gc, (void *)p->stop, stack_words * sizeof(Eterm));
-            if (root) {
-                pon_gc_add_root(gc, root);
-                size_t num_chunks = (heap_words > 10) ? 10 : (heap_words > 0 ? heap_words : 1);
-                for (size_t i = 0; i < num_chunks; i++) {
-                    PonGcNode *child = pon_gc_node_create(gc, (void *)(p->heap + (i * (heap_words / num_chunks))), (heap_words / num_chunks) * sizeof(Eterm));
-                    if (child) {
-                        pon_gc_add_ref(root, child);
-                    }
-                }
-            }
-        }
-    }
-
-    if (gc->total_nodes > 0) {
-        pon_gc_mark(gc);
-        uint64_t dead = gc->total_nodes - gc->live_nodes;
-        PON_STATS_ADD(gc_notifications_sent, gc->notifications_sent);
-        PON_STATS_ADD(gc_scans_avoided, dead + 1);
-        PON_STATS_INC(gc_incremental_steps);
-    }
+    /*
+     * Seguro: apenas instrumentacao. A construcao de nos PON-GC
+     * acontece exclusivamente pelo caminho BIF (pon_gc_node_create),
+     * que aloca payloads proprios via erts_alloc(ERTS_ALC_T_PON_GC).
+     *
+     * A versa anterior construia nos apontando para dentro do heap
+     * do processo (p->heap/p->stop). Na destruicao (pon_gc_destroy /
+     * pon_gc_node_free) esses ponteiros interiores eram passados a
+     * erts_free(), que os interpretava como blocos proprios do
+     * allocator — lixo no prefixo do carrier -> crash
+     * "erts_alcu_free_thr_pref / enqueue_dealloc_other_instance".
+     */
+    PON_STATS_INC(gc_incremental_steps);
 }
 
 #endif /* PON_BEAM */

@@ -381,6 +381,18 @@ typedef struct {
 /* Size of default message buffer (erl_message.c) */
 #define ERL_MESSAGE_BUF_SZ 500
 
+#ifdef PON_BEAM
+#ifndef PON_NUM_TYPE_BUCKETS
+#define PON_NUM_TYPE_BUCKETS 256
+#endif
+
+typedef struct ErtsPonState_ {
+    ErtsMessage *type_queues[PON_NUM_TYPE_BUCKETS];
+    Sint         type_queue_len[PON_NUM_TYPE_BUCKETS];
+    ErtsMessage *type_save[PON_NUM_TYPE_BUCKETS];
+} ErtsPonState;
+#endif
+
 typedef struct {
     /*
      * ** The signal queues private to a process. **
@@ -442,17 +454,30 @@ typedef struct {
 
 #ifdef PON_BEAM
     /*
-     * PON-BEAM: filas de mensagens classificadas por tipo.
-     * Cada bucket corresponde a um tag de tipo (byte baixo do header).
-     * Em vez de lista linear única, as mensagens so distribudas
-     * por bucket — permitindo notificao diretas Premises.
+     * PON-BEAM: estado Lazy alocado sob demanda (8 bytes por PCB quando NULL).
+     * Elimina overhead de alocação no spawn e reduz o memory footprint.
      */
-    ErtsMessage *type_queues[PON_NUM_TYPE_BUCKETS];
-    Sint         type_queue_len[PON_NUM_TYPE_BUCKETS];
-    /* Save pointer por bucket (equivalente PON ao save tradicional) */
-    ErtsMessage *type_save[PON_NUM_TYPE_BUCKETS];
+    ErtsPonState *pon_state;
 #endif
 } ErtsSignalPrivQueues;
+
+#ifdef PON_BEAM
+static ERTS_INLINE ErtsPonState* erts_pon_ensure_state(ErtsSignalPrivQueues *qs) {
+    if (ERTS_UNLIKELY(qs->pon_state == NULL)) {
+        ErtsPonState *st = (ErtsPonState*) erts_alloc(ERTS_ALC_T_PROC, sizeof(ErtsPonState));
+        sys_memset(st, 0, sizeof(ErtsPonState));
+        qs->pon_state = st;
+    }
+    return qs->pon_state;
+}
+
+static ERTS_INLINE void erts_pon_free_state(ErtsSignalPrivQueues *qs) {
+    if (ERTS_UNLIKELY(qs->pon_state != NULL)) {
+        erts_free(ERTS_ALC_T_PROC, qs->pon_state);
+        qs->pon_state = NULL;
+    }
+}
+#endif
 
 typedef struct ErtsSignalInQueue_ {
     ErtsMessage* first;
