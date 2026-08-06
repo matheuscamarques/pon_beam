@@ -28,17 +28,18 @@ NC='\033[0m'
 source "$HARNESS_ROOT/config/baseline.sh"
 source "$HARNESS_ROOT/config/ponbeam.sh"
 
-# Parse args
 FASE_FILTER=""
 ONLY_FILTER=""
 LIST_MODE=0
+USE_SMP=0
 
 for arg in "$@"; do
     case "$arg" in
         --fase=*) FASE_FILTER="${arg#--fase=}" ;;
         --only=*) ONLY_FILTER="${arg#--only=}" ;;
         --list)   LIST_MODE=1 ;;
-        *)        echo "Uso: $0 [--fase=N[,M]] [--only=nome] [--list]"; exit 1 ;;
+        --smp)    USE_SMP=1 ;;
+        *)        echo "Uso: $0 [--fase=N[,M]] [--only=nome] [--list] [--smp]"; exit 1 ;;
     esac
 done
 
@@ -92,7 +93,13 @@ compile_benchmarks() {
 # stock deve ser rebuildado como FLAVOR=emu para comparação justa.
 #
 # Override: ERTS_EXTRA_ARGS="+S 2:2" ./run.sh
-ERTS_EXTRA_ARGS="${ERTS_EXTRA_ARGS:-+S 1:1}"
+if [ "$USE_SMP" -eq 1 ]; then
+    NUM_CORES=$(nproc 2>/dev/null || echo 8)
+    ERTS_EXTRA_ARGS="+S ${NUM_CORES}:${NUM_CORES}"
+    echo -e "${CYAN}=== Modo SMP Ativado: ${NUM_CORES} Schedulers (+S ${NUM_CORES}:${NUM_CORES}) ===${NC}"
+else
+    ERTS_EXTRA_ARGS="${ERTS_EXTRA_ARGS:-+S 1:1}"
+fi
 
 run_benchmarks() {
     local erl=$1

@@ -73,6 +73,12 @@ benchmark-only-%:
 benchmark-fair:
 	cd $(HARNESS_DIR) && ./run.sh --only=fair
 
+benchmark-smp:
+	cd $(HARNESS_DIR) && ./run.sh --smp
+
+benchmark-fair-smp:
+	cd $(HARNESS_DIR) && ./run.sh --only=fair --smp
+
 benchmark-list:
 	cd $(HARNESS_DIR) && ./run.sh --list
 
